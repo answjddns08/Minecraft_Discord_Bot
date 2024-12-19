@@ -3,6 +3,7 @@ from discord.ext import commands
 from mcrcon import MCRcon
 import os
 from dotenv import load_dotenv
+import subprocess
 
 # RCON 및 디스코드 설정
 RCON_HOST = "127.0.0.1"  # 마인크래프트 서버 주소
@@ -15,6 +16,7 @@ TOKEN = os.getenv('MinecraftBot')
 CHANNEL_ID = 1080485159696089170  # 메시지를 보낼 채널 ID
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents=intents)
 
 server_up = False
@@ -45,12 +47,6 @@ async def send_discord_message(message): # 특정 체널에 메세지 보내는 
 async def on_ready():
     await bot.tree.sync()  # 슬래시 명령어 동기화
     print(f"Logged in as {bot.user}")
-    await check_server_status()
-
-    if server_up:
-        await send_discord_message("🎮 마인크래프트 서버가 켜졌습니다!")
-    else:
-        await send_discord_message("🛑 마인크래프트 서버가 꺼져 있습니다.")
 
 @bot.command()
 async def bye(ctx):
