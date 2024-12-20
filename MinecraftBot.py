@@ -54,7 +54,6 @@ async def on_ready():
 
 @bot.tree.command(name="hello", description="Say hello!")
 async def hello(interaction: discord.Interaction):
-    execute_command("tmux new-session -d -s Minecraft_Server \'cd /home/redeyes/Documents/Minecraft/ && ./start.sh\'")
     await interaction.response.send_message("Hello, World! 👋")
 
 @bot.tree.command(name="check", description="Check the server")
