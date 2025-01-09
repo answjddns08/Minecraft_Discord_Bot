@@ -62,7 +62,7 @@ async def hello(interaction: discord.Interaction):
 
 @bot.tree.command(name="check", description="서버 이름과 상태 확인")
 async def check_server(interaction: discord.Interaction):
-    lastWorld = os.getenv('lastWorld')
+    lastWorld = dotenv.get_key(".env", "lastWorld").strip("'")
     if is_server_running():
         await interaction.response.send_message("월드 이름: " + lastWorld + "\n" + "🎮 마인크래프트 서버가 켜져 있습니다!")
     else:
@@ -89,7 +89,7 @@ async def start_server(interaction: discord.Interaction):
         await interaction.response.send_message("서버가 이미 실행 중입니다. 🔄")
     else:
         execute_command(f"tmux new-session -d -s {TMUX_SESSION_NAME} \'{SERVER_COMMAND}\'")
-        await interaction.response.send_message("마인크래프트 서버를 시작합니다. ⏳")
+        await interaction.response.send_message("마인크래프트 서버를 시작합니다.\n실행하는데 시간이 좀 걸려요⏳")
 
 @bot.tree.command(name="stop", description="마크 서버 종료")
 async def stop_server(interaction: discord.Interaction):
@@ -159,7 +159,7 @@ async def rename_world(interaction: discord.Interaction, current_name: str, new_
     try:
 
         # 현재 월드가 존재하는지 확인
-        if not execute_command(f"ls ~/Documents/MinecraftWorlds/ | grep {current_name}"):
+        if not os.path.exists(f"~/Documents/MinecraftWorlds/{current_name}"):
             await interaction.response.send_message(f"'{current_name}' 월드를 찾을 수 없습니다. ❌")
             return
 
@@ -170,7 +170,7 @@ async def rename_world(interaction: discord.Interaction, current_name: str, new_
             return
 
         # 새 이름으로 된 월드가 이미 존재하는지 확인
-        if execute_command(f"ls ~/Documents/MinecraftWorlds/ | grep {new_name}"):
+        if os.path.exists(f"~/Documents/MinecraftWorlds/{new_name}"):
             await interaction.response.send_message(f"'{new_name}' 이름의 월드가 이미 존재합니다. ❌")
             return
 
@@ -194,7 +194,7 @@ async def create_world(interaction: discord.Interaction, world_name: str):
     try:
 
         # 동일한 이름의 월드가 이미 존재하는지 확인
-        if execute_command(f"ls ~/Documents/MinecraftWorlds/ | grep {world_name}"):
+        if os.path.exists(f"~/Documents/MinecraftWorlds/{world_name}"):
             await interaction.response.send_message(f"'{world_name}' 이름의 월드가 이미 존재합니다. ❌")
             return
 
