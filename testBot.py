@@ -60,6 +60,8 @@ async def on_ready():
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello, World! 👋")
 
+# region 기본적인 서버 관리
+
 @bot.tree.command(name="check", description="서버 이름과 상태 확인")
 async def check_server(interaction: discord.Interaction):
     lastWorld = dotenv.get_key(".env", "lastWorld").strip("'")
@@ -102,6 +104,10 @@ async def stop_server(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("서버가 실행 중이지 않습니다. ❌")
 
+# endregion
+
+# region 월드 관리
+
 @bot.tree.command(name="list", description="저장된 월드 목록 확인")
 async def list_worlds(interaction: discord.Interaction):
     try:
@@ -127,12 +133,11 @@ async def select_world(interaction: discord.Interaction, world_name: str):
         return
     
     # 현재 월드가 존재하는지 확인
-    if not execute_command(f"ls ~/Documents/MinecraftWorlds/ | grep {world_name}"):
+    if not os.path.exists(os.path.join(WORLDS_DIR, world_name)):
         await interaction.response.send_message(f"**{world_name}** 월드를 찾을 수 없습니다. ❌")
         return
-    
 
-    # 기존 월드 파일들을 lastWorld 폴더로 이동
+    # 기존 월드 파일들을 lastWorld 폴더로 업로드
     last_world = dotenv.get_key(".env", "lastWorld").strip("'")
     try:
         execute_command(f"mv ~/Documents/Minecraft/world* ~/Documents/MinecraftWorlds/{last_world}/ 2>/dev/null")
@@ -141,7 +146,7 @@ async def select_world(interaction: discord.Interaction, world_name: str):
         await interaction.response.send_message("현재 월드 업로드 실패 ❌") 
         return
     
-    # 선택된 월드의 파일들을 Minecraft 폴더로 이동
+    # 선택된 월드의 파일들을 Minecraft 폴더로 다운로드
     try:
         execute_command(f"mv ~/Documents/MinecraftWorlds/{world_name}/world* ~/Documents/Minecraft/ 2>/dev/null")
     except Exception as e:
@@ -158,19 +163,19 @@ async def select_world(interaction: discord.Interaction, world_name: str):
 async def rename_world(interaction: discord.Interaction, current_name: str, new_name: str):
     try:
 
-        # 현재 월드가 존재하는지 확인
-        if not os.path.exists(f"~/Documents/MinecraftWorlds/{current_name}"):
-            await interaction.response.send_message(f"'{current_name}' 월드를 찾을 수 없습니다. ❌")
-            return
-
         # lastWorld인지 확인
         last_world = dotenv.get_key(".env", "lastWorld").strip("'")
         if current_name == last_world and is_server_running():
             await interaction.response.send_message("현재 사용중인 월드의 이름은 변경할 수 없습니다. ❌")
             return
 
+        # 현재 월드가 존재하는지 확인
+        if not os.path.exists(os.path.join(WORLDS_DIR, current_name)):
+            await interaction.response.send_message(f"'{current_name}' 월드를 찾을 수 없습니다. ❌")
+            return
+
         # 새 이름으로 된 월드가 이미 존재하는지 확인
-        if os.path.exists(f"~/Documents/MinecraftWorlds/{new_name}"):
+        if os.path.exists(os.path.join(WORLDS_DIR, new_name)):
             await interaction.response.send_message(f"'{new_name}' 이름의 월드가 이미 존재합니다. ❌")
             return
 
@@ -194,7 +199,7 @@ async def create_world(interaction: discord.Interaction, world_name: str):
     try:
 
         # 동일한 이름의 월드가 이미 존재하는지 확인
-        if os.path.exists(f"~/Documents/MinecraftWorlds/{world_name}"):
+        if os.path.exists(os.path.join(WORLDS_DIR, world_name)):
             await interaction.response.send_message(f"'{world_name}' 이름의 월드가 이미 존재합니다. ❌")
             return
 
@@ -207,5 +212,6 @@ async def create_world(interaction: discord.Interaction, world_name: str):
         print(f"Error creating world: {e}")
         await interaction.response.send_message("월드를 생성하는 중 오류가 발생했습니다. ❌")
 
+# endregion
 
 bot.run(TOKEN)
