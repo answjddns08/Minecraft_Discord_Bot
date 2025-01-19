@@ -1,3 +1,4 @@
+import time
 import discord
 from discord.ext import commands
 from mcrcon import MCRcon
@@ -18,6 +19,7 @@ TMUX_SESSION_NAME = "Minecraft_Server"  # 세션 이름
 SERVER_COMMAND = "cd /home/redeyes/Documents/Minecraft/ && ./start.sh"  # 서버 실행 명령어
 
 WORLDS_DIR = "/home/redeyes/Documents/MinecraftWorlds"  # 월드 파일들이 있는 디렉토리
+TRASH_DIR = "/home/redeyes/Documents/MinecraftWorldsTrash"  # 삭제된 월드들이 있는 디렉토리
 
 # 환경 변수에서 토큰 값 가져오기
 TOKEN = dotenv.get_key(".env","MinecraftBot")
@@ -26,13 +28,15 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 
+
+# 서버 자동 종료 관련 변수
 shutdown_time = 60 * 10  # 10분
 shutdown_task = None
 timer_task = None
 
-'''
-TODO: 플레이어가 없을 경우 타이머 종료 후 서버 종료
-'''
+# 쓰레기통에 보관되는 월드 삭제 기간
+lastTime = 30 # 30일
+deleting_task = None
 
 def execute_command(command):  # 터미널 명령 실행 함수
     try:
@@ -71,32 +75,16 @@ def save_server():
 
 @bot.event
 async def on_ready():
-    global shutdown_task
+    global shutdown_task , deleting_task
     await bot.tree.sync()  # 슬래시 명령어 동기화
     
-    if (is_server_running()):
+    if is_server_running():
         shutdown_task = asyncio.create_task(auto_shutdown())
 
-    print(f"Logged in as {bot.user}")
+    if execute_command("ls /home/redeyes/Documents/MinecraftWorldsTrash"):
+        deleting_task = asyncio.create_task(delete_worlds())
 
-@bot.tree.command(name="help", description="명령어 목록")
-async def help(interaction: discord.Interaction):
-    embed = discord.Embed(title="명령어 목록", description="📚", color=0x00ff00)
-    embed.add_field(name="/check", value="서버 이름과 상태 확인", inline=False)
-    embed.add_field(name="/players", value="마크 서버에 있는 플레이어 확인", inline=False)
-    embed.add_field(name="/start", value="마크 서버 시작", inline=False)
-    embed.add_field(name="/stop", value="마크 서버 종료", inline=False)
-    embed.add_field(name="/ping", value="디코 핑 확인", inline=False)
-    embed.add_field(name="/list", value="저장된 월드 목록 확인", inline=False)
-    embed.add_field(name="/select + {world_name}", value="월드 선택", inline=False)
-    embed.add_field(name="/rename + {current_name} + {new_name}", value="월드 이름 변경", inline=False)
-    embed.add_field(name="/create + {world_name}", value="새로운 월드 생성", inline=False)
-    embed.add_field(name="/map", value="squareMap 플러그인 지도 확인", inline=False)
-    embed.add_field(name="/reload", value="squareMap 플러그인 재시작", inline=False)
-    embed.add_field(name="/maprender", value="squareMap 플러그인 렌더 시작", inline=False)
-    embed.add_field(name="/cancelrender", value="squareMap 플러그인 렌더 취소", inline=False)
-    embed.add_field(name="/resetmap", value="squareMap 맵 리셋", inline=False)
-    await interaction.response.send_message(embed=embed)
+    print(f"Logged in as {bot.user}")
 
 # region 기본적인 서버 관리
 
@@ -225,6 +213,22 @@ async def list_worlds(interaction: discord.Interaction):
         print(f"Error listing worlds: {e}")
         await interaction.response.send_message("월드 목록을 가져오는 중 오류가 발생했습니다. ❌")
 
+@bot.tree.command(name="trashlist", description="삭제된 월드 목록 확인")
+async def list_trash_worlds(interaction: discord.Interaction):
+    try:
+        # 디렉토리 내의 폴더 목록 가져오기
+        worlds = [d for d in os.listdir(TRASH_DIR) if os.path.isdir(os.path.join(TRASH_DIR, d))]
+        
+        if worlds:
+            # 월드 목록을 깔끔하게 포맷팅
+            worlds_list = "\n".join([f"📁 {world}" for world in worlds])
+            await interaction.response.send_message(f"**삭제된 월드 목록:**\n{worlds_list}")
+        else:
+            await interaction.response.send_message("삭제된 월드가 없습니다. 🤔")
+    except Exception as e:
+        print(f"Error listing worlds: {e}")
+        await interaction.response.send_message("월드 목록을 가져오는 중 오류가 발생했습니다. ❌")
+
 @bot.tree.command(name="select", description="월드 선택")
 async def select_world(interaction: discord.Interaction, world_name: str):
     
@@ -300,7 +304,7 @@ async def create_world(interaction: discord.Interaction, world_name: str):
     try:
 
         # 동일한 이름의 월드가 이미 존재하는지 확인
-        if not execute_command(f"cd ~/Documents/MinecraftWorlds/{world_name}"):
+        if os.path.exists(os.path.join(WORLDS_DIR, world_name)):
             await interaction.response.send_message(f"'{world_name}' 이름의 월드가 이미 존재합니다. ❌")
             return
 
@@ -313,6 +317,78 @@ async def create_world(interaction: discord.Interaction, world_name: str):
         print(f"Error creating world: {e}")
         await interaction.response.send_message("월드를 생성하는 중 오류가 발생했습니다. ❌")
 
+@bot.tree.command(name="remove", description="월드 삭제")
+async def remove_world(interaction: discord.Interaction, world_name: str):
+    try:
+        # lastWorld인지 확인
+        last_world = dotenv.get_key(".env", "lastWorld").strip("'")
+        if world_name == last_world and is_server_running():
+            await interaction.response.send_message("현재 사용중인 월드는 삭제할 수 없습니다. ❌")
+            return
+
+        # 월드가 존재하는지 확인
+        if not os.path.exists(os.path.join(WORLDS_DIR, world_name)):
+            await interaction.response.send_message(f"'{world_name}' 월드를 찾을 수 없습니다. ❌")
+            return
+
+        # 월드를 쓰레기통으로 이동
+        execute_command(f"mv ~/Documents/MinecraftWorlds/{world_name} ~/Documents/MinecraftWorldsTrash/")
+
+        if not deleting_task:
+            deleting_task = asyncio.create_task(delete_worlds())
+
+        await interaction.response.send_message(f"**{world_name}** 월드를 삭제했습니다. ✅")
+
+    except Exception as e:
+        print(f"Error removing world: {e}")
+        await interaction.response.send_message("월드를 삭제하는 중 오류가 발생했습니다. ❌")
+
+@bot.tree.command(name="restore", description="월드 복구")
+async def restore_world(interaction: discord.Interaction, world_name: str):
+    try:
+        # 월드가 쓰레기통에 존재하는지 확인
+        if not os.path.exists(os.path.join(TRASH_DIR, world_name)):
+            await interaction.response.send_message(f"'{world_name}' 월드를 찾을 수 없습니다. ❌")
+            return
+
+        # 월드를 복구
+        execute_command(f"mv ~/Documents/MinecraftWorldsTrash/{world_name} ~/Documents/MinecraftWorlds/")
+
+        if not execute_command("ls /home/redeyes/Documents/MinecraftWorldsTrash"):
+            deleting_task.cancel()
+            deleting_task = None
+
+        await interaction.response.send_message(f"**{world_name}** 월드를 복구했습니다. ✅")
+
+    except Exception as e:
+        print(f"Error restoring world: {e}")
+        await interaction.response.send_message("월드를 복구하는 중 오류가 발생했습니다. ❌")
+
+async def delete_worlds():
+    while True:
+        try:
+            # 디렉토리 내의 폴더 목록 가져오기
+            worlds = [d for d in os.listdir(TRASH_DIR) if os.path.isdir(os.path.join(TRASH_DIR, d))]
+            
+            if worlds:
+                for world in worlds:
+                    # 파일 생성 시간 가져오기
+                    create_time = os.path.getctime(os.path.join(TRASH_DIR, world))
+                    current_time = time.time()
+                    time_diff = current_time - create_time
+
+                    if time_diff > lastTime * 24 * 60 * 60:
+                        # 월드 삭제
+                        execute_command(f"rm -rf ~/Documents/MinecraftWorldsTrash/{world}")
+                        print(f"Deleted world: {world}")
+            else:
+                print("No worlds to delete")
+
+        except Exception as e:
+            print(f"Error deleting worlds: {e}")
+
+        await asyncio.sleep(86400)  # 24시간마다 실행
+
 # endregion
 
 # region squareMap 플러그인 관리
@@ -324,21 +400,6 @@ async def squareMapMap(interaction: discord.Interaction):
         return
 
     await interaction.response.send_message("squareMap 지도: https://notebook.o-r.kr/squaremap/")
-
-@bot.tree.command(name="reload", description="squareMap 플러그인 재시작")
-async def squareMapReload(interaction: discord.Interaction):
-    if not is_server_running():
-        await interaction.response.send_message("서버가 켜져있지 않아요")
-        return
-
-    try:
-        # MCRcon 객체 사용
-        with MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT) as mcr:
-            response = mcr.command("squaremap reload")  # squareMap reload 명령어 실행
-            await interaction.response.send_message("squareMap 플러그인을 재시작했습니다. ✅")
-    except Exception as e:
-        print(f"Error reloading squareMap: {e}")
-        await interaction.response.send_message("squareMap 플러그인을 재시작하는 중 오류가 발생했습니다. ❌")
 
 @bot.tree.command(name="maprender", description="squareMap 플러그인 렌더 시작")
 async def squareMapRender(interaction: discord.Interaction):
