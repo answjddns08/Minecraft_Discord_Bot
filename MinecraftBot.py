@@ -1,3 +1,4 @@
+import glob
 import time
 import discord
 from discord.ext import commands
@@ -319,6 +320,7 @@ async def create_world(interaction: discord.Interaction, world_name: str):
 
 @bot.tree.command(name="remove", description="월드 삭제")
 async def remove_world(interaction: discord.Interaction, world_name: str):
+    global deleting_task
     try:
         # lastWorld인지 확인
         last_world = dotenv.get_key(".env", "lastWorld").strip("'")
@@ -345,6 +347,7 @@ async def remove_world(interaction: discord.Interaction, world_name: str):
 
 @bot.tree.command(name="restore", description="월드 복구")
 async def restore_world(interaction: discord.Interaction, world_name: str):
+    global deleting_task
     try:
         # 월드가 쓰레기통에 존재하는지 확인
         if not os.path.exists(os.path.join(TRASH_DIR, world_name)):
@@ -365,6 +368,7 @@ async def restore_world(interaction: discord.Interaction, world_name: str):
         await interaction.response.send_message("월드를 복구하는 중 오류가 발생했습니다. ❌")
 
 async def delete_worlds():
+    global lastTime
     while True:
         try:
             # 디렉토리 내의 폴더 목록 가져오기
