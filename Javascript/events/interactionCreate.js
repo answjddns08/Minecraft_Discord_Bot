@@ -14,6 +14,15 @@ export default {
 			return;
 		}
 
+		//autocomplete가 있는 경우 autocomplete 실행
+		if (interaction.isAutocomplete()) {
+			try {
+				await command.autocomplete(interaction);
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
 		try {
 			await command.execute(interaction);
 		} catch (error) {
