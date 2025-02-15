@@ -99,6 +99,11 @@ async def on_ready():
 
 # region 기본적인 서버 관리
 
+@bot.tree.command(name="ping", description="replies with pong!")
+async def ping(interaction: discord.Integration):
+    await interaction.response.send_message("Pong! " + str(round(bot.latency)) + "ms!")
+
+# TODO: check,player 명령어 통합
 
 @bot.tree.command(name="check", description="서버 이름과 상태 확인")
 async def check_server(interaction: discord.Interaction):

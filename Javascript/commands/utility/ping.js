@@ -5,6 +5,10 @@ export default {
 		.setName("ping")
 		.setDescription("Replies with Pong!"),
 	async execute(interaction) {
-		await interaction.reply("Pong!");
+		const client = await import("../../index.js");
+
+		console.log(interaction.client.ws.ping);
+
+		await interaction.reply("Pong! with" + client.client.ws.ping + "ms");
 	},
 };
