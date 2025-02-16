@@ -9,7 +9,7 @@ import { config } from "dotenv";
 export default {
 	data: new SlashCommandBuilder()
 		.setName("check")
-		.setDescription("minecraft server check"),
+		.setDescription("마크 서버 상태 확인"),
 	async execute(interaction) {
 		await interaction.deferReply();
 
