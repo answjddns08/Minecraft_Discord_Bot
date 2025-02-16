@@ -1,6 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
-import { Client } from "discord-rpc";
 import { config } from "dotenv";
 
 export default {
@@ -10,8 +9,7 @@ export default {
 	async execute(interaction) {
 		config("./.env");
 
-		const clientId = process.env.testbot_id;
-		const client = new Client({ transport: "ipc" });
+		const worldName = process.env.lastWorld;
 
 		await exec(
 			"tmux new-session -d -s Minecraft_Server 'cd /home/redeyes/Documents/Minecraft/ && ./start.sh'",
@@ -22,6 +20,16 @@ export default {
 				}
 			}
 		);
+
+		interaction.client.user.setPresence({
+			activities: [
+				{
+					name: `${worldName} 월드 실행`,
+					type: ActivityType.Playing,
+				},
+			],
+			status: "online",
+		});
 
 		await interaction.reply("start!");
 	},

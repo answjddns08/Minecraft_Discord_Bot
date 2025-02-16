@@ -1,4 +1,4 @@
-import { Events, REST, Routes } from "discord.js";
+import { Events, REST, Routes, ActivityType } from "discord.js";
 import { config } from "dotenv";
 import fs from "fs";
 import path from "path";
