@@ -44,9 +44,31 @@ export default {
 			Link
 		);
 
-		await interaction.reply({
+		const response = await interaction.reply({
 			content: `test buttons`,
 			components: [row],
+			withResponse: true,
 		});
+
+		//버튼 누른 놈이 명령어 친 놈인지 확인하는 필터
+		const collectorFilter = (i) => i.user.id === interaction.user.id;
+
+		try {
+			const confirmation =
+				await response.resource.message.awaitMessageComponent({
+					filter: collectorFilter,
+					time: 60000,
+				});
+
+			await confirmation.update({
+				content: `the custom ID is ${confirmation.customId}`,
+				components: [],
+			});
+		} catch {
+			await interaction.editReply({
+				content: "Confirmation not received within 1 minute, cancelling",
+				components: [],
+			});
+		}
 	},
 };

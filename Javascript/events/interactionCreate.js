@@ -1,5 +1,14 @@
 import { Events, MessageFlags } from "discord.js";
 
+/**
+ * 나중에 if문 여러개를 만들어서
+ * 각 버튼이나 선택 메뉴에 대한 상호작용에 대한 코드추가할 수 있음
+ * 특정 메세지나 한정된 상황이 아니라 봇 전체의 모든 버튼,메뉴 등의 처리 가능해짐
+ *
+ * 일시적인 상호작용에 적합한 Collector와 달리
+ * 영구적인 상호작용에 유용
+ */
+
 export default {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
