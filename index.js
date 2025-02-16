@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Client, GatewayIntentBits, Collection } from "discord.js";
 
-config({ path: "../.env" });
+config({ path: ".env" });
 
 export const client = new Client({
 	intents: [

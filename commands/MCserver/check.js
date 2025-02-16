@@ -13,7 +13,7 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		config({ path: "../.env" });
+		config({ path: ".env" });
 
 		const worldName = process.env.lastWorld;
 

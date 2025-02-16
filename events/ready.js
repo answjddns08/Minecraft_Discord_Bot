@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-config({ path: "../../.env" });
+config({ path: "../.env" });
 
 const clientId = process.env.testbot_id;
 const guildId = "1080485159230509096";
