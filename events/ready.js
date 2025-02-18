@@ -21,6 +21,9 @@ const commandFolders = fs.readdirSync(foldersPath);
 export default {
 	name: Events.ClientReady,
 	once: true,
+	/**
+	 * @param {import("discord.js").Client} client
+	 */
 	async execute(client) {
 		for (const folder of commandFolders) {
 			// Grab all the command files from the commands directory you created earlier

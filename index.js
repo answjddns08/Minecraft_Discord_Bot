@@ -14,8 +14,6 @@ export const client = new Client({
 	],
 });
 
-// TODO: 서버 선택할 때 choices 옵션 넣기(선택하기 쉽도록)
-
 client.commands = new Collection();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,6 +22,7 @@ const __dirname = path.dirname(__filename);
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
+// commands폴더에 있는 파일을 읽고 client.commands에 저장
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = fs
@@ -48,6 +47,7 @@ const eventFiles = fs
 	.readdirSync(eventsPath)
 	.filter((file) => file.endsWith(".js"));
 
+// events폴더에 있는 파일을 읽고 client에 이벤트 등록
 for (const file of eventFiles) {
 	const filePath = path.join(eventsPath, file);
 	const event = await import(filePath);

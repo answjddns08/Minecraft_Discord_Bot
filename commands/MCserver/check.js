@@ -5,11 +5,15 @@ import {
 	AttachmentBuilder,
 } from "discord.js";
 import { config } from "dotenv";
+import { serverCheck } from "../../functions/serverCheck.js";
 
 export default {
 	data: new SlashCommandBuilder()
 		.setName("check")
 		.setDescription("마크 서버 상태 확인"),
+	/**
+	 * @param {import('discord.js').CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 		await interaction.deferReply();
 
@@ -26,6 +30,24 @@ export default {
 		let resultEmbed = new EmbedBuilder()
 			.setTitle("**" + worldName + "**")
 			.setThumbnail("attachment://server-icon.png");
+
+		const check = serverCheck();
+
+		if (check === null) {
+			await interaction.editReply("서버 연결 실패!");
+			return;
+		} else if (!check) {
+			resultEmbed
+				.setColor(0xf70707)
+				.setDescription("The world is offline! :x:");
+
+			await interaction.editReply({
+				embeds: [resultEmbed],
+				files: [serverIcon],
+			});
+			return;
+		}
+
 		try {
 			rcon = await Rcon.connect({
 				host: "127.0.0.1",
@@ -57,14 +79,7 @@ export default {
 		} catch (error) {
 			console.error("RCON Error:", error);
 
-			resultEmbed
-				.setColor(0xf70707)
-				.setDescription("The world is offline! :x:");
-
-			await interaction.editReply({
-				embeds: [resultEmbed],
-				files: [serverIcon],
-			});
+			await interaction.reply("서버 연결 실패!");
 		} finally {
 			if (rcon) {
 				await rcon.end();
