@@ -47,6 +47,7 @@ export default {
 			option
 				.setName("newname")
 				.setDescription("새로운 월드 이름")
+				.setMaxLength(20)
 				.setRequired(true)
 		),
 	/**
@@ -65,6 +66,11 @@ export default {
 		}
 
 		const newName = interaction.options.getString("newname");
+
+		if (!worlds.includes(oldName)) {
+			interaction.reply("존재하지 않는 월드 이름입니다.");
+			return;
+		}
 
 		if (worlds.includes(newName)) {
 			interaction.reply("이미 존재하는 월드 이름입니다.");

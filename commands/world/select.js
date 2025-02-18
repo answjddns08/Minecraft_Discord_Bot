@@ -85,6 +85,13 @@ export default {
 					components: [],
 				});
 			});
+
+			collector.on("end", async () => {
+				await interaction.editReply({
+					content: "시간이 초과되었습니다.",
+					components: [],
+				});
+			});
 		} catch (error) {
 			console.error(`실행 오류: ${error}`);
 			await interaction.reply("월드 목록을 불러오는 중 오류 발생!");

@@ -25,6 +25,11 @@ export default {
 
 			const worldList = stdout.split("\n").filter((world) => world !== "");
 
+			if (worldList.length === 0) {
+				interaction.reply("월드가 없습니다.\n하나 만드십시오 휴먼");
+				return;
+			}
+
 			interaction.reply(
 				`현재 선택된 월드: **${worldName}\n\n**월드 목록\n${worldList
 					.map((world) => `- :file_folder: ${world}`)

@@ -23,37 +23,35 @@ const getWorldList = (directory) => {
 };
 
 export default {
-	data: new SlashCommandBuilder()
-		.setName("restore")
-		.setDescription("월드 복원"),
+	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),
 	/**
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
 		try {
-			const TrashWorldList = await getWorldList(TrashWorldDir);
+			const worldList = await getWorldList(worldDir);
 
-			if (TrashWorldList.length === 0) {
-				await interaction.reply("복원할 월드가 없습니다.");
+			if (worldList.length === 0) {
+				await interaction.reply("삭제할 월드가 없습니다.");
 				return;
 			}
 
 			const selectList = new StringSelectMenuBuilder()
 				.setCustomId("WorldRestore")
-				.setPlaceholder("복원할 월드 선택")
+				.setPlaceholder("삭제할 월드 선택")
 				.addOptions(
-					TrashWorldList.map((world) =>
+					worldList.map((world) =>
 						new StringSelectMenuOptionBuilder()
 							.setLabel(world)
 							.setValue(world)
-							.setDescription(`${world} 월드 복원`)
+							.setDescription(`${world} 월드 삭제`)
 					)
 				);
 
 			const row = new ActionRowBuilder().addComponents(selectList);
 
 			const response = await interaction.reply({
-				content: "복원할 월드를 선택해주세요.\n\n-# 명령어 친 사람만 사용 가능",
+				content: "삭제할 월드를 선택해주세요.\n\n-# 명령어 친 사람만 사용 가능",
 				components: [row],
 				withResponse: true,
 			});
@@ -71,10 +69,10 @@ export default {
 				const worldName = i.values[0];
 
 				await new Promise((resolve, reject) => {
-					exec(`mv ${TrashWorldDir}/${worldName} ${worldDir}`, (error) => {
+					exec(`mv ${worldDir}/${worldName} ${TrashWorldDir}`, (error) => {
 						if (error) {
 							console.error(`실행 오류: ${error}`);
-							interaction.editReply("월드 복원 중 오류 발생!");
+							interaction.editReply("월드 삭제 중 오류 발생!");
 							reject(error);
 							return;
 						}
@@ -83,7 +81,7 @@ export default {
 				});
 
 				await interaction.editReply({
-					content: `**${worldName}** 월드를 복원했습니다.`,
+					content: `**${worldName}** 월드를 삭제했습니다.`,
 					components: [],
 				});
 			});
