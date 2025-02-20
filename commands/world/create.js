@@ -4,23 +4,9 @@ import {
 	ButtonStyle,
 	ActionRowBuilder,
 } from "discord.js";
-import { exec } from "child_process";
-import { config } from "dotenv";
-
-const worldDir = "/home/redeyes/Documents/MinecraftWorlds";
-
-const getWorldList = () => {
-	return new Promise((resolve, reject) => {
-		exec(`ls ${worldDir}`, (error, stdout, stderr) => {
-			if (error) {
-				reject(error);
-				return;
-			}
-			const worlds = stdout.split("\n").filter((world) => world.trim() !== "");
-			resolve(worlds);
-		});
-	});
-};
+import fs from "fs";
+import dotenv from "dotenv";
+import config from "../../config.json" assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -39,7 +25,7 @@ export default {
 	async execute(interaction) {
 		const worldName = interaction.options.getString("worldname");
 
-		const worldList = await getWorldList();
+		const worldList = fs.readdir(config.worldDir);
 
 		if (worldList.includes(worldName)) {
 			await interaction.reply("이미 존재하는 월드입니다.");
@@ -98,7 +84,7 @@ export default {
 				time: 180000,
 			});
 
-			config({ path: ".env" });
+			dotenv.config({ path: ".env" });
 
 			if (confirmation.customId === "setLastWorld") {
 				await confirmation.update({

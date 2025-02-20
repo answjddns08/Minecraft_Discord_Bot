@@ -1,0 +1,12 @@
+{
+	"sessionName": "Minecraft_Server",
+	"sessionCommand": "cd /home/redeyes/Documents/Minecraft/ && ./start.sh",
+	"worldDir": "/home/redeyes/Documents/MinecraftWorlds",
+	"TrashWorldDir": "/home/redeyes/Documents/MinecraftWorldsTrash",
+	"RCsettings": {
+		"host": "127.0.0.1",
+		"port": 25575,
+		"password": "0808"
+	},
+	"lastWorld": "TestWorld"
+}

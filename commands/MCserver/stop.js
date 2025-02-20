@@ -1,7 +1,8 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
 import { exec } from "child_process";
-import { serverCheck } from "../../functions/serverCheck.js";
+import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
+import config from "../../config.json" assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -19,39 +20,30 @@ export default {
 		} else if (!check) {
 			await interaction.reply("월드가 꺼져 있어요. :x:");
 			return;
-		} else {
-			const rcon = new Rcon({
-				host: "localhost",
-				port: 25575,
-				password: "password",
-			});
-
-			await rcon.connect();
-
-			const response = await rcon.send("list");
-
-			await rcon.end();
-
-			if (response.split(":")[1]?.trim().split(",").length > 1) {
-				await interaction.reply("플레이어가 서버에 남아있어요! :x:");
-				return;
-			}
 		}
 
 		const rcon = new Rcon({
-			host: "localhost",
-			port: 25575,
-			password: "password",
+			host: config.RCsettings.host,
+			port: config.RCsettings.port,
+			password: config.RCsettings.password,
 		});
 
 		await rcon.connect();
+
+		const response = await rcon.send("list");
+
+		if (response.split(":")[1]?.trim().split(",").length > 1) {
+			await interaction.reply("플레이어가 서버에 남아있어요! :x:");
+			await rcon.end();
+			return;
+		}
 
 		await rcon.send("stop");
 
 		await rcon.end();
 
 		await exec(
-			"tmux kill-session -t Minecraft_Server",
+			`tmux kill-session -t ${config.sessionName}`,
 			(error, stdout, stderr) => {
 				if (error) {
 					console.error(`실행 오류: ${error}`);

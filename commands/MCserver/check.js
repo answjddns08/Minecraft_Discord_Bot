@@ -4,8 +4,17 @@ import {
 	EmbedBuilder,
 	AttachmentBuilder,
 } from "discord.js";
-import { config } from "dotenv";
-import { serverCheck } from "../../functions/serverCheck.js";
+import dotenv from "dotenv";
+import serverCheck from "../../functions/serverCheck.js";
+import config from "../../config.json" assert { type: "json" };
+
+/*
+	썸네일 설정 변수들 (로컬 파일 사용 기준)
+	외부에 있는 사진 파일을 사용할 경우 
+	attachment,files: [] 제거하고 setThumbnail에 URL 기입
+*/
+const thumbnailDir = "/home/redeyes/Documents/Minecraft/server-icon.png";
+const thumbnailFile = "server-icon.png";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -17,21 +26,19 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		config({ path: ".env" });
+		dotenv.config({ path: ".env" });
 
 		const worldName = process.env.lastWorld;
 
-		const serverIcon = new AttachmentBuilder(
-			"/home/redeyes/Documents/Minecraft/server-icon.png"
-		);
+		const serverIcon = new AttachmentBuilder(thumbnailDir);
 
 		let rcon;
 
 		let resultEmbed = new EmbedBuilder()
 			.setTitle("**" + worldName + "**")
-			.setThumbnail("attachment://server-icon.png");
+			.setThumbnail(`attachment://${thumbnailFile}`);
 
-		const check = serverCheck();
+		const check = await serverCheck();
 
 		if (check === null) {
 			await interaction.editReply("서버 연결 실패!");
@@ -50,7 +57,7 @@ export default {
 
 		try {
 			rcon = await Rcon.connect({
-				host: "127.0.0.1",
+				host: config.RCsettings.host,
 				port: 25575,
 				password: "0808",
 			});
@@ -79,7 +86,7 @@ export default {
 		} catch (error) {
 			console.error("RCON Error:", error);
 
-			await interaction.reply("서버 연결 실패!");
+			await interaction.editReply("서버 연결 실패!");
 		} finally {
 			if (rcon) {
 				await rcon.end();

@@ -6,7 +6,7 @@ import { Client, GatewayIntentBits, Collection } from "discord.js";
 
 config({ path: ".env" });
 
-export const client = new Client({
+const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,

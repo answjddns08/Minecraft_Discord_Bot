@@ -1,7 +1,8 @@
 import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
-import { config } from "dotenv";
-import { serverCheck } from "../../functions/serverCheck.js";
+import dotenv from "dotenv";
+import serverCheck from "../../functions/serverCheck.js";
+import config from "../../config.json" assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -22,7 +23,7 @@ export default {
 		}
 
 		await exec(
-			"tmux new-session -d -s Minecraft_Server 'cd /home/redeyes/Documents/Minecraft/ && ./start.sh'",
+			`tmux new-session -d -s ${config.sessionName} '${config.sessionCommand}'`,
 			(error, stdout, stderr) => {
 				if (error) {
 					console.error(`실행 오류: ${error}`);
@@ -32,7 +33,7 @@ export default {
 			}
 		);
 
-		config(".env");
+		dotenv.config(".env");
 
 		const worldName = process.env.lastWorld;
 

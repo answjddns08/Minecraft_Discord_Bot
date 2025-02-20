@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { exec } from "child_process";
 import { config } from "dotenv";
-import { serverCheck } from "../../functions/serverCheck.js";
+import serverCheck from "../../functions/serverCheck.js";
 
 const worldDir = "/home/redeyes/Documents/MinecraftWorlds";
 
