@@ -12,7 +12,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const check = serverCheck();
+		const check = await serverCheck();
 
 		if (check === null) {
 			interaction.reply("월드 종료 중 오류 발생!");

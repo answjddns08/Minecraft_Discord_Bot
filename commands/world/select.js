@@ -4,25 +4,11 @@ import {
 	StringSelectMenuOptionBuilder,
 	SlashCommandBuilder,
 } from "discord.js";
-import { exec } from "child_process";
-import { config } from "dotenv";
+import dotenv from "dotenv";
+import { promises as fs } from "fs";
+import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
-
-const worldDir = "/home/redeyes/Documents/MinecraftWorlds";
-
-// exec 함수를 Promise로 감싸서 비동기 처리
-const getWorldList = () => {
-	return new Promise((resolve, reject) => {
-		exec(`ls ${worldDir}`, (error, stdout, stderr) => {
-			if (error) {
-				reject(error);
-				return;
-			}
-			const worlds = stdout.split("\n").filter((world) => world.trim() !== "");
-			resolve(worlds);
-		});
-	});
-};
+import config from "../../config.json" assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder().setName("select").setDescription("월드 선택"),
@@ -30,7 +16,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const check = serverCheck();
+		const check = await serverCheck();
 
 		if (check === null) {
 			await interaction.reply("서버 상태를 확인하는 중 오류 발생!");
@@ -42,10 +28,10 @@ export default {
 			return;
 		}
 
-		config({ path: ".env" });
+		dotenv.config({ path: ".env" });
 
 		try {
-			const worldList = await getWorldList();
+			const worldList = await fs.readdir(config.worldDir);
 
 			const selectList = new StringSelectMenuBuilder()
 				.setCustomId("WorldSelect")
@@ -78,12 +64,24 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				process.env.lastWorld = worldName;
-
 				await interaction.editReply({
 					content: `**${worldName}** 월드를 선택했습니다.`,
 					components: [],
 				});
+
+				const selectedFiles = await fs.readdir(
+					path.join(config.worldDir, worldName)
+				);
+
+				const lastWorldFiles = (await fs.readdir(config.minecraftDir)).filter(
+					(file) => file.startsWith(config.worldLevelName)
+				);
+
+				let oldPaths = lastWorldFiles.map((world) => {
+					path.join(config.minecraftDir, world);
+				});
+
+				process.env.lastWorld = worldName;
 			});
 
 			collector.on("end", async () => {

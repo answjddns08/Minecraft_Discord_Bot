@@ -4,23 +4,9 @@ import {
 	StringSelectMenuOptionBuilder,
 	SlashCommandBuilder,
 } from "discord.js";
-import { exec } from "child_process";
-
-const worldDir = "/home/redeyes/Documents/MinecraftWorlds";
-const TrashWorldDir = "/home/redeyes/Documents/MinecraftWorldsTrash";
-
-const getWorldList = (directory) => {
-	return new Promise((resolve, reject) => {
-		exec(`ls ${directory}`, (error, stdout, stderr) => {
-			if (error) {
-				reject(error);
-				return;
-			}
-			const worlds = stdout.split("\n").filter((world) => world.trim() !== "");
-			resolve(worlds);
-		});
-	});
-};
+import { promises as fs } from "fs";
+import path from "path";
+import config from "../../config.json" assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),
@@ -29,7 +15,7 @@ export default {
 	 */
 	async execute(interaction) {
 		try {
-			const worldList = await getWorldList(worldDir);
+			const worldList = await fs.readdir(config.worldDir);
 
 			if (worldList.length === 0) {
 				await interaction.reply("삭제할 월드가 없습니다.");
@@ -56,29 +42,28 @@ export default {
 				withResponse: true,
 			});
 
-			// 명령어 친 사람만 사용 가능
+			// 버튼을 누른 유저가 명령어를 사용한 유저인지 확인
 			const collectorFilter = (i) => i.user.id === interaction.user.id;
 
 			const collector =
 				response.resource.message.createMessageComponentCollector({
 					filter: collectorFilter,
-					time: 180000, // 3분
+					time: 180000, // 3min
 				});
 
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				await new Promise((resolve, reject) => {
-					exec(`mv ${worldDir}/${worldName} ${TrashWorldDir}`, (error) => {
-						if (error) {
-							console.error(`실행 오류: ${error}`);
-							interaction.editReply("월드 삭제 중 오류 발생!");
-							reject(error);
-							return;
-						}
-						resolve();
-					});
-				});
+				try {
+					const sourcePath = path.join(config.worldDir, worldName);
+					const destPath = path.join(config.TrashWorldDir, worldName);
+
+					await fs.rename(sourcePath, destPath);
+				} catch (error) {
+					console.error(error);
+					await interaction.editReply("월드 제거중 오류 발생!");
+					return;
+				}
 
 				await interaction.editReply({
 					content: `**${worldName}** 월드를 삭제했습니다.`,

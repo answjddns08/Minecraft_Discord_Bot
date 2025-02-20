@@ -1,31 +1,11 @@
 import { SlashCommandBuilder } from "discord.js";
-import { exec } from "child_process";
-import { config } from "dotenv";
+import dotenv from "dotenv";
 import serverCheck from "../../functions/serverCheck.js";
+import { promises as fs } from "fs";
+import path from "path";
+import config from "../../config.json" assert { type: "json" };
 
-const worldDir = "/home/redeyes/Documents/MinecraftWorlds";
-
-/**
- * @param {string} directory
- * @returns {Promise<string[]>}
- */
-const getWorldList = (directory) => {
-	return new Promise((resolve, reject) => {
-		exec(`ls ${directory}`, (error, stdout, stderr) => {
-			if (error) {
-				reject(error);
-				return;
-			}
-			const worlds = stdout.split("\n").filter((world) => world.trim() !== "");
-			resolve(worlds);
-		});
-	});
-};
-
-/**
- * @type {string[]} worlds
- */
-const worlds = await getWorldList(worldDir);
+const worlds = await fs.readdir(config.worldDir);
 
 export default {
 	data: new SlashCommandBuilder()
@@ -54,11 +34,11 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		config({ path: ".env" });
+		dotenv.config({ path: ".env" });
 
 		const oldName = interaction.options.getString("oldname");
 
-		if (oldName === process.env.lastWorld && serverCheck()) {
+		if (oldName === process.env.lastWorld && (await serverCheck())) {
 			interaction.reply(
 				"서버가 실행 중일 때는 현재 선택된 월드의 이름을 변경할 수 없습니다."
 			);
@@ -68,28 +48,26 @@ export default {
 		const newName = interaction.options.getString("newname");
 
 		if (!worlds.includes(oldName)) {
-			interaction.reply("존재하지 않는 월드 이름입니다.");
+			await interaction.reply("존재하지 않는 월드 이름입니다.");
 			return;
 		}
 
 		if (worlds.includes(newName)) {
-			interaction.reply("이미 존재하는 월드 이름입니다.");
+			await interaction.reply("이미 존재하는 월드 이름입니다.");
 			return;
 		}
 
-		await exec(
-			`mv ${worldDir}/${oldName} ${worldDir}/${newName}`,
-			(error, stdout, stderr) => {
-				if (error) {
-					console.error(`실행 오류: ${error}`);
-					interaction.reply("월드 이름 변경 중 오류 발생!");
-					return;
-				}
+		try {
+			const oldPath = path.join(config.worldDir, oldName);
+			const newPath = path.join(config.worldDir, newName);
 
-				interaction.reply(
-					`월드 이름 변경 완료: **${oldName}** -> **${newName}**`
-				);
-			}
-		);
+			await fs.rename(oldPath, newPath);
+		} catch (error) {
+			console.log(error);
+
+			await interaction.reply("월드 이름 변경중 오류 발생!");
+
+			return;
+		}
 	},
 };

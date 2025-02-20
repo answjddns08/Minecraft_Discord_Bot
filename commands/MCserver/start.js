@@ -12,7 +12,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const check = serverCheck();
+		const check = await serverCheck();
 
 		if (check === null) {
 			interaction.reply("월드 실행 중 오류 발생!");
@@ -36,6 +36,11 @@ export default {
 		dotenv.config(".env");
 
 		const worldName = process.env.lastWorld;
+
+		if (worldName === "") {
+			await interaction.reply("월드가 정해져 있지 않습니다 :x:");
+			return;
+		}
 
 		interaction.client.user.setPresence({
 			activities: [

@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
-import { config } from "dotenv";
-import { exec } from "child_process";
-
-const worldDir = "/home/redeyes/Documents/MinecraftWorlds";
+import dotenv from "dotenv";
+import fs from "fs";
+import config from "../../config.json" assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -12,29 +11,27 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		config({ path: ".env" });
+		dotenv.config({ path: ".env" });
 
-		const worldName = process.env.lastWorld;
+		const selectedWorld = process.env.lastWorld;
 
-		await exec(`ls ${worldDir}`, (error, stdout, stderr) => {
-			if (error) {
-				console.error(`실행 오류: ${error}`);
-				interaction.reply("월드 목록을 불러오는 중 오류 발생!");
-				return;
-			}
-
-			const worldList = stdout.split("\n").filter((world) => world !== "");
+		try {
+			const worldList = await fs.promises.readdir(config.worldDir);
 
 			if (worldList.length === 0) {
-				interaction.reply("월드가 없습니다.\n하나 만드십시오 휴먼");
+				await interaction.reply("월드가 없습니다\n하나 만드십시오 휴먼");
 				return;
 			}
 
-			interaction.reply(
-				`현재 선택된 월드: **${worldName}\n\n**월드 목록\n${worldList
+			await interaction.reply(
+				`현재 선택된 월드: **${selectedWorld}**\n\n월드 목록\n${worldList
 					.map((world) => `- :file_folder: ${world}`)
 					.join("\n")}`
 			);
-		});
+		} catch (error) {
+			console.log(error);
+			await interaction.reply("월드 목록을 불러오던 중 오류 발생!");
+			return;
+		}
 	},
 };

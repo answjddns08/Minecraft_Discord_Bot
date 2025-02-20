@@ -5,6 +5,7 @@ import {
 	ActionRowBuilder,
 } from "discord.js";
 import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
 import config from "../../config.json" assert { type: "json" };
 
@@ -25,30 +26,15 @@ export default {
 	async execute(interaction) {
 		const worldName = interaction.options.getString("worldname");
 
-		const worldList = fs.readdir(config.worldDir);
+		const worldList = await fs.promises.readdir(config.worldDir);
 
 		if (worldList.includes(worldName)) {
 			await interaction.reply("이미 존재하는 월드입니다.");
 			return;
 		}
 
-		const createWorld = (worldName) => {
-			return new Promise((resolve, reject) => {
-				exec(
-					`cd ${worldDir} && mkdir ${worldName}`,
-					(error, stdout, stderr) => {
-						if (error) {
-							reject(error);
-							return;
-						}
-						resolve();
-					}
-				);
-			});
-		};
-
 		try {
-			await createWorld(worldName);
+			await fs.promises.mkdir(path.join(config.worldDir, worldName));
 			await interaction.reply(`${worldName} 월드 생성 완료!`);
 		} catch (error) {
 			console.error(error);
@@ -68,8 +54,6 @@ export default {
 
 		const row = new ActionRowBuilder().addComponents(confirmBtn, cancelBtn);
 
-		const interactionId = interaction.user.id;
-
 		const response = await interaction.followUp({
 			content: "생성한 월드를 실행할 월드로 설정하시겠습니까?",
 			components: [row],
@@ -81,7 +65,7 @@ export default {
 		try {
 			const confirmation = await response.awaitMessageComponent({
 				filter,
-				time: 180000,
+				time: 180000, // 3min
 			});
 
 			dotenv.config({ path: ".env" });

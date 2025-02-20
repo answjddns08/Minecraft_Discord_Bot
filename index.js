@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Client, GatewayIntentBits, Collection } from "discord.js";
@@ -20,14 +20,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const foldersPath = path.join(__dirname, "commands");
-const commandFolders = fs.readdirSync(foldersPath);
+const commandFolders = await fs.readdir(foldersPath);
 
 // commands폴더에 있는 파일을 읽고 client.commands에 저장
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs
-		.readdirSync(commandsPath)
-		.filter((file) => file.endsWith(".js"));
+	const commandFiles = (await fs.readdir(commandsPath)).filter((file) =>
+		file.endsWith(".js")
+	);
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = await import(filePath);
@@ -43,9 +43,9 @@ for (const folder of commandFolders) {
 }
 
 const eventsPath = path.join(__dirname, "events");
-const eventFiles = fs
-	.readdirSync(eventsPath)
-	.filter((file) => file.endsWith(".js"));
+const eventFiles = (await fs.readdir(eventsPath)).filter((file) =>
+	file.endsWith(".js")
+);
 
 // events폴더에 있는 파일을 읽고 client에 이벤트 등록
 for (const file of eventFiles) {
