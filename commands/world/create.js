@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import config from "../../config.json" assert { type: "json" };
+import moveWorlds from "../../functions/moveWorlds.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -71,12 +72,22 @@ export default {
 			dotenv.config({ path: ".env" });
 
 			if (confirmation.customId === "setLastWorld") {
+				await moveWorlds(
+					config.minecraftDir,
+					path.join(config.worldDir, process.env.lastWorld)
+				);
+
+				await moveWorlds(
+					path.join(config.worldDir, worldName),
+					config.minecraftDir
+				);
+
+				process.env.lastWorld = worldName;
+
 				await confirmation.update({
 					content: `선택된 월드: **${process.env.lastWorld}** -> **${worldName}**`,
 					components: [],
 				});
-
-				process.env.lastWorld = worldName;
 			} else {
 				await confirmation.update({
 					content: "월드 설정이 취소되었습니다.",

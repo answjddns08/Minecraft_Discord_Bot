@@ -9,6 +9,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
+import moveWorlds from "../../functions/moveWorlds.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("select").setDescription("월드 선택"),
@@ -64,21 +65,21 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
+				const lastWorld = process.env.lastWorld;
+
+				await moveWorlds(
+					config.minecraftDir,
+					path.join(config.worldDir, lastWorld)
+				);
+
+				await moveWorlds(
+					path.join(config.worldDir, worldName),
+					config.minecraftDir
+				);
+
 				await interaction.editReply({
-					content: `**${worldName}** 월드를 선택했습니다.`,
+					content: `선택된 월드: **${lastWorld}** -> **${worldName}**`,
 					components: [],
-				});
-
-				const selectedFiles = await fs.readdir(
-					path.join(config.worldDir, worldName)
-				);
-
-				const lastWorldFiles = (await fs.readdir(config.minecraftDir)).filter(
-					(file) => file.startsWith(config.worldLevelName)
-				);
-
-				let oldPaths = lastWorldFiles.map((world) => {
-					path.join(config.minecraftDir, world);
 				});
 
 				process.env.lastWorld = worldName;
