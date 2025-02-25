@@ -14,6 +14,9 @@ const client = new Client({
 	],
 });
 
+//discord bot token
+const token = process.env.testbot;
+
 client.commands = new Collection();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -60,4 +63,4 @@ for (const file of eventFiles) {
 	}
 }
 
-client.login(process.env.testbot);
+client.login(token);

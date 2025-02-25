@@ -70,9 +70,12 @@ export default {
 
 				await changeWorld(lastWorld, worldName);
 
-				await ServerSetting.updateServerProperties(
-					await worldSetting.readWorldSettings()[worldName]
-				);
+				const worldSet = await worldSetting.readWorldSettings()[worldName];
+
+				await ServerSetting.updateServerProperties(worldSet);
+
+				if (worldSet.op == true) {
+				}
 
 				await interaction.editReply({
 					content: `선택된 월드: **${lastWorld}** -> **${worldName}**`,

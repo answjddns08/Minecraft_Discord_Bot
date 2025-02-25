@@ -15,21 +15,21 @@ async function changeWorld(serverWorldName, savedWorldName) {
 		(world) => world.startsWith("ops.json")
 	);
 
-	if (serverWorlds.length === 0) return;
+	if (serverWorlds.length !== 0) {
+		serverWorlds.map(async (world) => {
+			await fs.rename(
+				path.join(config.worldDir, serverWorldName, world),
+				path.join(newPath, world)
+			);
+		});
+	}
 
-	serverWorlds.map(async (world) => {
+	if (serverOpsJson.length !== 0) {
 		await fs.rename(
-			path.join(config.worldDir, serverWorldName, world),
-			path.join(newPath, world)
+			path.join(config.worldDir, serverWorldName, serverOpsJson[0]),
+			path.join(newPath, serverOpsJson[0])
 		);
-	});
-
-	if (serverOpsJson.length === 0) return;
-
-	await fs.rename(
-		path.join(oldPath, serverOpsJson[0]),
-		path.join(newPath, serverOpsJson[0])
-	);
+	}
 
 	const savedWorlds = (
 		await fs.readdir(path.join(config.worldDir, savedWorldName))
@@ -39,21 +39,21 @@ async function changeWorld(serverWorldName, savedWorldName) {
 		await fs.readdir(path.join(config.worldDir, savedWorldName))
 	).filter((world) => world.startsWith("ops.json"));
 
-	if (savedWorlds.length === 0) return;
+	if (savedWorlds.length !== 0) {
+		savedWorlds.map(async (world) => {
+			await fs.rename(
+				path.join(config.worldDir, savedWorldName, world),
+				path.join(config.minecraftDir, world)
+			);
+		});
+	}
 
-	savedWorlds.map(async (world) => {
+	if (savedOpsJson.length !== 0) {
 		await fs.rename(
-			path.join(config.worldDir, savedWorldName, world),
-			path.join(config.minecraftDir, world)
+			path.join(config.worldDir, savedWorldName, savedOpsJson[0]),
+			path.join(config.minecraftDir, savedOpsJson[0])
 		);
-	});
-
-	if (savedOpsJson.length === 0) return;
-
-	await fs.rename(
-		path.join(config.worldDir, savedWorldName, savedOpsJson[0]),
-		path.join(config.minecraftDir, savedOpsJson[0])
-	);
+	}
 }
 
 export default changeWorld;
