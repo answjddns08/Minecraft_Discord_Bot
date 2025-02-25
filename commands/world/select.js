@@ -6,10 +6,11 @@ import {
 } from "discord.js";
 import dotenv from "dotenv";
 import { promises as fs } from "fs";
-import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
-import moveWorlds from "../../functions/moveWorlds.js";
+import changeWorld from "../../functions/changeWorlds.js";
+import worldSetting from "../../functions/worldSetting.js";
+import ServerSetting from "../../functions/ServerSetting.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("select").setDescription("월드 선택"),
@@ -67,14 +68,10 @@ export default {
 
 				const lastWorld = process.env.lastWorld;
 
-				await moveWorlds(
-					config.minecraftDir,
-					path.join(config.worldDir, lastWorld)
-				);
+				await changeWorld(lastWorld, worldName);
 
-				await moveWorlds(
-					path.join(config.worldDir, worldName),
-					config.minecraftDir
+				await ServerSetting.updateServerProperties(
+					await worldSetting.readWorldSettings()[worldName]
 				);
 
 				await interaction.editReply({

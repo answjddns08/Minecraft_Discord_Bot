@@ -33,7 +33,7 @@ export default {
 			}
 		);
 
-		dotenv.config(".env");
+		dotenv.config({ path: ".env" });
 
 		const worldName = process.env.lastWorld;
 
