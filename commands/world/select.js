@@ -11,6 +11,7 @@ import config from "../../config.json" assert { type: "json" };
 import changeWorld from "../../functions/changeWorlds.js";
 import worldSetting from "../../functions/worldSetting.js";
 import ServerSetting from "../../functions/ServerSetting.js";
+import giveOp from "../../functions/giveOp.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("select").setDescription("월드 선택"),
@@ -40,10 +41,7 @@ export default {
 				.setPlaceholder("월드 선택")
 				.addOptions(
 					worldList.map((world) =>
-						new StringSelectMenuOptionBuilder()
-							.setLabel(world)
-							.setValue(world)
-							.setDescription(`${world} 월드 선택`)
+						new StringSelectMenuOptionBuilder().setLabel(world).setValue(world)
 					)
 				);
 
@@ -70,11 +68,12 @@ export default {
 
 				await changeWorld(lastWorld, worldName);
 
-				const worldSet = await worldSetting.readWorldSettings()[worldName];
+				const worldSet = (await worldSetting.readWorldSettings())[worldName];
 
 				await ServerSetting.updateServerProperties(worldSet);
 
-				if (worldSet.op == true) {
+				if (worldSet.op === true) {
+					await giveOp();
 				}
 
 				await interaction.editReply({

@@ -2,14 +2,10 @@ import { promises as fs } from "fs";
 import path from "path";
 import config from "../config.json" assert { type: "json" };
 
-/*
-오브젝트 형태로 월드 설정(난이도, 지형 설정)을 받고 그걸 server.properties에 적용하는 함수
-*/
-
 /**
  * server.properties 파일을 읽어오는 함수
  * @returns {Promise<Object>} server.properties 파일의 설정 데이터
- * @throws {Error} Error
+ * @throws {Error} 파일 읽기 실패 시 에러
  */
 async function readServerProperties() {
 	try {
@@ -26,7 +22,7 @@ async function readServerProperties() {
 		});
 		return properties;
 	} catch (err) {
-		throw err;
+		throw new Error(`서버 속성 파일 읽기 실패: ${err.message}`);
 	}
 }
 
@@ -34,7 +30,7 @@ async function readServerProperties() {
  * server.properties 파일을 업데이트하는 함수
  * @param {Object} newSettings 업데이트할 설정
  * @returns {Promise<void>}
- * @throws {Error} Error
+ * @throws {Error} 파일 쓰기 실패 시 에러
  */
 async function updateServerProperties(newSettings) {
 	try {
@@ -43,9 +39,13 @@ async function updateServerProperties(newSettings) {
 		const propertiesString = Object.entries(updatedSettings)
 			.map(([key, value]) => `${key}=${value}`)
 			.join("\n");
-		await fs.writeFile(serverPropertiesPath, propertiesString, "utf8");
+		await fs.writeFile(
+			path.join(config.minecraftDir, "server.properties"),
+			propertiesString,
+			"utf8"
+		);
 	} catch (err) {
-		throw err;
+		throw new Error(`서버 속성 파일 업데이트 실패: ${err.message}`);
 	}
 }
 

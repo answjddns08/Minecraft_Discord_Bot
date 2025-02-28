@@ -13,6 +13,7 @@ import config from "../../config.json" assert { type: "json" };
 import worldSetting from "../../functions/worldSetting.js";
 import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";
+import giveOp from "../../functions/giveOp.js";
 
 /*
 	월드의 정보를 어디다가 저장하지?
@@ -225,6 +226,10 @@ export default {
 						process.env.lastWorld = worldName;
 
 						ServerSetting.updateServerProperties(worldSettings);
+
+						if (opEnable) {
+							await giveOp();
+						}
 
 						await i.update({
 							content: `선택된 월드: **${process.env.lastWorld}** -> **${worldName}**`,

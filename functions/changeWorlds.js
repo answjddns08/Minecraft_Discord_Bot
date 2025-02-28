@@ -7,27 +7,27 @@ import config from "../config.json" assert { type: "json" };
  * @param {String} savedWorldName - 월드 보관 폴더 내 월드 파일
  */
 async function changeWorld(serverWorldName, savedWorldName) {
-	const serverWorlds = (
-		await fs.readdir(path.join(config.minecraftDir))
-	).filter((world) => world.startsWith(config.worldLevelName));
+	const serverWorlds = (await fs.readdir(config.minecraftDir)).filter((world) =>
+		world.startsWith(config.worldLevelName)
+	);
 
-	const serverOpsJson = (await fs.readdir(config.minecraftDir)).filter(
-		(world) => world.startsWith("ops.json")
+	const serverOpsJson = (await fs.readdir(config.minecraftDir)).filter((file) =>
+		file.startsWith("ops.json")
 	);
 
 	if (serverWorlds.length !== 0) {
 		serverWorlds.map(async (world) => {
 			await fs.rename(
-				path.join(config.worldDir, serverWorldName, world),
-				path.join(newPath, world)
+				path.join(config.minecraftDir, world),
+				path.join(config.worldDir, serverWorldName, world)
 			);
 		});
 	}
 
 	if (serverOpsJson.length !== 0) {
 		await fs.rename(
-			path.join(config.worldDir, serverWorldName, serverOpsJson[0]),
-			path.join(newPath, serverOpsJson[0])
+			path.join(config.minecraftDir, serverOpsJson[0]),
+			path.join(config.worldDir, serverWorldName, serverOpsJson[0])
 		);
 	}
 
@@ -37,7 +37,7 @@ async function changeWorld(serverWorldName, savedWorldName) {
 
 	const savedOpsJson = (
 		await fs.readdir(path.join(config.worldDir, savedWorldName))
-	).filter((world) => world.startsWith("ops.json"));
+	).filter((file) => file.startsWith("ops.json"));
 
 	if (savedWorlds.length !== 0) {
 		savedWorlds.map(async (world) => {

@@ -43,6 +43,8 @@ async function giveOp() {
 
 		// ops.json 파일에 쓰기
 		await fs.writeFile(opsPath, JSON.stringify(opsData, null, 2), "utf8");
+
+		return;
 	} catch (err) {
 		throw err;
 	}
