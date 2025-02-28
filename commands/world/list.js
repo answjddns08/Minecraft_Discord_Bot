@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from "discord.js";
-import dotenv from "dotenv";
 import fs from "fs";
 import config from "../../config.json" assert { type: "json" };
 
@@ -11,9 +10,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		dotenv.config({ path: ".env" });
-
-		const selectedWorld = process.env.lastWorld;
+		const selectedWorld = config.lastWorld;
 
 		try {
 			const worldList = await fs.promises.readdir(config.worldDir);

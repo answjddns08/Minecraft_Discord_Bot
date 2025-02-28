@@ -4,7 +4,6 @@ import {
 	EmbedBuilder,
 	AttachmentBuilder,
 } from "discord.js";
-import dotenv from "dotenv";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
 
@@ -26,16 +25,12 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		dotenv.config({ path: ".env" });
-
-		const worldName = process.env.lastWorld;
-
 		const serverIcon = new AttachmentBuilder(thumbnailDir);
 
 		let rcon;
 
 		let resultEmbed = new EmbedBuilder()
-			.setTitle("**" + worldName + "**")
+			.setTitle("**" + config.lastWorld + "**")
 			.setThumbnail(`attachment://${thumbnailFile}`);
 
 		const check = await serverCheck();

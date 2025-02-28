@@ -1,13 +1,14 @@
 {
-	"sessionName": "Minecraft_Server",
-	"sessionCommand": "cd /home/redeyes/Documents/Minecraft/ && ./start.sh",
-	"minecraftDir": "/home/redeyes/Documents/Minecraft",
-	"worldDir": "/home/redeyes/Documents/MinecraftWorlds",
-	"TrashWorldDir": "/home/redeyes/Documents/MinecraftWorldsTrash",
-	"worldLevelName": "world",
-	"RCsettings": {
-		"host": "127.0.0.1",
-		"port": 25575,
-		"password": "0808"
-	}
+  "sessionName": "Minecraft_Server",
+  "sessionCommand": "cd /home/redeyes/Documents/Minecraft/ && ./start.sh",
+  "minecraftDir": "/home/redeyes/Documents/Minecraft",
+  "worldDir": "/home/redeyes/Documents/MinecraftWorlds",
+  "TrashWorldDir": "/home/redeyes/Documents/MinecraftWorldsTrash",
+  "worldLevelName": "world",
+  "RCsettings": {
+    "host": "localhost",
+    "port": 25575,
+    "password": "0808"
+  },
+  "lastWorld": "geonchug"
 }

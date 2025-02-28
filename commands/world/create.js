@@ -8,12 +8,12 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import dotenv from "dotenv";
 import config from "../../config.json" assert { type: "json" };
 import worldSetting from "../../functions/worldSetting.js";
 import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
+import updateLastWorld from "../../functions/UpdateLastWorld.js";
 
 /*
 	월드의 정보를 어디다가 저장하지?
@@ -132,7 +132,7 @@ export default {
 			gameMode: null,
 		};
 
-		const opEnable = null;
+		let opEnable = null;
 
 		const filter = (interaction) => interaction.user.id === interaction.user.id;
 
@@ -197,13 +197,12 @@ export default {
 				});
 			}
 
-			worldSettings.difficulty = worldSettings.difficulty || world.difficulty;
-			worldSettings.gameMode = worldSettings.gameMode || world.gameMode;
-			opEnable = opEnable ?? world.op;
+			worldSettings.difficulty = worldSettings.difficulty ?? "hard";
+			worldSettings.gameMode = worldSettings.gameMode ?? "survival";
+			opEnable = opEnable ?? false;
 
 			// 월드 설정을 json파일에 저장
-
-			worldSetting.updateWorldSettings(worldName, worldSettings);
+			await worldSetting.updateWorldSettings(worldName, worldSettings);
 
 			selectResponse = await interaction.followUp({
 				content: "선택한 월드로 변경하시겠습니까?",
@@ -219,11 +218,7 @@ export default {
 			selectCollector.on("collect", async (i) => {
 				if (i.isButton()) {
 					if (i.customId === "setLastWorld") {
-						await dotenv.config({ path: ".env" });
-
-						await changeWorld(process.env.lastWorld, worldName);
-
-						process.env.lastWorld = worldName;
+						await changeWorld(config.lastWorld, worldName);
 
 						ServerSetting.updateServerProperties(worldSettings);
 
@@ -232,12 +227,14 @@ export default {
 						}
 
 						await i.update({
-							content: `선택된 월드: **${process.env.lastWorld}** -> **${worldName}**`,
+							content: `선택된 월드: **${config.lastWorld}** -> **${worldName}**`,
 							components: [],
 						});
+
+						await updateLastWorld(worldName);
 					} else {
 						await i.update({
-							content: "월드 설정이 취소되었습니다.",
+							content: "월드 변경이 취소되었습니다.",
 							components: [],
 						});
 					}

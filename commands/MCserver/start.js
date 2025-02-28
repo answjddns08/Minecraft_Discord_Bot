@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
-import dotenv from "dotenv";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
 
@@ -33,9 +32,7 @@ export default {
 			}
 		);
 
-		dotenv.config({ path: ".env" });
-
-		const worldName = process.env.lastWorld;
+		const worldName = config.lastWorld;
 
 		if (worldName === "") {
 			await interaction.reply("월드가 정해져 있지 않습니다 :x:");

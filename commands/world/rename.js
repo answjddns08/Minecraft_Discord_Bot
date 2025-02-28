@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from "discord.js";
-import dotenv from "dotenv";
 import serverCheck from "../../functions/serverCheck.js";
 import { promises as fs } from "fs";
 import path from "path";
@@ -34,14 +33,10 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		dotenv.config({ path: ".env" });
-
 		const oldName = interaction.options.getString("oldname");
 
-		if (oldName === process.env.lastWorld && (await serverCheck())) {
-			interaction.reply(
-				"서버가 실행 중일 때는 현재 선택된 월드의 이름을 변경할 수 없습니다."
-			);
+		if (oldName === config.lastWorld && (await serverCheck())) {
+			interaction.reply("서버가 실행 중인 월드의 이름을 변경할 수 없습니다.");
 			return;
 		}
 

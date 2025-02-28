@@ -86,6 +86,8 @@ export default {
 					content: `**${worldName}** 월드를 복원했습니다.`,
 					components: [],
 				});
+
+				//복원하고 나서 버려진 월드들이 존재하지 않을 경우 스케쥴 삭제
 			});
 
 			collector.on("end", async () => {

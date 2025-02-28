@@ -1,6 +1,6 @@
 import { Events, REST, Routes, ActivityType } from "discord.js";
 import { config } from "dotenv";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const commands = [];
 
 const foldersPath = path.join(__dirname, "../commands");
-const commandFolders = fs.readdirSync(foldersPath);
+const commandFolders = await fs.readdir(foldersPath);
 
 export default {
 	name: Events.ClientReady,
@@ -28,9 +28,9 @@ export default {
 		for (const folder of commandFolders) {
 			// Grab all the command files from the commands directory you created earlier
 			const commandsPath = path.join(foldersPath, folder);
-			const commandFiles = fs
-				.readdirSync(commandsPath)
-				.filter((file) => file.endsWith(".js"));
+			const commandFiles = (await fs.readdir(commandsPath)).filter((file) =>
+				file.endsWith(".js")
+			);
 			// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 			for (const file of commandFiles) {
 				const filePath = path.join(commandsPath, file);

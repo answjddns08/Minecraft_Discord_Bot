@@ -63,6 +63,6 @@ export default {
 			status: "idle",
 		});
 
-		await interaction.reply("stop!");
+		await interaction.reply("월드를 종료합니다. :zzz:");
 	},
 };

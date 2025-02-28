@@ -69,6 +69,8 @@ export default {
 					content: `**${worldName}** 월드를 삭제했습니다.`,
 					components: [],
 				});
+
+				//월드를 삭제했을 때 버려진 월드들의 상태를 확인하는 스케쥴 생성
 			});
 
 			collector.on("end", async () => {

@@ -4,7 +4,6 @@ import {
 	StringSelectMenuOptionBuilder,
 	SlashCommandBuilder,
 } from "discord.js";
-import dotenv from "dotenv";
 import { promises as fs } from "fs";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
@@ -12,6 +11,14 @@ import changeWorld from "../../functions/changeWorlds.js";
 import worldSetting from "../../functions/worldSetting.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
+import updateLastWorld from "../../functions/UpdateLastWorld.js";
+
+/*
+	env파일이 python과 달리 동적으로 변경이 되지 않음
+	(되긴 되는데 디코 봇이 꺼지면 초기화됨, 기존 값으로 되돌아감)
+	만약 디코 봇이 오류로 인해 꺼질 경우 env 파일을 수정해야 하는 귀찮음 생김
+	-> worldSetting.json에 lastWorld라는 key를 추가하여 마지막으로 선택한 월드를 저장
+*/
 
 export default {
 	data: new SlashCommandBuilder().setName("select").setDescription("월드 선택"),
@@ -30,8 +37,6 @@ export default {
 			);
 			return;
 		}
-
-		dotenv.config({ path: ".env" });
 
 		try {
 			const worldList = await fs.readdir(config.worldDir);
@@ -64,7 +69,7 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				const lastWorld = process.env.lastWorld;
+				const lastWorld = config.lastWorld;
 
 				await changeWorld(lastWorld, worldName);
 
@@ -81,7 +86,7 @@ export default {
 					components: [],
 				});
 
-				process.env.lastWorld = worldName;
+				await updateLastWorld(worldName);
 			});
 
 			collector.on("end", async () => {
