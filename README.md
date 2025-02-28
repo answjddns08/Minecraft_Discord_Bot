@@ -29,7 +29,9 @@ python 버전과 달리 모듈화가 되어 있음
 - discord.js 라이브러리
 - rcon-client 라이브러리
 - dotenv 라이브러리
-- .env 파일 (디스코드 봇 토큰,마지막으로 선택된 월드 등의 변수 설정)
+- node-schedule 라이브러리
+- .env 파일 (디스코드 봇 토큰,어플리케이션 id 설정)
+- config.json 파일 일부 수정 필요(디렉토리 주소,tmux session,월드 복구 기간 등등)
 - tmux 프로그램 (세션을 확인하여 서버 켜짐 여부 확인)
 
 # 주의 사항
