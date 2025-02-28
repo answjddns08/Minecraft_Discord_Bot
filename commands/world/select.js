@@ -46,7 +46,10 @@ export default {
 				.setPlaceholder("월드 선택")
 				.addOptions(
 					worldList.map((world) =>
-						new StringSelectMenuOptionBuilder().setLabel(world).setValue(world)
+						new StringSelectMenuOptionBuilder()
+							.setLabel(world)
+							.setValue(world)
+							.setDescription(`${world} 월드 선택`)
 					)
 				);
 

@@ -63,7 +63,39 @@ async function updateWorldSettings(worldName, updates) {
 	}
 }
 
+/**
+ * 특정 월드를 설정에서 제거하는 함수
+ * @param {string} worldName 제거할 월드 이름
+ * @returns {Promise<Object>} 업데이트된 설정
+ * @throws {Error} Error
+ */
+async function removeWorld(worldName) {
+	try {
+		// 기존 설정 읽기
+		let settings = await readWorldSettings();
+
+		// 해당 월드가 존재하는지 확인
+		if (settings.hasOwnProperty(worldName)) {
+			// 월드 제거
+			delete settings[worldName];
+
+			// 업데이트된 설정을 파일에 쓰기
+			const jsonData = JSON.stringify(settings, null, 2);
+			await fs.writeFile(filePath, jsonData, "utf8");
+
+			console.log(`월드 '${worldName}'가 성공적으로 제거되었습니다.`);
+		} else {
+			console.log(`월드 '${worldName}'를 찾을 수 없습니다.`);
+		}
+
+		return settings;
+	} catch (err) {
+		throw err;
+	}
+}
+
 export default {
 	readWorldSettings,
 	updateWorldSettings,
+	removeWorld,
 };

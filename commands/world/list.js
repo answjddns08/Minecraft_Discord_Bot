@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import fs from "fs";
+import { promises as fs } from "fs";
 import config from "../../config.json" assert { type: "json" };
 
 export default {
@@ -13,7 +13,7 @@ export default {
 		const selectedWorld = config.lastWorld;
 
 		try {
-			const worldList = await fs.promises.readdir(config.worldDir);
+			const worldList = await fs.readdir(config.worldDir);
 
 			if (worldList.length === 0) {
 				await interaction.reply("월드가 없습니다\n하나 만드십시오 휴먼");

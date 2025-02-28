@@ -15,7 +15,7 @@ const client = new Client({
 });
 
 //discord bot token
-const token = process.env.MinecraftBot;
+const token = process.env.testbot;
 
 client.commands = new Collection();
 

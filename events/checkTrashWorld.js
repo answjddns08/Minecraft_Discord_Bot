@@ -1,6 +1,7 @@
 import { Events } from "discord.js";
 import { promises as fs } from "fs";
-import path from "path";
+import config from "../config.json" assert { type: "json" };
+import cleanUpSchedule from "../functions/cleanUpSchedule.js";
 
 export default {
 	name: Events.ClientReady,
@@ -9,8 +10,10 @@ export default {
 	 * @param {import("discord.js").Client} client
 	 */
 	async execute(client) {
-		/*
-            버려진 마크 월드 파일을 검사하고 파일이 있는 경우 파일을 확인하고 제거하는 스케쥴 생성
-        */
+		const worldList = await fs.readdir(config.TrashWorldDir);
+
+		if (worldList.length === 0) return;
+
+		cleanUpSchedule();
 	},
 };

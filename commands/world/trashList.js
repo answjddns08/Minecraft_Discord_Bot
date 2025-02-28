@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
-import { exec } from "child_process";
-
-const trashWorldDir = "/home/redeyes/Documents/MinecraftWorldsTrash";
+import { promises as fs } from "fs";
+import config from "../../config.json" assert { type: "json" };
+import path from "path";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -11,25 +11,32 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		await exec(`ls ${trashWorldDir}`, (error, stdout, stderr) => {
-			if (error) {
-				console.error(`실행 오류: ${error}`);
-				interaction.reply("월드 목록을 불러오는 중 오류 발생!");
-				return;
-			}
-
-			const worldList = stdout.split("\n").filter((world) => world !== "");
+		try {
+			const worldList = await fs.readdir(config.TrashWorldDir);
+			const now = Date.now();
 
 			if (worldList.length === 0) {
-				interaction.reply("삭제된 월드가 없습니다.");
+				await interaction.reply("버려진 월드가 없네요!");
 				return;
 			}
 
-			interaction.reply(
-				`**삭제된** 월드 목록\n${worldList
-					.map((world) => `- :file_folder: ${world}`)
-					.join("\n")}`
-			);
-		});
+			const worldInfoPromises = worldList.map(async (world) => {
+				const stat = await fs.stat(path.join(config.TrashWorldDir, world));
+				const diff = now - stat.ctime.getTime();
+				const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+				return `- :file_folder: ${world} - 복구까지 ${
+					config.WorldAgeDay - days
+				}일 남음`;
+			});
+
+			const worldInfo = await Promise.all(worldInfoPromises);
+
+			await interaction.reply(`버려진 월드 목록\n${worldInfo.join("\n")}`);
+		} catch (error) {
+			console.log(error);
+			await interaction.reply("월드 목록을 불러오던 중 오류 발생!");
+			return;
+		}
 	},
 };

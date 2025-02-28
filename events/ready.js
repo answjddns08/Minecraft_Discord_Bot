@@ -6,9 +6,9 @@ import { fileURLToPath } from "url";
 
 config({ path: "../.env" });
 
-const clientId = process.env.MinecraftBot_id;
-//const guildId = "1080485159230509096";
-const token = process.env.MinecraftBot;
+const clientId = process.env.testbot_id;
+const guildId = "1080485159230509096";
+const token = process.env.testbot;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,23 +56,23 @@ export default {
 				);
 
 				//길드(서버) 전용 명령어만 할당하려고 전역 명령어를 제거
-				/* const allCommands = await rest.get(
+				const allCommands = await rest.get(
 					Routes.applicationCommands(clientId)
 				);
 				for (const command of allCommands) {
 					await rest.delete(Routes.applicationCommand(clientId, command.id));
-				} */
+				}
 
 				// 특정 길드(서버)에만 명령어 할당
-				/* const data = await rest.put(
+				const data = await rest.put(
 					Routes.applicationGuildCommands(clientId, guildId),
 					{ body: commands }
-				); */
+				);
 
 				// 글로벌 명령어 할당
-				const data = await rest.put(Routes.applicationCommands(clientId), {
+				/* const data = await rest.put(Routes.applicationCommands(clientId), {
 					body: commands,
-				});
+				}); */
 
 				console.log(
 					`Successfully reloaded ${data.length} application (/) commands.`

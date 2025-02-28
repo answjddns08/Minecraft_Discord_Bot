@@ -7,6 +7,7 @@ import {
 import { promises as fs } from "fs";
 import path from "path";
 import config from "../../config.json" assert { type: "json" };
+import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),
@@ -70,7 +71,10 @@ export default {
 					components: [],
 				});
 
-				//월드를 삭제했을 때 버려진 월드들의 상태를 확인하는 스케쥴 생성
+				// 월드 제거 후 cleanUpSchedule 함수가 이미 실행되어 있으면 그냥 리턴
+				// cleanUpSchedule 함수가 실행되어 있지 않으면 실행
+
+				cleanUpSchedule();
 			});
 
 			collector.on("end", async () => {
