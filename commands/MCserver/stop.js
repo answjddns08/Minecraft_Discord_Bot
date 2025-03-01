@@ -1,8 +1,8 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
-import { exec } from "child_process";
 import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
 import config from "../../config.json" assert { type: "json" };
+import { stopAutoShutdown } from "../../functions/autoShutdown.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -42,17 +42,6 @@ export default {
 
 		await rcon.end();
 
-		await exec(
-			`tmux kill-session -t ${config.sessionName}`,
-			(error, stdout, stderr) => {
-				if (error) {
-					console.error(`실행 오류: ${error}`);
-					interaction.reply("월드 종료 중 오류 발생!");
-					return;
-				}
-			}
-		);
-
 		interaction.client.user.setPresence({
 			activities: [
 				{
@@ -62,6 +51,8 @@ export default {
 			],
 			status: "idle",
 		});
+
+		stopAutoShutdown();
 
 		await interaction.reply("월드를 종료합니다. :zzz:");
 	},

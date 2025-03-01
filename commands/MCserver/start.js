@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
+import { startAutoShutdown } from "../../functions/autoShutdown.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -49,6 +50,8 @@ export default {
 			],
 			status: "online",
 		});
+
+		startAutoShutdown(interaction.client);
 
 		await interaction.reply(
 			`${worldName} 월드를 시작합니다.\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:`
