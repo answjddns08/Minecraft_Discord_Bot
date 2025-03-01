@@ -78,7 +78,10 @@ export default {
 
 				const worldSet = (await worldSetting.readWorldSettings())[worldName];
 
-				await ServerSetting.updateServerProperties(worldSet);
+				await ServerSetting.updateServerProperties({
+					difficulty: worldSet.difficulty,
+					gameMode: worldSet.gameMode,
+				});
 
 				if (worldSet.op === true) {
 					await giveOp();

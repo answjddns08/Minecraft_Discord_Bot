@@ -130,9 +130,8 @@ export default {
 		const worldSettings = {
 			difficulty: null,
 			gameMode: null,
+			op: null,
 		};
-
-		let opEnable = null;
 
 		const filter = (interaction) => interaction.user.id === interaction.user.id;
 
@@ -149,7 +148,7 @@ export default {
 					worldSettings.gameMode = i.values[0];
 				}
 			} else if (i.isButton()) {
-				opEnable = i.customId === "opConfirm";
+				worldSettings.op = i.customId === "opConfirm";
 			}
 
 			await i.deferUpdate();
@@ -158,7 +157,7 @@ export default {
 			if (
 				worldSettings.difficulty &&
 				worldSettings.gameMode &&
-				opEnable !== null
+				worldSettings.op !== null
 			) {
 				settingResponse.edit({
 					content: "설정이 완료되었습니다.",
@@ -188,7 +187,7 @@ export default {
 			if (
 				!worldSettings.difficulty ||
 				!worldSettings.gameMode ||
-				opEnable === null
+				!worldSettings.op
 			) {
 				await settingResponse.edit({
 					content:
@@ -199,7 +198,7 @@ export default {
 
 			worldSettings.difficulty = worldSettings.difficulty ?? "hard";
 			worldSettings.gameMode = worldSettings.gameMode ?? "survival";
-			opEnable = opEnable ?? false;
+			worldSettings.op = worldSettings.op ?? false;
 
 			// 월드 설정을 json파일에 저장
 			await worldSetting.updateWorldSettings(worldName, worldSettings);
@@ -220,9 +219,12 @@ export default {
 					if (i.customId === "setLastWorld") {
 						await changeWorld(config.lastWorld, worldName);
 
-						ServerSetting.updateServerProperties(worldSettings);
+						ServerSetting.updateServerProperties({
+							difficulty: worldSettings.difficulty,
+							gameMode: worldSettings.gameMode,
+						});
 
-						if (opEnable) {
+						if (worldSettings.op) {
 							await giveOp();
 						}
 
