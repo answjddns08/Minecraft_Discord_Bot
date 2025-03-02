@@ -25,7 +25,7 @@ export default {
 				const diff = now - stat.ctime.getTime();
 				const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-				return `- :file_folder: ${world} - 복구까지 ${
+				return `- :file_folder: ${world} - 삭제까지 ${
 					config.WorldAgeDay - days
 				}일 남음`;
 			});
