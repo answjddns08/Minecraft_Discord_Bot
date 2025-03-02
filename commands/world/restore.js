@@ -70,6 +70,8 @@ export default {
 			if (TrashWorldList.length === 1) {
 				cleanUpSchedule().cancel();
 			}
+
+			collector.stop();
 		});
 
 		collector.on("end", async () => {

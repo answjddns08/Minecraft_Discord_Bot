@@ -22,7 +22,14 @@ export default {
 			return;
 		}
 
-		await exec(
+		const worldName = config.lastWorld;
+
+		if (worldName === "") {
+			await interaction.reply("월드가 정해져 있지 않습니다 :x:");
+			return;
+		}
+
+		exec(
 			`tmux new-session -d -s ${config.sessionName} '${config.sessionCommand}'`,
 			(error, stdout, stderr) => {
 				if (error) {
@@ -32,13 +39,6 @@ export default {
 				}
 			}
 		);
-
-		const worldName = config.lastWorld;
-
-		if (worldName === "") {
-			await interaction.reply("월드가 정해져 있지 않습니다 :x:");
-			return;
-		}
 
 		interaction.client.user.setPresence({
 			activities: [

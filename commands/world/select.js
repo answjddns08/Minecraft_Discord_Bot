@@ -93,6 +93,8 @@ export default {
 				});
 
 				await updateLastWorld(worldName);
+
+				collector.stop();
 			});
 
 			collector.on("end", async () => {

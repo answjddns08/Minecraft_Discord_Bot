@@ -8,6 +8,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import config from "../../config.json" assert { type: "json" };
 import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
+import updateLastWorld from "../../functions/UpdateLastWorld.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),
@@ -55,6 +56,10 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
+				if (worldName === config.lastWorld) {
+					updateLastWorld("");
+				}
+
 				try {
 					const sourcePath = path.join(config.worldDir, worldName);
 					const destPath = path.join(config.TrashWorldDir, worldName);
@@ -75,6 +80,8 @@ export default {
 				// cleanUpSchedule 함수가 실행되어 있지 않으면 실행
 
 				cleanUpSchedule();
+
+				collector.stop();
 			});
 
 			collector.on("end", async () => {
