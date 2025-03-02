@@ -133,7 +133,7 @@ export default {
 			op: null,
 		};
 
-		const filter = (interaction) => interaction.user.id === interaction.user.id;
+		const filter = (i) => i.user.id === interaction.user.id;
 
 		const settingCollector = settingResponse.createMessageComponentCollector({
 			filter: filter,

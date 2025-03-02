@@ -1,7 +1,8 @@
 import { Rcon } from "rcon-client";
 import config from "../config.json" assert { type: "json" };
+import { ActivityType } from "discord.js";
 
-const delayMin = 10;
+const delayMin = 5;
 let shutdownTimer;
 let isNoOneOnline = false;
 /**
@@ -19,11 +20,21 @@ async function autoShutdown() {
 		});
 
 		const response = await rcon.send("list");
-		const playerList = response.split(":")[1]?.trim().split(",");
+		const playerList =
+			response
+				.split(":")[1]
+				?.split(",")
+				.map((player) => player.trim()) || [];
 
-		const check = playerList.length === 0 ? true : false;
+		const check = playerList.length === 1 ? true : false;
+
+		console.log("Player list:", playerList);
+		console.log("check:", check);
+		console.log("isNoOneOnline:", isNoOneOnline);
 
 		if (isNoOneOnline && check) {
+			console.log("server Stop!");
+
 			await rcon.send("stop");
 			await rcon.end();
 
@@ -31,7 +42,7 @@ async function autoShutdown() {
 				activities: [
 					{
 						name: "휴식 시간..",
-						type: "WATCHING",
+						type: ActivityType.Custom,
 					},
 				],
 				status: "idle",
