@@ -72,6 +72,7 @@ export default {
 			}
 
 			collector.stop();
+			return;
 		});
 
 		collector.on("end", async () => {

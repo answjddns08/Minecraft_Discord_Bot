@@ -241,6 +241,8 @@ export default {
 						});
 					}
 				}
+
+				return;
 			});
 
 			selectCollector.on("end", async () => {

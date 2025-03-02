@@ -82,6 +82,7 @@ export default {
 				cleanUpSchedule();
 
 				collector.stop();
+				return;
 			});
 
 			collector.on("end", async () => {
