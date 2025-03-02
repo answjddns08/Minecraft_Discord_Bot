@@ -163,7 +163,7 @@ export default {
 					content: "설정이 완료되었습니다.",
 					components: [],
 				});
-				settingCollector.stop();
+				settingCollector.stop("manual");
 			}
 		});
 
@@ -183,12 +183,8 @@ export default {
 
 		let selectCollector;
 
-		settingCollector.on("end", async () => {
-			if (
-				!worldSettings.difficulty ||
-				!worldSettings.gameMode ||
-				!worldSettings.op
-			) {
+		settingCollector.on("end", async (collected, reason) => {
+			if (reason !== "manual") {
 				await settingResponse.edit({
 					content:
 						"시간이 초과되었습니다.\n(선택을 안한 나머지는 기본 설정으로 조정)",
@@ -240,12 +236,13 @@ export default {
 							components: [],
 						});
 					}
-				}
 
-				return;
+					settingCollector.stop("manual");
+				}
 			});
 
-			selectCollector.on("end", async () => {
+			selectCollector.on("end", async (i, reason) => {
+				if (reason === "manual") return;
 				await selectResponse.edit({
 					content: "시간이 초과되었습니다.",
 					components: [],

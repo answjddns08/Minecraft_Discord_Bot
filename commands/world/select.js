@@ -94,11 +94,12 @@ export default {
 
 				await updateLastWorld(worldName);
 
-				collector.stop();
+				collector.stop("manual");
 				return;
 			});
 
-			collector.on("end", async () => {
+			collector.on("end", async (i, reason) => {
+				if (reason === "manual") return;
 				await interaction.editReply({
 					content: "시간이 초과되었습니다.",
 					components: [],

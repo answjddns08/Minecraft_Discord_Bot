@@ -33,5 +33,10 @@
     "difficulty": "hard",
     "gameMode": "survival",
     "op": false
+  },
+  "list": {
+    "difficulty": "hard",
+    "gameMode": "adventure",
+    "op": false
   }
 }
