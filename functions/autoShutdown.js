@@ -26,7 +26,7 @@ async function autoShutdown() {
 				?.split(",")
 				.map((player) => player.trim()) || [];
 
-		const check = playerList.length === 1 ? true : false;
+		const check = playerList[0] == "" ? true : false;
 
 		console.log("Player list:", playerList);
 		console.log("check:", check);
