@@ -11,7 +11,7 @@ import changeWorld from "../../functions/changeWorlds.js";
 import worldSetting from "../../functions/worldSetting.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
-import updateLastWorld from "../../functions/UpdateLastWorld.js";
+import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
 
 /*
 	env파일이 python과 달리 동적으로 변경이 되지 않음
@@ -72,7 +72,7 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				const lastWorld = config.lastWorld;
+				const lastWorld = loadLastWorld();
 
 				await changeWorld(lastWorld, worldName);
 

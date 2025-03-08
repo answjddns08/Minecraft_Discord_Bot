@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { promises as fs } from "fs";
 import config from "../../config.json" assert { type: "json" };
+import { loadLastWorld } from "../../functions/lastWorld";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -10,7 +11,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const selectedWorld = config.lastWorld;
+		const selectedWorld = loadLastWorld();
 
 		try {
 			const worldList = await fs.readdir(config.worldDir);

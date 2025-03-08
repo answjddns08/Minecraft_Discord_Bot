@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
 import { startAutoShutdown } from "../../functions/autoShutdown.js";
+import { loadLastWorld } from "../../functions/lastWorld.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -22,7 +23,7 @@ export default {
 			return;
 		}
 
-		const worldName = config.lastWorld;
+		const worldName = loadLastWorld();
 
 		if (worldName === "") {
 			await interaction.reply("월드가 정해져 있지 않습니다 :x:");

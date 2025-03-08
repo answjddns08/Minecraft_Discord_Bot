@@ -8,7 +8,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import config from "../../config.json" assert { type: "json" };
 import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
-import updateLastWorld from "../../functions/UpdateLastWorld.js";
+import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),
@@ -56,7 +56,7 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				if (worldName === config.lastWorld) {
+				if (worldName === loadLastWorld()) {
 					updateLastWorld("");
 				}
 

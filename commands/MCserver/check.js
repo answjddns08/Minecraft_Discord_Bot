@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" assert { type: "json" };
+import { loadLastWorld } from "../../functions/lastWorld.js";
 
 /*
 	썸네일 설정 변수들 (로컬 파일 사용 기준)
@@ -30,7 +31,7 @@ export default {
 		let rcon;
 
 		let resultEmbed = new EmbedBuilder()
-			.setTitle("**" + config.lastWorld + "**")
+			.setTitle("**" + loadLastWorld() + "**")
 			.setThumbnail(`attachment://${thumbnailFile}`);
 
 		const check = await serverCheck();
@@ -53,18 +54,25 @@ export default {
 		try {
 			rcon = await Rcon.connect({
 				host: config.RCsettings.host,
-				port: 25575,
-				password: "0808",
+				port: config.RCsettings.port,
+				password: config.RCsettings.password,
 			});
 
 			const response = await rcon.send("list");
-			const playerList = response.split(":")[1]?.trim().split(",") || "없음";
+			const playerList =
+				response
+					.split(":")[1]
+					?.split(",")
+					.map((player) => player.trim()) || [];
 
 			resultEmbed
 				.setColor(0x08f608)
 				.setDescription("The world is online! :white_check_mark:")
 				.addFields(
-					{ name: "플레이어", value: `${playerList}` },
+					{
+						name: `플레이어 [ ${playerList.length}명 ]`,
+						value: `${playerList}`,
+					},
 					{ name: "\u200B", value: "\u200B" },
 					{
 						name: "squaremap 주소",

@@ -13,7 +13,7 @@ import worldSetting from "../../functions/worldSetting.js";
 import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
-import updateLastWorld from "../../functions/UpdateLastWorld.js";
+import { updateLastWorld } from "../../functions/lastWorld.js";
 
 /*
 	월드의 정보를 어디다가 저장하지?
