@@ -56,7 +56,7 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				if (worldName === loadLastWorld()) {
+				if (worldName === (await loadLastWorld())) {
 					updateLastWorld("");
 				}
 

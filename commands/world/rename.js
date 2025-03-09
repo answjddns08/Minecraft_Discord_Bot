@@ -36,7 +36,7 @@ export default {
 	async execute(interaction) {
 		const oldName = interaction.options.getString("oldname");
 
-		if (oldName === loadLastWorld() && (await serverCheck())) {
+		if (oldName === (await loadLastWorld()) && (await serverCheck())) {
 			interaction.reply("서버가 실행 중인 월드의 이름을 변경할 수 없습니다.");
 			return;
 		}

@@ -220,7 +220,7 @@ export default {
 							gameMode: worldSettings.gameMode,
 						});
 
-						if (worldSettings.op) {
+						if (worldSettings.op === true) {
 							await giveOp();
 						}
 

@@ -31,7 +31,7 @@ export default {
 		let rcon;
 
 		let resultEmbed = new EmbedBuilder()
-			.setTitle("**" + loadLastWorld() + "**")
+			.setTitle("**" + (await loadLastWorld()) + "**")
 			.setThumbnail(`attachment://${thumbnailFile}`);
 
 		const check = await serverCheck();

@@ -23,7 +23,7 @@ export default {
 			return;
 		}
 
-		const worldName = loadLastWorld();
+		const worldName = await loadLastWorld();
 
 		if (worldName === "") {
 			await interaction.reply("월드가 정해져 있지 않습니다 :x:");
