@@ -251,6 +251,7 @@ export default {
 						ServerSetting.updateServerProperties({
 							difficulty: worldSettings.difficulty,
 							gameMode: worldSettings.gameMode,
+							"level-type": worldSettings["level-type"],
 						});
 
 						if (worldSettings.op === true) {

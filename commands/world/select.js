@@ -72,7 +72,7 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				const lastWorld = await loadLastWorld();
+				const lastWorld = loadLastWorld();
 
 				await changeWorld(lastWorld, worldName);
 
@@ -81,6 +81,7 @@ export default {
 				await ServerSetting.updateServerProperties({
 					difficulty: worldSet.difficulty,
 					gameMode: worldSet.gameMode,
+					"level-type": worldSet["level-type"],
 				});
 
 				if (worldSet.op === true) {
