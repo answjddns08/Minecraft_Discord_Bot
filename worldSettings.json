@@ -1,42 +1,38 @@
 {
-  "geonchug": {
-    "difficulty": "peaceful",
-    "gameMode": "creative",
-    "op": true
-  },
-  "NewWorld": {
-    "difficulty": "hard",
-    "gameMode": "survival",
-    "op": false
-  },
-  "OldWorld": {
-    "difficulty": "hard",
-    "gameMode": "survival",
-    "op": false
-  },
-  "B": {
-    "difficulty": "hard",
-    "gameMode": "survival",
-    "op": false
-  },
-  "SEX": {
-    "difficulty": "normal",
-    "gameMode": "survival",
-    "op": false
-  },
-  "C": {
-    "difficulty": "hard",
-    "gameMode": "survival",
-    "op": false
-  },
-  "D": {
-    "difficulty": "hard",
-    "gameMode": "survival",
-    "op": false
-  },
-  "list": {
-    "difficulty": "hard",
-    "gameMode": "adventure",
-    "op": false
-  }
+	"geonchug": {
+		"difficulty": "peaceful",
+		"gameMode": "creative",
+		"level-type": "minecraft:flat",
+		"op": true
+	},
+	"NewWorld": {
+		"difficulty": "hard",
+		"gameMode": "survival",
+		"level-type": "minecraft:normal",
+		"op": false
+	},
+	"OldWorld": {
+		"difficulty": "hard",
+		"gameMode": "survival",
+		"level-type": "minecraft:normal",
+		"op": false
+	},
+	"B": {
+		"difficulty": "hard",
+		"gameMode": "survival",
+		"level-type": "minecraft:normal",
+		"op": false
+	},
+	"C": {
+		"difficulty": "hard",
+		"gameMode": "survival",
+		"level-type": "minecraft:normal",
+		"op": false
+	},
+	"D": {
+		"difficulty": "hard",
+		"gameMode": "survival",
+		"level-type": "minecraft:normal",
+		"op": false
+	}
 }

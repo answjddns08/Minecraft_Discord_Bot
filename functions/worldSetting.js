@@ -6,8 +6,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const filePath = path.join(__dirname, "../worldSettings.json");
 
 /**
- * 월드 설정 파일을 읽어오는 함수
- * @returns {Promise<Object>} 월드 설정 파일의 object
+ * @typedef {Object} worldSetting
+ * @property {string} difficulty - 난이도
+ * @property {string} gameMode - 게임 모드
+ * @property {string} level-type - 레벨 타입
+ * @property {boolean} op - OP 여부
+ */
+
+/**
+ * read worldSettings from worldSettings.json
+ * @returns {Promise<Object>}월드 설정 파일의 object
  * @throws {Error} Error
  */
 async function readWorldSettings() {
@@ -20,9 +28,9 @@ async function readWorldSettings() {
 }
 
 /**
- * 월드 설정을 업데이트하는 함수
+ * update worldSettings.json with new settings
  * @param {string} worldName 월드 이름
- * @param {Object} updates 업데이트할 설정
+ * @param {worldSetting} updates 업데이트할 설정
  * @returns {Promise<Object>} 업데이트된 설정
  * @throws {Error} Error
  */
@@ -56,8 +64,6 @@ async function updateWorldSettings(worldName, updates) {
 		// 병합된 설정을 파일에 쓰기
 		const jsonData = JSON.stringify(settings, null, 2);
 		await fs.writeFile(filePath, jsonData, "utf8");
-
-		return settings;
 	} catch (err) {
 		throw err;
 	}
@@ -66,7 +72,6 @@ async function updateWorldSettings(worldName, updates) {
 /**
  * 특정 월드를 설정에서 제거하는 함수
  * @param {string} worldName 제거할 월드 이름
- * @returns {Promise<Object>} 업데이트된 설정
  * @throws {Error} Error
  */
 async function removeWorld(worldName) {
@@ -87,8 +92,6 @@ async function removeWorld(worldName) {
 		} else {
 			console.log(`월드 '${worldName}'를 찾을 수 없습니다.`);
 		}
-
-		return settings;
 	} catch (err) {
 		throw err;
 	}

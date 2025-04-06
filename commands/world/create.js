@@ -44,11 +44,13 @@ export default {
 		const worldList = await fs.readdir(config.worldDir);
 
 		if (worldList.includes(worldName)) {
+			// 월드가 이미 존재하는지 확인
 			await interaction.reply("이미 존재하는 월드입니다.");
 			return;
 		}
 
 		try {
+			// 월드 디렉토리 생성
 			await fs.mkdir(path.join(config.worldDir, worldName));
 			await interaction.reply(`${worldName} 월드 생성 완료!`);
 		} catch (error) {
@@ -57,10 +59,12 @@ export default {
 			return;
 		}
 
-		// 월드 설정
 		/*
+			월드 설정
+
 			월드 난이도(메뉴)
 			게임 모드 설정(메뉴)
+			지형 설정(메뉴)
 			op 여부(버튼)
 		*/
 
@@ -79,12 +83,11 @@ export default {
 				new StringSelectMenuOptionBuilder()
 					.setLabel("보통")
 					.setValue("normal")
-					.setDescription("적당함"),
+					.setDescription("적당함 (기본 설정)"),
 				new StringSelectMenuOptionBuilder()
 					.setLabel("어려움")
 					.setValue("hard")
 					.setDescription("악몽의 시간!"),
-				//.setDefault(true),
 			]);
 
 		const gameModeList = new StringSelectMenuBuilder()
@@ -94,8 +97,8 @@ export default {
 				new StringSelectMenuOptionBuilder()
 					.setLabel("서바이벌")
 					.setValue("survival")
-					.setDescription("생존"),
-				/* .setDefault(true), */ new StringSelectMenuOptionBuilder()
+					.setDescription("생존 (기본 설정)"),
+				new StringSelectMenuOptionBuilder()
 					.setLabel("크리에이티브")
 					.setValue("creative")
 					.setDescription("gun축가"),
@@ -105,6 +108,30 @@ export default {
 					.setDescription("핀과 제익흐의 어드벤처 타임"),
 			]);
 
+		const worldTypeList = new StringSelectMenuBuilder()
+			.setCustomId("levelTypeSelect")
+			.setPlaceholder("지형 선택")
+			.addOptions([
+				new StringSelectMenuOptionBuilder()
+					.setLabel("기본 월드")
+					.setValue("minecraft:normal")
+					.setDescription(
+						"언덕, 계곡, 물 등이 생성되는 일반적인 월드 (기본 설정)"
+					),
+				new StringSelectMenuOptionBuilder()
+					.setLabel("평지")
+					.setValue("minecraft:flat")
+					.setDescription("마을밖에 없는 평평한 땅(주로 건축용으로 사용)"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel("대형 바이옴")
+					.setValue("minecraft:largeBiomes")
+					.setDescription("기본 월드와 같으나 생물 군계의 구역이 더 커짐"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel("높이 증폭")
+					.setValue("minecraft:amplified")
+					.setDescription("기본 월드와 같으나 높이가 더 증가함"),
+			]);
+
 		const opConfirmBtn = new ButtonBuilder()
 			.setCustomId("opConfirm")
 			.setLabel("OP 허용하는 허졉쉑")
@@ -112,12 +139,13 @@ export default {
 
 		const opCancelBtn = new ButtonBuilder()
 			.setCustomId("opCancel")
-			.setLabel("OP 거부하는 10상남자")
+			.setLabel("OP 거부하는 10상남자 (기본 설정)")
 			.setStyle(ButtonStyle.Danger);
 
 		const actionRows = [
 			new ActionRowBuilder().addComponents(difficultyList),
 			new ActionRowBuilder().addComponents(gameModeList),
+			new ActionRowBuilder().addComponents(worldTypeList),
 			new ActionRowBuilder().addComponents(opConfirmBtn, opCancelBtn),
 		];
 
@@ -130,6 +158,7 @@ export default {
 		const worldSettings = {
 			difficulty: null,
 			gameMode: null,
+			"level-type": null,
 			op: null,
 		};
 
@@ -140,12 +169,14 @@ export default {
 			time: 180000, // 3min
 		});
 
-		await settingCollector.on("collect", async (i) => {
+		settingCollector.on("collect", async (i) => {
 			if (i.isStringSelectMenu()) {
 				if (i.customId === "difficultySelect") {
 					worldSettings.difficulty = i.values[0];
 				} else if (i.customId === "gameModeSelect") {
 					worldSettings.gameMode = i.values[0];
+				} else if (i.customId === "levelTypeSelect") {
+					worldSettings["level-type"] = i.values[0];
 				}
 			} else if (i.isButton()) {
 				worldSettings.op = i.customId === "opConfirm";
@@ -157,6 +188,7 @@ export default {
 			if (
 				worldSettings.difficulty &&
 				worldSettings.gameMode &&
+				worldSettings["level-type"] &&
 				worldSettings.op !== null
 			) {
 				settingResponse.edit({
@@ -195,6 +227,7 @@ export default {
 			worldSettings.difficulty = worldSettings.difficulty ?? "hard";
 			worldSettings.gameMode = worldSettings.gameMode ?? "survival";
 			worldSettings.op = worldSettings.op ?? false;
+			worldSettings["level-type"] = worldSettings["level-type"] ?? "normal";
 
 			// 월드 설정을 json파일에 저장
 			await worldSetting.updateWorldSettings(worldName, worldSettings);

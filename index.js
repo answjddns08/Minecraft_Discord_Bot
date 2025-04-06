@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { Client, GatewayIntentBits, Collection } from "discord.js";
+import { Client, GatewayIntentBits, Collection, Options } from "discord.js";
 
 config({ path: ".env" });
 
@@ -12,6 +12,18 @@ const client = new Client({
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
 	],
+	makeCache: Options.cacheWithLimits(Options.DefaultMakeCacheSettings),
+	sweepers: {
+		...Options.DefaultSweeperSettings,
+		messages: {
+			interval: 3_600, // Every hour.
+			lifetime: 1_800, // Remove messages older than 30 minutes.
+		},
+		users: {
+			interval: 3_600, // Every hour.
+			filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
+		},
+	},
 });
 
 //discord bot token
@@ -25,7 +37,7 @@ const __dirname = path.dirname(__filename);
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = await fs.readdir(foldersPath);
 
-// commands폴더에 있는 파일을 읽고 client.commands에 저장
+// read files in commands folder and save to client.commands
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = (await fs.readdir(commandsPath)).filter((file) =>
@@ -50,7 +62,7 @@ const eventFiles = (await fs.readdir(eventsPath)).filter((file) =>
 	file.endsWith(".js")
 );
 
-// events폴더에 있는 파일을 읽고 client에 이벤트 등록
+// read files in events folder and register to client
 for (const file of eventFiles) {
 	const filePath = path.join(eventsPath, file);
 	const event = await import(filePath);
