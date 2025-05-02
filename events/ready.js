@@ -26,12 +26,10 @@ export default {
 	 */
 	async execute(client) {
 		for (const folder of commandFolders) {
-			// Grab all the command files from the commands directory you created earlier
 			const commandsPath = path.join(foldersPath, folder);
 			const commandFiles = (await fs.readdir(commandsPath)).filter((file) =>
 				file.endsWith(".js")
 			);
-			// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 			for (const file of commandFiles) {
 				const filePath = path.join(commandsPath, file);
 				const command = await import(filePath);
@@ -45,10 +43,8 @@ export default {
 			}
 		}
 
-		// Construct and prepare an instance of the REST module
 		const rest = new REST().setToken(token);
 
-		// and deploy your commands!
 		(async () => {
 			try {
 				console.log(
@@ -78,7 +74,6 @@ export default {
 					`Successfully reloaded ${data.length} application (/) commands.`
 				);
 			} catch (error) {
-				// And of course, make sure you catch and log any errors!
 				console.error(error);
 			}
 		})();

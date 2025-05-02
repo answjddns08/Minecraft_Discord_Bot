@@ -72,7 +72,7 @@ export default {
 			collector.on("collect", async (i) => {
 				const worldName = i.values[0];
 
-				const lastWorld = loadLastWorld();
+				const lastWorld = await loadLastWorld();
 
 				await changeWorld(lastWorld, worldName);
 

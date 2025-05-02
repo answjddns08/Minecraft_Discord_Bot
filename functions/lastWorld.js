@@ -21,7 +21,7 @@ async function updateLastWorld(worldName) {
 
 /**
  * lostWorld 값 불러오기
- * @returns {string} lostWorld
+ * @returns {Promise<string>} lostWorld
  */
 async function loadLastWorld() {
 	const config = JSON.parse(await fs.readFile(configPath, "utf-8"));
