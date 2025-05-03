@@ -233,9 +233,7 @@ export default {
 			// 월드 설정을 json파일에 저장
 			await worldSetting.updateWorldSettings(worldName, worldSettings);
 
-			const serverCheck = await serverCheck();
-
-			if (serverCheck) {
+			if (await serverCheck()) {
 				// 월드가 실행 중이니 선택한 월드로 변경할 수 없음
 				return;
 			}
