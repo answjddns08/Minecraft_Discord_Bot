@@ -55,7 +55,7 @@ export default {
 		startAutoShutdown(interaction.client);
 
 		await interaction.reply(
-			`${worldName} 월드를 시작합니다.\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:`
+			`**${worldName}** 월드를 시작합니다.\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:`
 		);
 	},
 };
