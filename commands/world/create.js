@@ -14,6 +14,7 @@ import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
 import { updateLastWorld } from "../../functions/lastWorld.js";
+import serverCheck from "../../functions/serverCheck.js";
 
 /*
 	월드의 정보를 어디다가 저장하지?
@@ -231,6 +232,13 @@ export default {
 
 			// 월드 설정을 json파일에 저장
 			await worldSetting.updateWorldSettings(worldName, worldSettings);
+
+			const serverCheck = await serverCheck();
+
+			if (serverCheck) {
+				// 월드가 실행 중이니 선택한 월드로 변경할 수 없음
+				return;
+			}
 
 			selectResponse = await interaction.followUp({
 				content: "선택한 월드로 변경하시겠습니까?",
