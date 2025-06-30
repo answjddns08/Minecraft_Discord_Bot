@@ -1,6 +1,6 @@
 import { Events } from "discord.js";
 import { promises as fs } from "fs";
-import config from "../config.json" assert { type: "json" };
+import config from "../config.json" with { type: "json" };
 import cleanUpSchedule from "../functions/cleanUpSchedule.js";
 
 export default {

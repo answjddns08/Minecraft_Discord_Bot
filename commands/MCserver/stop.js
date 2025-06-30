@@ -1,7 +1,7 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
 import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config.json" with { type: "json" };
 import { stopAutoShutdown } from "../../functions/autoShutdown.js";
 
 export default {

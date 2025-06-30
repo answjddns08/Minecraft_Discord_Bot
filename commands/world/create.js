@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config.json" with { type: "json" };
 import worldSetting from "../../functions/worldSetting.js";
 import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";

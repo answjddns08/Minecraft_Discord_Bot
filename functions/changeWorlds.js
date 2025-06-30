@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../config.json" assert { type: "json" };
+import config from "../config.json" with { type: "json" };
 
 /**
  * @param {String} serverWorldName - 서버 내 월드 파일

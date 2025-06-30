@@ -1,5 +1,5 @@
 import { Rcon } from "rcon-client";
-import config from "../config.json" assert { type: "json" };
+import config from "../config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
 
 const delayMin = 5;

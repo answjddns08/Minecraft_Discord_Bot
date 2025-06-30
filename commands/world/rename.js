@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import serverCheck from "../../functions/serverCheck.js";
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
 
 const worlds = await fs.readdir(config.worldDir);

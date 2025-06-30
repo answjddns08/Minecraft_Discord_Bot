@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
 import serverCheck from "../../functions/serverCheck.js";
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config.json" with { type: "json" };
 import { startAutoShutdown } from "../../functions/autoShutdown.js";
 import { loadLastWorld } from "../../functions/lastWorld.js";
 

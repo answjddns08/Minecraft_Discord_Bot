@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../config.json" assert { type: "json" };
+import config from "../config.json" with { type: "json" };
 
 /**
  * server.properties 파일을 읽어오는 함수

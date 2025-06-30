@@ -5,7 +5,7 @@ import {
 	AttachmentBuilder,
 } from "discord.js";
 import serverCheck from "../../functions/serverCheck.js";
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
 
 /*

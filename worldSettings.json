@@ -1,38 +1,74 @@
 {
-	"geonchug": {
-		"difficulty": "peaceful",
-		"gameMode": "creative",
-		"level-type": "minecraft:flat",
-		"op": true
-	},
-	"NewWorld": {
-		"difficulty": "hard",
-		"gameMode": "survival",
-		"level-type": "minecraft:normal",
-		"op": false
-	},
-	"OldWorld": {
-		"difficulty": "hard",
-		"gameMode": "survival",
-		"level-type": "minecraft:normal",
-		"op": false
-	},
-	"B": {
-		"difficulty": "hard",
-		"gameMode": "survival",
-		"level-type": "minecraft:normal",
-		"op": false
-	},
-	"C": {
-		"difficulty": "hard",
-		"gameMode": "survival",
-		"level-type": "minecraft:normal",
-		"op": false
-	},
-	"D": {
-		"difficulty": "hard",
-		"gameMode": "survival",
-		"level-type": "minecraft:normal",
-		"op": false
-	}
+  "geonchug": {
+    "difficulty": "peaceful",
+    "gameMode": "creative",
+    "level-type": "minecraft:flat",
+    "op": true
+  },
+  "NewWorld": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "OldWorld": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "B": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "C": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "D": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "asdf": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "모두의 월드": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "이창현바보": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "해웅양": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:amplified",
+    "op": false
+  },
+  "gang": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:largeBiomes",
+    "op": false
+  },
+  "WeLcOmE": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  }
 }

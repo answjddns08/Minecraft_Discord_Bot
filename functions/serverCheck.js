@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import config from "../config.json" assert { type: "json" };
+import config from "../config.json" with { type: "json" };
 
 function serverCheck() {
 	return new Promise((resolve, reject) => {

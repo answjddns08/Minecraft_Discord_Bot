@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../config.json" assert { type: "json" };
+import config from "../config.json" with { type: "json" };
 
 /*
     마크 서버 파일에서 userCache에 있는 유저에게 오퍼레이터 권한을 부여합니다.

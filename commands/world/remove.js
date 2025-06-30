@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config.json" with { type: "json" };
 import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
 import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
 
