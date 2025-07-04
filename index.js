@@ -12,21 +12,47 @@ const client = new Client({
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
 	],
-	makeCache: Options.cacheWithLimits(Options.DefaultMakeCacheSettings),
+	// memory optimization - cache
+	makeCache: Options.cacheWithLimits({
+		...Options.DefaultMakeCacheSettings,
+		MessageManager: 20, // 메시지 캐시를 20개로 제한
+		ChannelManager: 50, // 채널 캐시를 50개로 제한
+		GuildManager: 5, // 길드 캐시를 5개로 제한
+		UserManager: 50, // 유저 캐시를 50개로 제한
+		PresenceManager: 0, // Presence 캐시 비활성화
+		StageInstanceManager: 0, // Stage Instance 캐시 비활성화
+		VoiceStateManager: 0, // Voice State 캐시 비활성화
+		GuildScheduledEventManager: 0, // 예약된 이벤트 캐시 비활성화
+		ThreadManager: 0, // 스레드 캐시 비활성화
+		ThreadMemberManager: 0, // 스레드 멤버 캐시 비활성화
+		ReactionManager: 0, // 반응 캐시 비활성화
+		ReactionUserManager: 0, // 반응 유저 캐시 비활성화
+	}),
+	// memory optimization - sweepers
 	sweepers: {
-		...Options.DefaultSweeperSettings,
 		messages: {
-			interval: 3_600, // Every hour.
-			lifetime: 1_800, // Remove messages older than 30 minutes.
+			interval: 3600, // 1hour
+			lifetime: 300, // remove messages older than 5 minutes
 		},
 		users: {
-			interval: 3_600, // Every hour.
-			filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
+			interval: 3600, // 1hour
+			filter: () => (user) => user.bot && user.id !== user.client.user.id,
 		},
+		guildMembers: {
+			interval: 3600, // 1hour
+			filter: () => (member) => member.id !== member.client.user.id,
+		},
+	},
+	// Partials 비활성화 (필요하지 않은 경우)
+	partials: [],
+	// REST 최적화
+	rest: {
+		timeout: 15_000, // 타임아웃을 15초로 단축
+		retries: 2, // 재시도 횟수 줄임
 	},
 });
 
-//discord bot token - 환경에 따라 선택
+//discord bot tokens
 const token =
 	process.env.NODE_ENV === "production"
 		? process.env.MinecraftBot

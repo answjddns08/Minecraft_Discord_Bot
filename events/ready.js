@@ -6,9 +6,17 @@ import { fileURLToPath } from "url";
 
 config({ path: "../.env" });
 
-const clientId = process.env.MinecraftBot_id;
-const guildId = "1080485159230509096";
-const token = process.env.MinecraftBot;
+const token =
+	process.env.NODE_ENV === "production"
+		? process.env.MinecraftBot
+		: process.env.testbot;
+
+const botID =
+	process.env.NODE_ENV === "production"
+		? process.env.MinecraftBot_id
+		: process.env.testbot_id;
+
+const guildId = "1080485159230509096"; // for testing purposes (test in specific guild)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,24 +59,28 @@ export default {
 					`Started refreshing ${commands.length} application (/) commands.`
 				);
 
-				//길드(서버) 전용 명령어만 할당하려고 전역 명령어를 제거
-				/* const allCommands = await rest.get(
-					Routes.applicationCommands(clientId)
-				);
-				for (const command of allCommands) {
-					await rest.delete(Routes.applicationCommand(clientId, command.id));
-				} */
+				/**
+				 * @type {import("discord.js").RESTPostAPIApplicationCommandsJSONBody[]}
+				 * @description This is the array of commands to be registered.
+				 */
+				let data;
 
-				// 특정 길드(서버)에만 명령어 할당
-				/* const data = await rest.put(
-					Routes.applicationGuildCommands(clientId, guildId),
-					{ body: commands }
-				); */
+				if (process.env.NODE_ENV === "production") {
+					data = await rest.put(Routes.applicationCommands(botID), {
+						body: commands,
+					});
+				} else {
+					// remove all commands (prevents conflicts with guild commands)
+					const allCommands = await rest.get(Routes.applicationCommands(botID));
+					for (const command of allCommands) {
+						await rest.delete(Routes.applicationCommand(botID, command.id));
+					}
 
-				// 글로벌 명령어 할당
-				const data = await rest.put(Routes.applicationCommands(clientId), {
-					body: commands,
-				});
+					data = await rest.put(
+						Routes.applicationGuildCommands(botID, guildId),
+						{ body: commands }
+					);
+				}
 
 				console.log(
 					`Successfully reloaded ${data.length} application (/) commands.`
