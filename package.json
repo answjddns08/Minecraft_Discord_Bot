@@ -1,11 +1,17 @@
 {
-	"name": "javascriptbot",
+	"name": "minecraft-discord-bot",
 	"version": "1.0.0",
 	"description": "minecraft discord bot with javascript",
 	"main": "index.js",
 	"scripts": {
-		"start": "node index.js",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"start": "NODE_ENV=production node index.js",
+		"dev": "NODE_ENV=development node index.js",
+		"pm2:dev": "pm2 start ecosystem.config.js --only minecraft-bot-dev",
+		"pm2:prod": "pm2 start ecosystem.config.js --only minecraft-bot-prod",
+		"pm2:stop": "pm2 stop all",
+		"pm2:restart": "pm2 restart all",
+		"pm2:logs": "pm2 logs",
+		"pm2:monitor": "pm2 monit"
 	},
 	"type": "module",
 	"author": "Redeyes",
@@ -16,5 +22,8 @@
 		"dotenv": "^16.4.7",
 		"node-schedule": "^2.1.1",
 		"rcon-client": "^4.2.5"
+	},
+	"devDependencies": {
+		"prettier": "^3.6.2"
 	}
 }

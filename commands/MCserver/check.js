@@ -13,8 +13,6 @@ import { loadLastWorld } from "../../functions/lastWorld.js";
 	외부에 있는 사진 파일을 사용할 경우 
 	attachment,files: [] 제거하고 setThumbnail에 URL 기입
 */
-const thumbnailDir = "/home/redeyes/Documents/Minecraft/server-icon.png";
-const thumbnailFile = "server-icon.png";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -26,13 +24,13 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const serverIcon = new AttachmentBuilder(thumbnailDir);
+		const serverIcon = new AttachmentBuilder(config.thumbnailDir);
 
 		let rcon;
 
 		let resultEmbed = new EmbedBuilder()
 			.setTitle("**" + (await loadLastWorld()) + "**")
-			.setThumbnail(`attachment://${thumbnailFile}`);
+			.setThumbnail(`attachment://${config.thumbnailFile}`);
 
 		const check = await serverCheck();
 

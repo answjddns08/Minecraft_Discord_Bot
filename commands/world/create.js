@@ -277,7 +277,7 @@ export default {
 						});
 					}
 
-					settingCollector.stop("manual");
+					selectCollector.stop("manual");
 				}
 			});
 

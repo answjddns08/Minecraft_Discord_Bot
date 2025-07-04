@@ -70,5 +70,11 @@
     "gameMode": "survival",
     "level-type": "minecraft:normal",
     "op": false
+  },
+  "summar": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
   }
 }

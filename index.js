@@ -26,8 +26,16 @@ const client = new Client({
 	},
 });
 
-//discord bot token
-const token = process.env.MinecraftBot;
+//discord bot token - 환경에 따라 선택
+const token =
+	process.env.NODE_ENV === "production"
+		? process.env.MinecraftBot
+		: process.env.testbot;
+
+const botId =
+	process.env.NODE_ENV === "production"
+		? process.env.MinecraftBot_id
+		: process.env.testbot_id;
 
 client.commands = new Collection();
 

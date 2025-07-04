@@ -4,6 +4,8 @@
   "minecraftDir": "/home/redeyes/Documents/Minecraft",
   "worldDir": "/home/redeyes/Documents/MinecraftWorlds",
   "TrashWorldDir": "/home/redeyes/Documents/MinecraftWorldsTrash",
+  "thumbnailDir": "/home/redeyes/Documents/Minecraft/server-icon.png",
+  "thumbnailFile": "server-icon.png",
   "WorldAgeDay": 7,
   "worldLevelName": "world",
   "RCsettings": {
@@ -11,5 +13,5 @@
     "port": 25575,
     "password": "0808"
   },
-  "lastWorld": "WeLcOmE"
+  "lastWorld": "summar"
 }
