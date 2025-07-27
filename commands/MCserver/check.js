@@ -7,6 +7,7 @@ import {
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
+import versionCheck from "../../functions/versionCheck.js";
 
 /*
 	썸네일 설정 변수들 (로컬 파일 사용 기준)
@@ -57,11 +58,22 @@ export default {
 			});
 
 			const response = await rcon.send("list");
+			// 콜론 뒤의 플레이어 목록 부분 추출
+			const playersPart = response.split(":")[1]?.trim() || "";
+
+			// 빈 문자열이면 빈 배열, 아니면 쉼표로 분할하고 공백 제거
 			const playerList =
-				response
-					.split(":")[1]
-					?.split(",")
-					.map((player) => player.trim()) || [];
+				playersPart === ""
+					? []
+					: playersPart
+							.split(",")
+							.map((player) => player.trim())
+							.filter((name) => name !== "");
+
+			console.log("Player List:", playerList);
+			console.log("Player Count:", playerList.length);
+
+			const { server, version } = await versionCheck();
 
 			resultEmbed
 				.setColor(0x08f608)
@@ -71,14 +83,26 @@ export default {
 						name: `플레이어 [ ${playerList.length}명 ]`,
 						value: `${playerList}`,
 					},
-					{ name: "\u200B", value: "\u200B" },
 					{
-						name: "squaremap 주소",
-						value: "[squaremap](http://notebook.o-r.kr:8888)",
+						name: "squaremap 주소 (현재 개발 중)",
+						value: "[squaremap](https://redeyes.dev:8888)",
+						inline: true,
 					},
-					{ name: "\u200B", value: "\u200B" },
-					{ name: "서버 주소", value: "notebook.o-r.kr" }
+					{
+						name: "서버 주소",
+						value: "redeyes.dev",
+						url: "https://redeyes.dev",
+						inline: true,
+					}
 				);
+
+			if (server || version) {
+				resultEmbed.addFields({
+					name: "서버 정보",
+					value: `서버: ${server || "알 수 없음"}\n버전: ${version || "알 수 없음"}`,
+					inline: true,
+				});
+			}
 
 			await interaction.editReply({
 				embeds: [resultEmbed],

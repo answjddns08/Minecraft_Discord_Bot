@@ -12,13 +12,20 @@ const client = new Client({
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
 	],
+	// 추가 성능 최적화
+	allowedMentions: {
+		parse: ["users"], // 유저 멘션만 허용 (everyone, here, role 비활성화)
+		repliedUser: false, // 답장 시 유저 멘션 비활성화
+	},
+	// 파일 첨부 크기 제한
+	messageCacheMaxSize: 10, // 메시지 캐시 최대 크기
 	// memory optimization - cache
 	makeCache: Options.cacheWithLimits({
 		...Options.DefaultMakeCacheSettings,
-		MessageManager: 20, // 메시지 캐시를 20개로 제한
-		ChannelManager: 50, // 채널 캐시를 50개로 제한
-		GuildManager: 5, // 길드 캐시를 5개로 제한
-		UserManager: 50, // 유저 캐시를 50개로 제한
+		MessageManager: 10, // 메시지 캐시를 10개로 더 제한 (서버 관리 봇이므로 많은 메시지 캐시 불필요)
+		ChannelManager: 20, // 채널 캐시 더 제한 (필요한 채널만 캐시)
+		GuildManager: 3, // 길드 캐시 더 제한 (소수 길드에서만 사용)
+		UserManager: 30, // 유저 캐시 더 제한
 		PresenceManager: 0, // Presence 캐시 비활성화
 		StageInstanceManager: 0, // Stage Instance 캐시 비활성화
 		VoiceStateManager: 0, // Voice State 캐시 비활성화
@@ -27,19 +34,25 @@ const client = new Client({
 		ThreadMemberManager: 0, // 스레드 멤버 캐시 비활성화
 		ReactionManager: 0, // 반응 캐시 비활성화
 		ReactionUserManager: 0, // 반응 유저 캐시 비활성화
+		BaseGuildEmojiManager: 0, // 이모지 캐시 비활성화 (필요 없음)
+		GuildStickerManager: 0, // 스티커 캐시 비활성화
+		RoleManager: 10, // 역할 캐시 제한
+		GuildMemberManager: 20, // 길드 멤버 캐시 제한
+		GuildBanManager: 0, // 밴 목록 캐시 비활성화
+		GuildInviteManager: 0, // 초대 링크 캐시 비활성화
 	}),
 	// memory optimization - sweepers
 	sweepers: {
 		messages: {
-			interval: 3600, // 1hour
-			lifetime: 300, // remove messages older than 5 minutes
+			interval: 1800, // 30분마다 실행
+			lifetime: 300, // 5분 이상 된 메시지 제거
 		},
 		users: {
-			interval: 3600, // 1hour
+			interval: 1800, // 30분마다 실행
 			filter: () => (user) => user.bot && user.id !== user.client.user.id,
 		},
 		guildMembers: {
-			interval: 3600, // 1hour
+			interval: 1800, // 30분마다 실행
 			filter: () => (member) => member.id !== member.client.user.id,
 		},
 	},

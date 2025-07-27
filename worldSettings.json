@@ -76,5 +76,11 @@
     "gameMode": "survival",
     "level-type": "minecraft:normal",
     "op": false
+  },
+  "칠월사일": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
   }
 }
