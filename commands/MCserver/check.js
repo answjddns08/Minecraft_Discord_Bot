@@ -83,25 +83,26 @@ export default {
 						name: `플레이어 [ ${playerList.length}명 ]`,
 						value: `${playerList}`,
 					},
+					{ name: "\u200B", value: "\u200B" },
 					{
 						name: "squaremap 주소 (현재 개발 중)",
 						value: "[squaremap](https://redeyes.dev:8888)",
-						inline: true,
 					},
+					{ name: "\u200B", value: "\u200B" },
 					{
 						name: "서버 주소",
 						value: "redeyes.dev",
-						url: "https://redeyes.dev",
-						inline: true,
 					}
 				);
 
 			if (server || version) {
-				resultEmbed.addFields({
-					name: "서버 정보",
-					value: `서버: ${server || "알 수 없음"}\n버전: ${version || "알 수 없음"}`,
-					inline: true,
-				});
+				resultEmbed.addFields(
+					{ name: "\u200B", value: "\u200B" },
+					{
+						name: "서버 정보",
+						value: `서버: ${server || "알 수 없음"}\n버전: ${version || "알 수 없음"}`,
+					}
+				);
 			}
 
 			await interaction.editReply({
