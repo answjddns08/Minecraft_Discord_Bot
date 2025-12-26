@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Discord Bot 서비스
   discord-bot:
@@ -7,6 +5,7 @@ services:
     container_name: minecraft-discord-bot
     environment:
       - NODE_ENV=production
+      - DOCKER_ENV=true
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
     volumes:
@@ -19,6 +18,8 @@ services:
       - /home/redeyes/Documents/Minecraft:/minecraft/server
       # 로그 저장
       - ./logs:/app/logs
+      # Docker 소켓 (봇이 서버 컨테이너 제어용)
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - minecraft-server
     networks:
@@ -66,7 +67,6 @@ services:
       - /home/redeyes/Documents/MinecraftWorldsTrash:/data/worlds-trash
     networks:
       - minecraft-network
-    restart: unless-stopped
     # 헬스체크
     healthcheck:
       test:

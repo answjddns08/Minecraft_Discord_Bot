@@ -30,16 +30,30 @@ export default {
 			return;
 		}
 
-		exec(
-			`tmux new-session -d -s ${config.sessionName} '${config.sessionCommand}'`,
-			(error, stdout, stderr) => {
+		const isDocker = process.env.DOCKER_ENV === "true";
+
+		if (isDocker) {
+			// Docker 환경: 컨테이너 시작
+			exec(`docker start minecraft-server`, (error, stdout, stderr) => {
 				if (error) {
 					console.error(`실행 오류: ${error}`);
 					interaction.reply("월드 실행 중 오류 발생!");
 					return;
 				}
-			}
-		);
+			});
+		} else {
+			// 로컬 환경: tmux 세션 시작
+			exec(
+				`tmux new-session -d -s ${config.sessionName} '${config.sessionCommand}'`,
+				(error, stdout, stderr) => {
+					if (error) {
+						console.error(`실행 오류: ${error}`);
+						interaction.reply("월드 실행 중 오류 발생!");
+						return;
+					}
+				}
+			);
+		}
 
 		interaction.client.user.setPresence({
 			activities: [

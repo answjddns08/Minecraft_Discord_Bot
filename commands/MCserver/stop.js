@@ -42,6 +42,17 @@ export default {
 
 		await rcon.end();
 
+		// Docker 환경에서는 컨테이너도 중지
+		const isDocker = process.env.DOCKER_ENV === "true";
+		if (isDocker) {
+			const { exec } = await import("child_process");
+			exec(`docker stop minecraft-server`, (error) => {
+				if (error) {
+					console.error(`컨테이너 중지 오류: ${error}`);
+				}
+			});
+		}
+
 		interaction.client.user.setPresence({
 			activities: [
 				{

@@ -1,6 +1,9 @@
 # Node.js 이미지 사용
 FROM node:20-alpine
 
+# Docker CLI 설치 (봇이 서버 컨테이너 제어용)
+RUN apk add --no-cache docker-cli
+
 # 작업 디렉토리 설정
 WORKDIR /app
 

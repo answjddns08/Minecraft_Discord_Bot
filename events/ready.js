@@ -1,11 +1,9 @@
 import { Events, REST, Routes, ActivityType } from "discord.js";
-import { config } from "dotenv";
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-config({ path: "../.env" });
-
+// Docker 환경에서는 환경 변수가 이미 주입되어 있으므로 dotenv 불필요
 const token = process.env.DISCORD_TOKEN;
 const botID = process.env.DISCORD_CLIENT_ID;
 

@@ -5,8 +5,6 @@ import path from "path";
 import config from "../../config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
 
-const worlds = await fs.readdir(config.worldDir);
-
 export default {
 	data: new SlashCommandBuilder()
 		.setName("rename")
@@ -15,12 +13,6 @@ export default {
 			option
 				.setName("oldname")
 				.setDescription("변경할 월드 이름")
-				.addChoices(
-					worlds.map((world) => ({
-						name: world,
-						value: world,
-					}))
-				)
 				.setRequired(true)
 		)
 		.addStringOption((option) =>
@@ -34,6 +26,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
+		const worlds = await fs.readdir(config.worldDir);
 		const oldName = interaction.options.getString("oldname");
 
 		if (oldName === (await loadLastWorld()) && (await serverCheck())) {
