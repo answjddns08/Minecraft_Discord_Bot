@@ -6,6 +6,7 @@
 	"scripts": {
 		"start": "NODE_ENV=production node index.js",
 		"dev": "NODE_ENV=development node index.js",
+		"dev:watch": "nodemon index.js",
 		"pm2:dev": "pm2 start ecosystem.config.js --only minecraft-bot-dev",
 		"pm2:prod": "pm2 start ecosystem.config.js --only minecraft-bot-prod"
 	},
@@ -20,6 +21,7 @@
 		"rcon-client": "^4.2.5"
 	},
 	"devDependencies": {
-		"prettier": "^3.6.2"
+		"prettier": "^3.6.2",
+		"nodemon": "^3.0.1"
 	}
 }
