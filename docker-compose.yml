@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+  # Discord Bot 서비스
+  discord-bot:
+    build: .
+    container_name: minecraft-discord-bot
+    environment:
+      - NODE_ENV=production
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+    volumes:
+      # 설정 파일들
+      - ./config.json:/app/config.json
+      - ./worldSettings.json:/app/worldSettings.json
+      # 마인크래프트 월드 공유
+      - minecraft-worlds:/minecraft/worlds
+      - minecraft-worlds-trash:/minecraft/worlds-trash
+      - minecraft-server:/minecraft/server
+      # 로그 저장
+      - ./logs:/app/logs
+    depends_on:
+      - minecraft-server
+    networks:
+      - minecraft-network
+    restart: unless-stopped
+
+  # Minecraft 서버
+  minecraft-server:
+    image: itzg/minecraft-server:java17
+    container_name: minecraft-server
+    environment:
+      # 기본 설정
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "LATEST"
+
+      # 서버 설정
+      SERVER_NAME: "Minecraft Server"
+      MOTD: "Minecraft Server managed by Discord Bot"
+      DIFFICULTY: "normal"
+      MODE: "survival"
+      MAX_PLAYERS: 20
+
+      # 메모리 설정
+      MEMORY: "2G"
+
+      # RCON 설정 (봇이 서버 제어를 위해 필요)
+      ENABLE_RCON: "true"
+      RCON_PASSWORD: "0808"
+      RCON_PORT: 25575
+
+      # 월드 설정
+      LEVEL: "world"
+
+      # 성능 최적화
+      USE_AIKAR_FLAGS: "true"
+      ENABLE_ROLLING_LOGS: "true"
+
+    ports:
+      - "25565:25565" # Minecraft 포트
+    volumes:
+      # 서버 데이터 저장
+      - minecraft-server:/data
+      - minecraft-worlds:/data/worlds
+      - minecraft-worlds-trash:/data/worlds-trash
+    networks:
+      - minecraft-network
+    restart: unless-stopped
+    # 헬스체크
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mc-monitor",
+          "status",
+          "--host",
+          "localhost",
+          "--port",
+          "25565",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+networks:
+  minecraft-network:
+    driver: bridge
+
+volumes:
+  minecraft-server:
+    driver: local
+  minecraft-worlds:
+    driver: local
+  minecraft-worlds-trash:
+    driver: local

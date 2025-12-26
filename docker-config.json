@@ -1,0 +1,17 @@
+{
+	"sessionName": "Minecraft_Server",
+	"sessionCommand": "docker exec minecraft-server rcon-cli",
+	"minecraftDir": "/minecraft/server",
+	"worldDir": "/minecraft/worlds",
+	"TrashWorldDir": "/minecraft/worlds-trash",
+	"thumbnailDir": "/minecraft/server/server-icon.png",
+	"thumbnailFile": "server-icon.png",
+	"WorldAgeDay": 7,
+	"worldLevelName": "world",
+	"RCsettings": {
+		"host": "minecraft-server",
+		"port": 25575,
+		"password": "0808"
+	},
+	"lastWorld": ""
+}

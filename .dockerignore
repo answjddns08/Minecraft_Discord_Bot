@@ -1,0 +1,48 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+# package-lock.json은 npm ci를 위해 필요하므로 포함
+
+# 환경 변수 (docker-compose에서 주입)
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+logs
+*.log
+
+# PM2
+.pm2
+ecosystem.config.js
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 문서
+README.md
+*.md
+
+# 테스트
+test
+tests
+*.test.js
+*.spec.js

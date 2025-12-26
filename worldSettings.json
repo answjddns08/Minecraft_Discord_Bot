@@ -82,5 +82,35 @@
     "gameMode": "survival",
     "level-type": "minecraft:normal",
     "op": false
+  },
+  "TEEEEEST": {
+    "difficulty": "peaceful",
+    "gameMode": "creative",
+    "level-type": "minecraft:amplified",
+    "op": true
+  },
+  "아모른직다": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
+  },
+  "이윤우": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:largeBiomes",
+    "op": false
+  },
+  "asdflkj": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": true
+  },
+  "dho114dlf": {
+    "difficulty": "hard",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
   }
 }
