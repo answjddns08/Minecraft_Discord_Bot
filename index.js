@@ -66,15 +66,8 @@ const client = new Client({
 });
 
 //discord bot tokens
-const token =
-	process.env.NODE_ENV === "production"
-		? process.env.MinecraftBot
-		: process.env.testbot;
-
-const botId =
-	process.env.NODE_ENV === "production"
-		? process.env.MinecraftBot_id
-		: process.env.testbot_id;
+const token = process.env.DISCORD_TOKEN;
+const botId = process.env.DISCORD_CLIENT_ID;
 
 client.commands = new Collection();
 

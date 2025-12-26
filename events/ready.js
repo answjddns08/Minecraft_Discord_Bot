@@ -6,15 +6,8 @@ import { fileURLToPath } from "url";
 
 config({ path: "../.env" });
 
-const token =
-	process.env.NODE_ENV === "production"
-		? process.env.MinecraftBot
-		: process.env.testbot;
-
-const botID =
-	process.env.NODE_ENV === "production"
-		? process.env.MinecraftBot_id
-		: process.env.testbot_id;
+const token = process.env.DISCORD_TOKEN;
+const botID = process.env.DISCORD_CLIENT_ID;
 
 const guildId = "1080485159230509096"; // for testing purposes (test in specific guild)
 

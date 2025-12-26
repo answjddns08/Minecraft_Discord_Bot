@@ -13,10 +13,10 @@ services:
       # 설정 파일들
       - ./config.json:/app/config.json
       - ./worldSettings.json:/app/worldSettings.json
-      # 마인크래프트 월드 공유
-      - minecraft-worlds:/minecraft/worlds
-      - minecraft-worlds-trash:/minecraft/worlds-trash
-      - minecraft-server:/minecraft/server
+      # 마인크래프트 월드 공유 (기존 디렉토리와 직접 연결)
+      - /home/redeyes/Documents/MinecraftWorlds:/minecraft/worlds
+      - /home/redeyes/Documents/MinecraftWorldsTrash:/minecraft/worlds-trash
+      - /home/redeyes/Documents/Minecraft:/minecraft/server
       # 로그 저장
       - ./logs:/app/logs
     depends_on:
@@ -27,7 +27,7 @@ services:
 
   # Minecraft 서버
   minecraft-server:
-    image: itzg/minecraft-server:java17
+    image: itzg/minecraft-server:java21
     container_name: minecraft-server
     environment:
       # 기본 설정
@@ -60,10 +60,10 @@ services:
     ports:
       - "25565:25565" # Minecraft 포트
     volumes:
-      # 서버 데이터 저장
-      - minecraft-server:/data
-      - minecraft-worlds:/data/worlds
-      - minecraft-worlds-trash:/data/worlds-trash
+      # 서버 데이터 저장 (기존 디렉토리 bind mount)
+      - /home/redeyes/Documents/Minecraft:/data
+      - /home/redeyes/Documents/MinecraftWorlds:/data/worlds
+      - /home/redeyes/Documents/MinecraftWorldsTrash:/data/worlds-trash
     networks:
       - minecraft-network
     restart: unless-stopped
@@ -87,11 +87,4 @@ services:
 networks:
   minecraft-network:
     driver: bridge
-
-volumes:
-  minecraft-server:
-    driver: local
-  minecraft-worlds:
-    driver: local
-  minecraft-worlds-trash:
-    driver: local
+# Named volumes 제거 - 기존 디렉토리를 bind mount로 직접 사용
