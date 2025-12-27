@@ -1,0 +1,12 @@
+{
+	"watch": ["*.js", "commands/**/*.js", "events/**/*.js", "functions/**/*.js"],
+	"ignore": [
+		"worldSettings.json",
+		"config.json",
+		"config.local.json",
+		"logs/*",
+		"node_modules/*"
+	],
+	"ext": "js,json",
+	"exec": "node index.js"
+}
