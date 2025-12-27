@@ -4,10 +4,26 @@ import {
 	EmbedBuilder,
 	AttachmentBuilder,
 } from "discord.js";
+import { promises as fs } from "fs";
+import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
 import versionCheck from "../../functions/versionCheck.js";
+
+/**
+ * VERSION 파일에서 현재 마크 서버 버전 읽기
+ */
+async function getCurrentVersion() {
+	try {
+		const versionFile = path.join(config.minecraftDir, "VERSION");
+		const version = await fs.readFile(versionFile, "utf8");
+		return version.trim();
+	} catch (error) {
+		console.warn("VERSION 파일을 읽을 수 없음:", error.message);
+		return "알 수 없음";
+	}
+}
 
 /*
 	썸네일 설정 변수들 (로컬 파일 사용 기준)
@@ -26,6 +42,7 @@ export default {
 		await interaction.deferReply();
 
 		const serverIcon = new AttachmentBuilder(config.thumbnailDir);
+		const currentVersion = await getCurrentVersion();
 
 		let rcon;
 
@@ -50,7 +67,7 @@ export default {
 					},
 					{
 						name: "버전",
-						value: "1.21.10",
+						value: currentVersion,
 						inline: true,
 					}
 				);
@@ -102,7 +119,7 @@ export default {
 					},
 					{
 						name: "버전",
-						value: "1.21.10",
+						value: currentVersion,
 						inline: true,
 					}
 				);
