@@ -9,7 +9,6 @@ import {
 import { promises as fs } from "fs";
 import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
-import { exec } from "child_process";
 import config from "../../config.json" with { type: "json" };
 
 export default {
@@ -122,20 +121,7 @@ export default {
 						await i.deferUpdate();
 
 						await i.followUp({
-							content: `버전이 **${selectedVersion}**로 설정되었습니다.\n컨테이너를 재시작 중입니다...`,
-						});
-
-						// 컨테이너 재시작
-						exec("docker restart minecraft-server", (error) => {
-							if (error) {
-								console.error(`재시작 오류: ${error}`);
-								interaction.followUp("컨테이너 재시작 중 오류 발생!");
-								return;
-							}
-
-							interaction.followUp(
-								`✅ 서버 버전이 **${selectedVersion}**로 변경되었습니다.\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:`
-							);
+							content: `✅ 서버 버전이 **${selectedVersion}**로 설정되었습니다.\n\n다음 서버 시작 시 이 버전으로 실행됩니다.`,
 						});
 
 						collector.stop("manual");
