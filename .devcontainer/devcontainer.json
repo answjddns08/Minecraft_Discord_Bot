@@ -1,0 +1,39 @@
+{
+    "name": "Minecraft Discord Bot Dev",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "discord-bot-dev",
+    "workspaceFolder": "/app",
+    // 컨테이너가 생성된 후 실행할 명령어
+    "postCreateCommand": "npm install",
+    // VS Code 설정
+    "customizations": {
+        "vscode": {
+            // 추천 확장 프로그램
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "ms-azuretools.vscode-docker",
+                "PKief.material-icon-theme"
+            ],
+            // 에디터 설정
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "sh",
+                "editor.formatOnSave": true,
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "javascript.updateImportsOnFileMove.enabled": "always",
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                }
+            }
+        }
+    },
+    // 포트 포워딩 (필요시)
+    "forwardPorts": [],
+    // 컨테이너 시작 후 유지 (nodemon이 계속 실행되도록)
+    "overrideCommand": false,
+    // Dev Container 특권 설정 (docker-cli 사용을 위해)
+    "runServices": [
+        "minecraft-server"
+    ],
+    "shutdownAction": "stopCompose"
+}
