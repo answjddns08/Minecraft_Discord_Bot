@@ -8,13 +8,9 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-import yaml from "yaml";
 import serverCheck from "../../functions/serverCheck.js";
 import { exec } from "child_process";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import config from "../../config.json" with { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -89,23 +85,20 @@ export default {
 			new ActionRowBuilder().addComponents(confirmBtn, cancelBtn),
 		];
 
-		const response = await interaction.reply({
+		const response = await interaction.editReply({
 			content:
 				"변경할 서버 버전을 선택해주세요.\n\n-# 명령어 친 사람만 사용 가능",
 			components: actionRows,
-			withResponse: true,
 		});
 
 		let selectedVersion = null;
 
 		const filter = (i) => i.user.id === interaction.user.id;
 
-		const collector = response.resource.message.createMessageComponentCollector(
-			{
-				filter: filter,
-				time: 180000, // 3min
-			}
-		);
+		const collector = response.createMessageComponentCollector({
+			filter: filter,
+			time: 180000, // 3min
+		});
 
 		collector.on("collect", async (i) => {
 			if (i.isStringSelectMenu()) {
@@ -114,7 +107,7 @@ export default {
 			} else if (i.isButton()) {
 				if (i.customId === "versionConfirm") {
 					if (!selectedVersion) {
-						await i.reply({
+						await i.followUp({
 							content: "버전을 선택해주세요.",
 							ephemeral: true,
 						});
@@ -122,72 +115,34 @@ export default {
 					}
 
 					try {
-						// docker-compose.yml 읽기
-						const composePath = path.join(
-							__dirname,
-							"../../docker-compose.yml"
-						);
-						const composeFile = await fs.readFile(composePath, "utf8");
-						const compose = yaml.parse(composeFile);
+						// VERSION 파일에 버전 저장 (itzg 이미지가 자동으로 읽음)
+						const versionFile = path.join(config.minecraftDir, "VERSION");
+						await fs.writeFile(versionFile, selectedVersion, "utf8");
 
-						// VERSION 환경 변수 수정
-						compose.services["minecraft-server"].environment.VERSION =
-							selectedVersion;
+						await i.deferUpdate();
 
-						// docker-compose.yml 쓰기
-						await fs.writeFile(composePath, yaml.stringify(compose), "utf8");
-
-						await i.update({
+						await i.followUp({
 							content: `버전이 **${selectedVersion}**로 설정되었습니다.\n컨테이너를 재시작 중입니다...`,
-							components: [],
 						});
 
 						// 컨테이너 재시작
-						exec(
-							"docker compose -f /home/redeyes/Documents/MC_bot/docker-compose.yml stop minecraft-server",
-							(error) => {
-								if (error) {
-									console.error(`stop 오류: ${error}`);
-									interaction.followUp("컨테이너 중지 중 오류 발생!");
-									return;
-								}
-
-								setTimeout(() => {
-									exec(
-										"docker compose -f /home/redeyes/Documents/MC_bot/docker-compose.yml rm -f minecraft-server",
-										(error) => {
-											if (error) {
-												console.error(`rm 오류: ${error}`);
-												interaction.followUp("컨테이너 제거 중 오류 발생!");
-												return;
-											}
-
-											exec(
-												"docker compose -f /home/redeyes/Documents/MC_bot/docker-compose.yml up -d minecraft-server",
-												(error) => {
-													if (error) {
-														console.error(`up 오류: ${error}`);
-														interaction.followUp("컨테이너 시작 중 오류 발생!");
-														return;
-													}
-
-													interaction.followUp(
-														`✅ 서버 버전이 **${selectedVersion}**로 변경되었습니다.\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:`
-													);
-												}
-											);
-										}
-									);
-								}, 3000); // 3초 대기
+						exec("docker restart minecraft-server", (error) => {
+							if (error) {
+								console.error(`재시작 오류: ${error}`);
+								interaction.followUp("컨테이너 재시작 중 오류 발생!");
+								return;
 							}
-						);
+
+							interaction.followUp(
+								`✅ 서버 버전이 **${selectedVersion}**로 변경되었습니다.\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:`
+							);
+						});
 
 						collector.stop("manual");
 					} catch (error) {
 						console.error(error);
-						await i.update({
-							content: "버전 설정 중 오류 발생!",
-							components: [],
+						await interaction.followUp({
+							content: `버전 설정 중 오류 발생!: ${error.message}`,
 						});
 					}
 				} else if (i.customId === "versionCancel") {
