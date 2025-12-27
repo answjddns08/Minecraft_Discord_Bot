@@ -62,8 +62,6 @@ services:
       # 서버 설정
       SERVER_NAME: "Minecraft Server"
       MOTD: "Minecraft Server managed by Discord Bot"
-      DIFFICULTY: "normal"
-      MODE: "survival"
       MAX_PLAYERS: 10
 
       # 메모리 설정
@@ -85,25 +83,9 @@ services:
       - "25565:25565" # Minecraft 포트
     volumes:
       # 서버 데이터 저장 (모든 데이터를 하나의 마운트에)
-      - /home/redeyes/Documents/mc-data:/data
+      - /home/redeyes/Documents/mc-data/server:/data
     networks:
       - minecraft-network
-    # 헬스체크
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mc-monitor",
-          "status",
-          "--host",
-          "localhost",
-          "--port",
-          "25565",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
 
 networks:
   minecraft-network:

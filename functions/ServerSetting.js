@@ -28,7 +28,8 @@ async function readServerProperties() {
 
 /**
  * server.properties 파일을 업데이트하는 함수
- * @param {Object} newSettings 업데이트할 설정
+ * 서버 시작 전에 호출되어야 변경사항이 적용됨
+ * @param {Object} newSettings 업데이트할 설정 (difficulty, gameMode, "level-type" 등)
  * @returns {Promise<void>}
  * @throws {Error} 파일 쓰기 실패 시 에러
  */
@@ -44,6 +45,7 @@ async function updateServerProperties(newSettings) {
 			propertiesString,
 			"utf8"
 		);
+		console.log("server.properties 업데이트 완료:", newSettings);
 	} catch (err) {
 		throw new Error(`서버 속성 파일 업데이트 실패: ${err.message}`);
 	}

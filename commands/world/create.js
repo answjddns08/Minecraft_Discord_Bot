@@ -163,6 +163,7 @@ export default {
 			op: null,
 		};
 
+		/** 상호작용하는 유저가 동일한지 확인 */
 		const filter = (i) => i.user.id === interaction.user.id;
 
 		const settingCollector = settingResponse.createMessageComponentCollector({
@@ -183,8 +184,6 @@ export default {
 				worldSettings.op = i.customId === "opConfirm";
 			}
 
-			await i.deferUpdate();
-
 			// 모든 설정이 완료되었는지 확인
 			if (
 				worldSettings.difficulty &&
@@ -192,11 +191,14 @@ export default {
 				worldSettings["level-type"] &&
 				worldSettings.op !== null
 			) {
-				settingResponse.edit({
-					content: "설정이 완료되었습니다.",
+				console.log(worldSettings);
+				await i.update({
+					content: "월드 설정이 완료되었습니다.",
 					components: [],
 				});
 				settingCollector.stop("manual");
+			} else {
+				await i.deferUpdate();
 			}
 		});
 
@@ -217,6 +219,8 @@ export default {
 		let selectCollector;
 
 		settingCollector.on("end", async (collected, reason) => {
+			console.log("reason:", reason);
+
 			if (reason !== "manual") {
 				await settingResponse.edit({
 					content:
@@ -235,6 +239,10 @@ export default {
 
 			if (await serverCheck()) {
 				// 월드가 실행 중이니 선택한 월드로 변경할 수 없음
+				console.log("서버 실행 중");
+				await interaction.followUp(
+					"서버가 실행 중이므로 선택한 월드로 변경할 수 없습니다.\n서버를 재시작한 후 수동으로 변경해주세요."
+				);
 				return;
 			}
 
@@ -244,10 +252,11 @@ export default {
 				withResponse: true,
 			});
 
-			selectCollector = selectResponse.createMessageComponentCollector({
-				filter: filter,
-				time: 180000, // 3min
-			});
+			selectCollector =
+				selectResponse.resource.message.createMessageComponentCollector({
+					filter: filter,
+					time: 180000, // 3min
+				});
 
 			selectCollector.on("collect", async (i) => {
 				if (i.isButton()) {

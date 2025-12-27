@@ -41,7 +41,19 @@ export default {
 		} else if (!check) {
 			resultEmbed
 				.setColor(0xf70707)
-				.setDescription("The world is offline! :x:");
+				.setDescription("The world is offline! :x:\n **\n**")
+				.addFields(
+					{
+						name: "서버 주소",
+						value: "mc.redeyes.dev",
+						inline: true,
+					},
+					{
+						name: "버전",
+						value: "1.21.10",
+						inline: true,
+					}
+				);
 
 			await interaction.editReply({
 				embeds: [resultEmbed],
@@ -77,21 +89,21 @@ export default {
 
 			resultEmbed
 				.setColor(0x08f608)
-				.setDescription("The world is online! :white_check_mark:")
+				.setDescription("The world is online! :white_check_mark:\n **\n**")
 				.addFields(
 					{
 						name: `플레이어 [ ${playerList.length}명 ]`,
-						value: `${playerList}`,
+						value: `${playerList}\n **\n**`,
 					},
-					{ name: "\u200B", value: "\u200B" },
-					{
-						name: "squaremap 주소 (현재 개발 중)",
-						value: "[squaremap](https://redeyes.dev:8888)",
-					},
-					{ name: "\u200B", value: "\u200B" },
 					{
 						name: "서버 주소",
-						value: "redeyes.dev",
+						value: "mc.redeyes.dev",
+						inline: true,
+					},
+					{
+						name: "버전",
+						value: "1.21.10",
+						inline: true,
 					}
 				);
 

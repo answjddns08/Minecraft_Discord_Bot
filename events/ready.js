@@ -1,4 +1,4 @@
-import { Events, REST, Routes, ActivityType } from "discord.js";
+import { Events, REST, Routes } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
