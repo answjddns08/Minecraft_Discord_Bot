@@ -18,28 +18,15 @@ const client = new Client({
 		repliedUser: false, // 답장 시 유저 멘션 비활성화
 	},
 	// 파일 첨부 크기 제한
-	messageCacheMaxSize: 10, // 메시지 캐시 최대 크기
+	messageCacheMaxSize: 20, // 메시지 캐시 최대 크기
 	// memory optimization - cache
 	makeCache: Options.cacheWithLimits({
-		...Options.DefaultMakeCacheSettings,
-		MessageManager: 10, // 메시지 캐시를 10개로 더 제한 (서버 관리 봇이므로 많은 메시지 캐시 불필요)
-		ChannelManager: 20, // 채널 캐시 더 제한 (필요한 채널만 캐시)
-		GuildManager: 3, // 길드 캐시 더 제한 (소수 길드에서만 사용)
-		UserManager: 30, // 유저 캐시 더 제한
-		PresenceManager: 0, // Presence 캐시 비활성화
-		StageInstanceManager: 0, // Stage Instance 캐시 비활성화
-		VoiceStateManager: 0, // Voice State 캐시 비활성화
-		GuildScheduledEventManager: 0, // 예약된 이벤트 캐시 비활성화
-		ThreadManager: 0, // 스레드 캐시 비활성화
-		ThreadMemberManager: 0, // 스레드 멤버 캐시 비활성화
-		ReactionManager: 0, // 반응 캐시 비활성화
-		ReactionUserManager: 0, // 반응 유저 캐시 비활성화
-		BaseGuildEmojiManager: 0, // 이모지 캐시 비활성화 (필요 없음)
-		GuildStickerManager: 0, // 스티커 캐시 비활성화
-		RoleManager: 10, // 역할 캐시 제한
-		GuildMemberManager: 20, // 길드 멤버 캐시 제한
-		GuildBanManager: 0, // 밴 목록 캐시 비활성화
-		GuildInviteManager: 0, // 초대 링크 캐시 비활성화
+		ChannelManager: 10, // 채널 매니저 캐시 (메시지 작업 시 필요)
+		GuildMemberManager: 50, // 길드 멤버 매니저 캐시 제한
+		MessageManager: 200, // 메시지 매니저 캐시 제한
+		PresenceManager: 10, // 프레즌스 매니저 캐시 비활성화
+		ReactionManager: 10, // 리액션 매니저 캐시 비활성화
+		UserManager: 100, // 유저 매니저 캐시 제한
 	}),
 	// memory optimization - sweepers
 	sweepers: {
