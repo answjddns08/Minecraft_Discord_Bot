@@ -12,10 +12,8 @@ services:
       # 설정 파일들
       - ./config.json:/app/config.json
       - ./worldSettings.json:/app/worldSettings.json
-      # 마인크래프트 월드 공유 (기존 디렉토리와 직접 연결)
-      - /home/redeyes/Documents/MinecraftWorlds:/minecraft/worlds
-      - /home/redeyes/Documents/MinecraftWorldsTrash:/minecraft/worlds-trash
-      - /home/redeyes/Documents/Minecraft:/minecraft/server
+      # 마인크래프트 데이터 (모든 데이터를 하나의 마운트에)
+      - /home/redeyes/Documents/mc-data:/minecraft
       # 로그 저장
       - ./logs:/app/logs
       # Docker 소켓 (봇이 서버 컨테이너 제어용)
@@ -36,15 +34,13 @@ services:
       - DOCKER_ENV=true
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
-    command: sh -c "npm install && npx nodemon index.js"
+    command: sh -c "apk add --no-cache docker-cli && npm install && npx nodemon index.js"
     volumes:
       - ./:/app
       - node_modules:/app/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
-      # 월드/서버 경로 (동일하게 연결)
-      - /home/redeyes/Documents/MinecraftWorlds:/minecraft/worlds
-      - /home/redeyes/Documents/MinecraftWorldsTrash:/minecraft/worlds-trash
-      - /home/redeyes/Documents/Minecraft:/minecraft/server
+      # 마인크래프트 데이터 (모든 데이터를 하나의 마운트에)
+      - /home/redeyes/Documents/mc-data:/minecraft
     depends_on:
       - minecraft-server
     networks:
@@ -68,7 +64,7 @@ services:
       MOTD: "Minecraft Server managed by Discord Bot"
       DIFFICULTY: "normal"
       MODE: "survival"
-      MAX_PLAYERS: 20
+      MAX_PLAYERS: 10
 
       # 메모리 설정
       MEMORY: "2G"
@@ -88,10 +84,8 @@ services:
     ports:
       - "25565:25565" # Minecraft 포트
     volumes:
-      # 서버 데이터 저장 (기존 디렉토리 bind mount)
-      - /home/redeyes/Documents/Minecraft:/data
-      - /home/redeyes/Documents/MinecraftWorlds:/data/worlds
-      - /home/redeyes/Documents/MinecraftWorldsTrash:/data/worlds-trash
+      # 서버 데이터 저장 (모든 데이터를 하나의 마운트에)
+      - /home/redeyes/Documents/mc-data:/data
     networks:
       - minecraft-network
     # 헬스체크
