@@ -153,7 +153,6 @@ export default {
 		const settingResponse = await interaction.followUp({
 			content: "월드 설정",
 			components: actionRows,
-			withResponse: true,
 		});
 
 		const worldSettings = {
@@ -249,14 +248,12 @@ export default {
 			selectResponse = await interaction.followUp({
 				content: "선택한 월드로 변경하시겠습니까?",
 				components: [row],
-				withResponse: true,
 			});
 
-			selectCollector =
-				selectResponse.resource.message.createMessageComponentCollector({
-					filter: filter,
-					time: 180000, // 3min
-				});
+			selectCollector = selectResponse.createMessageComponentCollector({
+				filter: filter,
+				time: 180000, // 3min
+			});
 
 			selectCollector.on("collect", async (i) => {
 				if (i.isButton()) {
