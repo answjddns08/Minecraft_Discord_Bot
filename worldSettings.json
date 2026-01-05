@@ -112,5 +112,11 @@
     "gameMode": "survival",
     "level-type": "minecraft:normal",
     "op": false
+  },
+  "서버 겟또다제": {
+    "difficulty": "normal",
+    "gameMode": "survival",
+    "level-type": "minecraft:normal",
+    "op": false
   }
 }
