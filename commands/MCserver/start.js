@@ -33,8 +33,8 @@ export default {
 		const isDocker = process.env.DOCKER_ENV === "true";
 
 		if (isDocker) {
-			// Docker 환경: 컨테이너 시작
-			exec(`docker start minecraft-server`, (error, stdout, stderr) => {
+			// Docker 환경: docker-compose로 시작 (.env 파일의 VERSION도 적용됨)
+			exec(`docker compose up -d minecraft-server`, (error, stdout, stderr) => {
 				if (error) {
 					console.error(`실행 오류: ${error}`);
 					interaction.reply("월드 실행 중 오류 발생!");
