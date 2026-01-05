@@ -38,7 +38,8 @@ export default {
 		try {
 			const response = await fetch("https://api.papermc.io/v2/projects/paper");
 			const data = await response.json();
-			versions = data.versions || [];
+			// 프리뷰 버전(pre)은 제외하고 일반 릴리즈만 필터링
+			versions = (data.versions || []).filter((v) => !v.includes("pre"));
 
 			if (versions.length === 0) {
 				await interaction.editReply("사용 가능한 버전을 가져올 수 없습니다.");
@@ -117,6 +118,23 @@ export default {
 						// VERSION 파일에 버전 저장 (itzg 이미지가 자동으로 읽음)
 						const versionFile = path.join(config.minecraftDir, "VERSION");
 						await fs.writeFile(versionFile, selectedVersion, "utf8");
+
+						// .env 파일에도 VERSION 저장 (docker-compose에서 사용)
+						const envFile = path.join(process.cwd(), ".env");
+						let envContent = "";
+						try {
+							envContent = await fs.readFile(envFile, "utf8");
+						} catch {
+							// .env 파일이 없으면 새로 생성
+							envContent = "";
+						}
+
+						// 기존 VERSION 라인 제거 및 새로운 VERSION 추가
+						const envLines = envContent
+							.split("\n")
+							.filter((line) => !line.startsWith("VERSION="));
+						envLines.push(`VERSION=${selectedVersion}`);
+						await fs.writeFile(envFile, envLines.join("\n"), "utf8");
 
 						await i.deferUpdate();
 
