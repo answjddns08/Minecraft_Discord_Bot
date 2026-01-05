@@ -57,11 +57,11 @@ services:
       # 기본 설정
       EULA: "TRUE"
       TYPE: "PAPER"
-      VERSION: "LATEST"
+      VERSION: "${VERSION:-LATEST}"
 
       # 서버 설정
-      SERVER_NAME: "Minecraft Server"
-      MOTD: "Minecraft Server managed by Discord Bot"
+      SERVER_NAME: "A Raspberry Pi Minecraft Server"
+      MOTD: "\u00a7kasdfasdf\u00a7a          \ubb34\uc0ac\uace0 0\uc77c\ucc28!!\u00a7r\u00a7k              asdfasdf"
       MAX_PLAYERS: 10
 
       # 메모리 설정
