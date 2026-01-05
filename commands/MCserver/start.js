@@ -34,7 +34,7 @@ export default {
 
 		if (isDocker) {
 			// Docker 환경: docker-compose로 시작 (.env 파일의 VERSION도 적용됨)
-			exec(`docker compose up -d minecraft-server`, (error, stdout, stderr) => {
+			exec(`docker restart minecraft-server`, (error, stdout, stderr) => {
 				if (error) {
 					console.error(`실행 오류: ${error}`);
 					interaction.reply("월드 실행 중 오류 발생!");
