@@ -18,8 +18,6 @@ services:
       - ./logs:/app/logs
       # Docker 소켓 (봇이 서버 컨테이너 제어용)
       - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - minecraft-server
     networks:
       - minecraft-network
     restart: unless-stopped
@@ -41,8 +39,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # 마인크래프트 데이터 (모든 데이터를 하나의 마운트에)
       - /home/redeyes/Documents/mc-data:/minecraft
-    depends_on:
-      - minecraft-server
     networks:
       - minecraft-network
     restart: unless-stopped
