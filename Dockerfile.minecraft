@@ -1,7 +1,14 @@
 FROM eclipse-temurin:21-jre-alpine
 
 # 필요한 도구 설치
-RUN apk add --no-cache curl jq
+RUN apk add --no-cache curl jq bash build-base git
+
+# mcrcon 설치 (더 나은 RCON 클라이언트)
+RUN git clone https://github.com/Tiiffi/mcrcon.git /tmp/mcrcon && \
+    cd /tmp/mcrcon && \
+    make && \
+    make install && \
+    rm -rf /tmp/mcrcon
 
 # 작업 디렉토리
 WORKDIR /data
