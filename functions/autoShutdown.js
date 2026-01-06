@@ -1,6 +1,13 @@
 import { Rcon } from "rcon-client";
+import { fileURLToPath } from "url";
+import path from "path";
 import config from "../config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
+
+// 프로젝트 루트 경로 계산
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "..");
 
 const delayMin = 5;
 let shutdownTimer;
@@ -38,15 +45,20 @@ async function autoShutdown() {
 			await rcon.send("stop");
 			await rcon.end();
 
-			// Docker 환경에서는 컨테이너도 중지
+			// Docker 환경에서는 컨테이너 중지 및 제거
 			const isDocker = process.env.DOCKER_ENV === "true";
 			if (isDocker) {
 				const { exec } = await import("child_process");
-				exec(`docker stop minecraft-server`, (error) => {
-					if (error) {
-						console.error(`컨테이너 중지 오류: ${error}`);
+				exec(
+					`cd "${projectRoot}" && docker compose --profile server down`,
+					(error) => {
+						if (error) {
+							console.error(`컨테이너 중지 오류: ${error}`);
+						} else {
+							console.log("[autoShutdown] 서버 자동 종료 완료");
+						}
 					}
-				});
+				);
 			}
 
 			client.user.setPresence({

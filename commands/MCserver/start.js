@@ -1,9 +1,16 @@
 import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
+import { fileURLToPath } from "url";
+import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" with { type: "json" };
 import { startAutoShutdown } from "../../functions/autoShutdown.js";
 import { loadLastWorld } from "../../functions/lastWorld.js";
+
+// 프로젝트 루트 경로 계산
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "../..");
 
 export default {
 	data: new SlashCommandBuilder()
@@ -40,14 +47,28 @@ export default {
 		const isDocker = process.env.DOCKER_ENV === "true";
 
 		if (isDocker) {
-			// Docker 환경: 간단히 컨테이너 시작 (entrypoint가 VERSION 환경변수 자동 처리)
-			exec(`docker start minecraft-server`, (error, stdout, stderr) => {
+			// Docker 환경: docker compose up으로 컨테이너 생성/시작
+			// 버전 환경변수도 함께 전달
+			const mcVersion = process.env.MC_VERSION || "LATEST";
+			const cmd = `cd "${projectRoot}" && MC_VERSION="${mcVersion}" MC_LEVEL="${worldName}" docker compose --profile server up -d minecraft-server`;
+
+			console.log(`[Server] 서버 시작 명령: ${cmd}`);
+
+			exec(cmd, (error, stdout, stderr) => {
 				if (error) {
 					console.error(`실행 오류: ${error}`);
 					interaction.followUp("월드 실행 중 오류 발생!");
 					return;
 				}
-				console.log(`[Server] 서버 시작 성공`);
+				console.log(`[Server] 서버 시작 성공: ${stdout}`);
+				if (stderr) console.warn(`[Server] 경고: ${stderr}`);
+
+				// 서버가 준비될 때까지 대기 후 완료 메시지
+				setTimeout(() => {
+					interaction.followUp(
+						`✅ **${worldName}** 월드가 시작되었습니다! (버전: ${mcVersion})`
+					);
+				}, 10000);
 			});
 		} else {
 			// 로컬 환경: tmux 세션 시작

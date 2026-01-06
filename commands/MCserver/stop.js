@@ -1,8 +1,15 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
+import { fileURLToPath } from "url";
+import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
 import config from "../../config.json" with { type: "json" };
 import { stopAutoShutdown } from "../../functions/autoShutdown.js";
+
+// 프로젝트 루트 경로 계산
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "../..");
 
 export default {
 	data: new SlashCommandBuilder()
@@ -42,15 +49,21 @@ export default {
 
 		await rcon.end();
 
-		// Docker 환경에서는 컨테이너도 중지
+		// Docker 환경에서는 컨테이너 중지 및 제거
 		const isDocker = process.env.DOCKER_ENV === "true";
 		if (isDocker) {
 			const { exec } = await import("child_process");
-			exec(`docker stop minecraft-server`, (error) => {
-				if (error) {
-					console.error(`컨테이너 중지 오류: ${error}`);
+			// docker compose down으로 컨테이너 완전히 제거 (다음 시작을 위해)
+			exec(
+				`cd "${projectRoot}" && docker compose --profile server down`,
+				(error, stdout, stderr) => {
+					if (error) {
+						console.error(`컨테이너 중지 오류: ${error}`);
+					} else {
+						console.log(`[Server] 컨테이너 중지 및 제거 완료`);
+					}
 				}
-			});
+			);
 		}
 
 		interaction.client.user.setPresence({

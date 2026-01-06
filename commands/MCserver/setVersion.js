@@ -7,7 +7,14 @@ import {
 	ActionRowBuilder,
 } from "discord.js";
 import { exec } from "child_process";
+import { fileURLToPath } from "url";
+import path from "path";
 import serverCheck from "../../functions/serverCheck.js";
+
+// 프로젝트 루트 경로 계산
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "../..");
 
 export default {
 	data: new SlashCommandBuilder()
@@ -115,21 +122,50 @@ export default {
 					try {
 						await i.deferUpdate();
 
-						// 컨테이너 환경 변수 설정 (재시작 필요)
-						exec(
-							`docker rm -f minecraft-server 2>/dev/null || true`,
-							(error) => {
-								console.log("Old container removed or not found");
+						// 환경변수를 메모리와 .env 파일에 저장
+						process.env.MC_VERSION = selectedVersion;
+
+						// .env 파일 업데이트
+						const { promises: fs } = await import("fs");
+
+						try {
+							const envPath = path.join(projectRoot, ".env");
+							let envContent = "";
+
+							try {
+								envContent = await fs.readFile(envPath, "utf-8");
+							} catch (e) {
+								// .env 파일이 없으면 새로 생성
+								envContent = "";
 							}
-						);
+
+							// MC_VERSION 라인 업데이트 또는 추가
+							const lines = envContent.split("\n");
+							const versionLineIndex = lines.findIndex((line) =>
+								line.startsWith("MC_VERSION=")
+							);
+
+							if (versionLineIndex >= 0) {
+								lines[versionLineIndex] = `MC_VERSION=${selectedVersion}`;
+							} else {
+								lines.push(`MC_VERSION=${selectedVersion}`);
+							}
+
+							await fs.writeFile(envPath, lines.join("\n"));
+							console.log(
+								`[setVersion] .env 파일 업데이트 완료: ${selectedVersion}`
+							);
+						} catch (fileError) {
+							console.warn(
+								`[setVersion] .env 파일 업데이트 실패 (메모리에만 저장됨): ${fileError.message}`
+							);
+						}
+
+						console.log(`[setVersion] 버전 변경됨: ${selectedVersion}`);
 
 						await i.followUp({
 							content: `✅ 서버 버전이 **${selectedVersion}**로 설정되었습니다.\n\n📝 변경사항:\n다음 서버 시작(\/start) 시 이 버전으로 실행됩니다.`,
 						});
-
-						// 환경변수를 메모리에 저장 (bot process env)
-						process.env.MC_VERSION = selectedVersion;
-						console.log(`[setVersion] 버전 변경됨: ${selectedVersion}`);
 
 						collector.stop("manual");
 					} catch (error) {

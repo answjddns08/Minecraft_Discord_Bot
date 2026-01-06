@@ -51,6 +51,10 @@ export default {
 			const newPath = path.join(config.worldDir, newName);
 
 			await fs.rename(oldPath, newPath);
+
+			await interaction.reply(
+				`✅ **${oldName}** → **${newName}** 월드 이름이 변경되었습니다.`
+			);
 		} catch (error) {
 			console.log(error);
 

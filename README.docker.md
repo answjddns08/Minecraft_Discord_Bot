@@ -21,13 +21,21 @@
 ### 1. 처음 실행 (이미지 빌드 포함)
 
 ```bash
-docker compose up -d --build
+# 디스코드 봇만 실행 (마인크래프트 서버는 봇 명령어로 시작)
+docker compose up -d --build discord-bot
+
+# 개발 모드로 실행 (코드 변경 시 자동 재시작)
+docker compose --profile dev up -d --build discord-bot-dev
 ```
 
-### 2. 일반 실행
+### 2. 마인크래프트 서버 시작
+
+Discord 봇의 `/start` 명령어를 사용하여 마인크래프트 서버를 시작합니다.
+서버는 profile 기반으로 동작하여 필요할 때만 시작됩니다.
 
 ```bash
-docker compose up -d
+# 또는 수동으로 서버 시작
+MC_VERSION=1.21.4 MC_LEVEL=my-world docker compose --profile server up -d minecraft-server
 ```
 
 ### 3. 로그 확인
@@ -39,7 +47,7 @@ docker compose logs -f
 # 봇 로그만
 docker compose logs -f discord-bot
 
-# 마인크래프트 서버 로그만
+# 마인크래프트 서버 로그만 (서버가 실행 중일 때)
 docker compose logs -f minecraft-server
 ```
 
@@ -49,22 +57,20 @@ docker compose logs -f minecraft-server
 docker compose ps
 ```
 
-### 5. 중지
+### 5. 봇 중지
 
 ```bash
-docker compose stop
+docker compose stop discord-bot
 ```
 
 ### 6. 완전 종료 (컨테이너 삭제)
 
 ```bash
+# 봇만 종료
 docker compose down
-```
 
-### 7. 완전 초기화 (볼륨까지 삭제)
-
-```bash
-docker compose down -v
+# 서버 포함 모두 종료
+docker compose --profile server down
 ```
 
 ## 유용한 명령어
@@ -106,19 +112,38 @@ docker stats
 └── ...
 ```
 
+## 주요 기능
+
+### 버전 관리
+
+- `/setversion`: 마인크래프트 서버 버전 설정 (Paper MC 최신 10개 버전 중 선택)
+- 버전은 `.env` 파일에 저장되어 봇 재시작 후에도 유지됩니다
+
+### 서버 관리
+
+- `/start`: 서버 시작 (설정된 버전과 월드로 자동 시작)
+- `/stop`: 서버 종료 (플레이어가 없을 때만 가능)
+- `/check`: 서버 상태, 플레이어 목록, 버전 확인
+
+### 월드 관리
+
+- `/create`: 새 월드 생성
+- `/select`: 플레이할 월드 선택
+- `/list`: 저장된 월드 목록 확인
+- 각 월드마다 난이도, 게임모드, 지형 타입 설정 가능
+
 ## 데이터 저장 위치
 
-Docker 볼륨에 데이터가 저장됩니다:
+호스트 디렉토리에 직접 마운트됩니다:
 
-- `minecraft-server`: 마인크래프트 서버 데이터
-- `minecraft-worlds`: 월드 데이터
-- `minecraft-worlds-trash`: 삭제된 월드
+- `/home/redeyes/Documents/mc-data/server`: 마인크래프트 서버 데이터
+- `/home/redeyes/Documents/mc-data/worlds`: 월드 데이터
+- `/home/redeyes/Documents/mc-data/worlds-trash`: 삭제된 월드
 
-볼륨 확인:
+데이터 확인:
 
 ```bash
-docker volume ls
-docker volume inspect mc_bot_minecraft-worlds
+ls -la /home/redeyes/Documents/mc-data/
 ```
 
 ## 문제 해결
@@ -160,17 +185,17 @@ docker compose restart minecraft-server
 ### 수동 백업
 
 ```bash
-# 월드 데이터 백업
-docker run --rm -v mc_bot_minecraft-worlds:/data -v $(pwd):/backup alpine tar czf /backup/worlds-backup-$(date +%Y%m%d).tar.gz -C /data .
+# 전체 마인크래프트 데이터 백업
+tar czf mc-data-backup-$(date +%Y%m%d).tar.gz /home/redeyes/Documents/mc-data/
 
-# 서버 데이터 백업
-docker run --rm -v mc_bot_minecraft-server:/data -v $(pwd):/backup alpine tar czf /backup/server-backup-$(date +%Y%m%d).tar.gz -C /data .
+# 월드만 백업
+tar czf worlds-backup-$(date +%Y%m%d).tar.gz /home/redeyes/Documents/mc-data/worlds/
 ```
 
 ### 복원
 
 ```bash
-docker run --rm -v mc_bot_minecraft-worlds:/data -v $(pwd):/backup alpine sh -c "cd /data && tar xzf /backup/worlds-backup-YYYYMMDD.tar.gz"
+tar xzf mc-data-backup-YYYYMMDD.tar.gz -C /
 ```
 
 ## 업데이트
@@ -191,8 +216,35 @@ docker compose up -d minecraft-server
 
 ## 네트워크
 
-봇과 서버는 `minecraft-network`라는 브리지 네트워크로 연결되어 있습니다.
-봇에서 서버에 접근할 때는 `minecraft-server`라는 호스트명을 사용합니다.
+봇과 서버는 다음과 같이 연결됩니다:
+
+- **봇 컨테이너**: `host` 네트워크 모드 사용 (호스트의 Docker 소켓에 직접 접근)
+- **서버 컨테이너**: `minecraft-network` 브리지 네트워크 사용
+- 봇이 서버를 제어하기 위해 Docker API를 사용합니다
+
+RCON 연결:
+
+- 호스트: `minecraft-server` (컨테이너 이름)
+- 포트: `25575`
+- 비밀번호: config.json에 설정된 값
+
+## 환경 변수
+
+`.env` 파일에서 설정:
+
+```bash
+# 필수
+DISCORD_TOKEN=your_bot_token
+DISCORD_CLIENT_ID=your_client_id
+
+# 선택 (기본값: LATEST)
+MC_VERSION=1.21.4
+```
+
+버전 변경 방법:
+
+1. Discord에서 `/setversion` 명령어 사용 (권장)
+2. `.env` 파일 직접 수정 후 서버 재시작
 
 ## 주의사항
 

@@ -27,6 +27,15 @@ async function changeWorld(serverWorldName, savedWorldName) {
 
 		// 현재 월드를 백업
 		if (serverWorlds.length !== 0) {
+			// 백업 경로가 존재하는지 확인
+			const backupPath = path.join(config.worldDir, serverWorldName);
+			try {
+				await fs.access(backupPath);
+			} catch {
+				// 디렉토리가 없으면 생성
+				await fs.mkdir(backupPath, { recursive: true });
+			}
+
 			for (const world of serverWorlds) {
 				await fs.rename(
 					path.join(config.minecraftDir, world),
@@ -43,13 +52,14 @@ async function changeWorld(serverWorldName, savedWorldName) {
 		}
 
 		// 새로운 월드 로드
-		const savedWorlds = (
-			await fs.readdir(path.join(config.worldDir, savedWorldName))
-		).filter((world) => world.startsWith(config.worldLevelName));
+		const savedWorldPath = path.join(config.worldDir, savedWorldName);
+		const savedWorlds = (await fs.readdir(savedWorldPath)).filter((world) =>
+			world.startsWith(config.worldLevelName)
+		);
 
-		const savedOpsJson = (
-			await fs.readdir(path.join(config.worldDir, savedWorldName))
-		).filter((file) => file.startsWith("ops.json"));
+		const savedOpsJson = (await fs.readdir(savedWorldPath)).filter((file) =>
+			file.startsWith("ops.json")
+		);
 
 		if (savedWorlds.length !== 0) {
 			for (const world of savedWorlds) {
