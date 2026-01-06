@@ -45,43 +45,46 @@ services:
     profiles:
       - dev
 
-  # Minecraft 서버
+  # Minecraft 서버 (커스텀 이미지)
   minecraft-server:
-    image: itzg/minecraft-server:java21
+    build:
+      context: .
+      dockerfile: Dockerfile.minecraft
     container_name: minecraft-server
     environment:
-      # 기본 설정
-      EULA: "TRUE"
-      TYPE: "PAPER"
-      VERSION: "${VERSION:-LATEST}"
+      # 버전 설정 (기본: LATEST)
+      VERSION: "${MC_VERSION:-LATEST}"
 
-      # 서버 설정
-      SERVER_NAME: "A Raspberry Pi Minecraft Server"
-      MOTD: "\u00a7kasdfasdf\u00a7a          \ubb34\uc0ac\uace0 0\uc77c\ucc28!!\u00a7r\u00a7k              asdfasdf"
-      MAX_PLAYERS: 10
+      # 월드 설정
+      LEVEL: "${MC_LEVEL:-world}"
 
       # 메모리 설정
       MEMORY: "2G"
 
-      # RCON 설정 (봇이 서버 제어를 위해 필요)
-      ENABLE_RCON: "true"
-      RCON_PASSWORD: "0808"
-      RCON_PORT: 25575
-
-      # 월드 설정
-      LEVEL: "world"
-
-      # 성능 최적화
-      USE_AIKAR_FLAGS: "true"
-      ENABLE_ROLLING_LOGS: "true"
+      EULA: "true"
 
     ports:
       - "25565:25565" # Minecraft 포트
+      - "25575:25575" # RCON 포트
+
     volumes:
-      # 서버 데이터 저장 (모든 데이터를 하나의 마운트에)
+      # 서버 데이터 저장
       - /home/redeyes/Documents/mc-data/server:/data
+      # 월드 설정 파일
+      - /home/redeyes/Documents/MC_bot/worldSettings.json:/config/worldSettings.json:ro
+
     networks:
       - minecraft-network
+
+    # 리소스 제한
+    deploy:
+      resources:
+        limits:
+          cpus: "3"
+          memory: 3G
+        reservations:
+          cpus: "1"
+          memory: 2G
 
 networks:
   minecraft-network:

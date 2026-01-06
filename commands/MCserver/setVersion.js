@@ -6,10 +6,8 @@ import {
 	ButtonStyle,
 	ActionRowBuilder,
 } from "discord.js";
-import { promises as fs } from "fs";
-import path from "path";
+import { exec } from "child_process";
 import serverCheck from "../../functions/serverCheck.js";
-import config from "../../config.json" with { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -115,32 +113,23 @@ export default {
 					}
 
 					try {
-						// VERSION 파일에 버전 저장 (itzg 이미지가 자동으로 읽음)
-						const versionFile = path.join(config.minecraftDir, "VERSION");
-						await fs.writeFile(versionFile, selectedVersion, "utf8");
-
-						// .env 파일에도 VERSION 저장 (docker-compose에서 사용)
-						const envFile = path.join(process.cwd(), ".env");
-						let envContent = "";
-						try {
-							envContent = await fs.readFile(envFile, "utf8");
-						} catch {
-							// .env 파일이 없으면 새로 생성
-							envContent = "";
-						}
-
-						// 기존 VERSION 라인 제거 및 새로운 VERSION 추가
-						const envLines = envContent
-							.split("\n")
-							.filter((line) => !line.startsWith("VERSION="));
-						envLines.push(`VERSION=${selectedVersion}`);
-						await fs.writeFile(envFile, envLines.join("\n"), "utf8");
-
 						await i.deferUpdate();
 
+						// 컨테이너 환경 변수 설정 (재시작 필요)
+						exec(
+							`docker rm -f minecraft-server 2>/dev/null || true`,
+							(error) => {
+								console.log("Old container removed or not found");
+							}
+						);
+
 						await i.followUp({
-							content: `✅ 서버 버전이 **${selectedVersion}**로 설정되었습니다.\n\n다음 서버 시작 시 이 버전으로 실행됩니다.`,
+							content: `✅ 서버 버전이 **${selectedVersion}**로 설정되었습니다.\n\n📝 변경사항:\n다음 서버 시작(\/start) 시 이 버전으로 실행됩니다.`,
 						});
+
+						// 환경변수를 메모리에 저장 (bot process env)
+						process.env.MC_VERSION = selectedVersion;
+						console.log(`[setVersion] 버전 변경됨: ${selectedVersion}`);
 
 						collector.stop("manual");
 					} catch (error) {

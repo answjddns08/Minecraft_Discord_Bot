@@ -1,0 +1,22 @@
+FROM eclipse-temurin:21-jre-alpine
+
+# 필요한 도구 설치
+RUN apk add --no-cache curl jq
+
+# 작업 디렉토리
+WORKDIR /data
+
+# entrypoint 스크립트 복사
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# 기본 환경변수
+ENV VERSION=LATEST
+ENV MEMORY=2G
+ENV EULA=true
+
+# 포트 노출
+EXPOSE 25565 25575
+
+# 시작
+ENTRYPOINT ["/entrypoint.sh"]

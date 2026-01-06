@@ -260,11 +260,16 @@ export default {
 					if (i.customId === "setLastWorld") {
 						await changeWorld(config.lastWorld, worldName);
 
-						ServerSetting.updateServerProperties({
-							difficulty: worldSettings.difficulty,
-							gameMode: worldSettings.gameMode,
-							"level-type": worldSettings["level-type"],
-						});
+						// Docker 환경에서는 entrypoint.sh가 자동으로 설정 처리
+						// 로컬 환경에서만 ServerSetting 사용
+						const isDocker = process.env.DOCKER_ENV === "true";
+						if (!isDocker) {
+							ServerSetting.updateServerProperties({
+								difficulty: worldSettings.difficulty,
+								gameMode: worldSettings.gameMode,
+								"level-type": worldSettings["level-type"],
+							});
+						}
 
 						if (worldSettings.op === true) {
 							await giveOp();

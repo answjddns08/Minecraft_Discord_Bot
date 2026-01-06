@@ -58,31 +58,29 @@ export default {
 			const response = await interaction.reply({
 				content: "월드를 선택해주세요.\n\n-# 명령어 친 사람만 사용 가능",
 				components: [row],
-				withResponse: true,
-			});
+		});
 
-			const collectorFilter = (i) => i.user.id === interaction.user.id;
+		const collectorFilter = (i) => i.user.id === interaction.user.id;
 
-			const collector =
-				response.resource.message.createMessageComponentCollector({
-					filter: collectorFilter,
-					time: 180000, // 3분
-				});
-
-			collector.on("collect", async (i) => {
-				const worldName = i.values[0];
-
-				const lastWorld = await loadLastWorld();
-
+		const collector = response.createMessageComponentCollector({
+			filter: collectorFilter,
+			time: 180000, // 3분
+		});
+				// 월드 파일 이동
 				await changeWorld(lastWorld, worldName);
 
 				const worldSet = (await worldSetting.readWorldSettings())[worldName];
 
-				await ServerSetting.updateServerProperties({
-					difficulty: worldSet.difficulty,
-					gameMode: worldSet.gameMode,
-					"level-type": worldSet["level-type"],
-				});
+				// Docker 환경에서는 entrypoint.sh가 자동으로 설정 처리
+				// 로컬 환경에서만 ServerSetting 사용
+				const isDocker = process.env.DOCKER_ENV === "true";
+				if (!isDocker) {
+					await ServerSetting.updateServerProperties({
+						difficulty: worldSet.difficulty,
+						gameMode: worldSet.gameMode,
+						"level-type": worldSet["level-type"],
+					});
+				}
 
 				if (worldSet.op === true) {
 					await giveOp();
