@@ -58,23 +58,34 @@ export default {
 			const response = await interaction.reply({
 				content: "월드를 선택해주세요.\n\n-# 명령어 친 사람만 사용 가능",
 				components: [row],
-		});
+			});
 
-		const collectorFilter = (i) => i.user.id === interaction.user.id;
+			const collector = response.createMessageComponentCollector({
+				filter: (i) => i.user.id === interaction.user.id,
+				time: 180000, // 3분
+			});
 
-		const collector = response.createMessageComponentCollector({
-			filter: collectorFilter,
-			time: 180000, // 3분
-		});
-				// 월드 파일 이동
+			collector.on("collect", async (i) => {
+				const worldName = i.values?.[0];
+				if (!worldName) {
+					await i.reply({
+						content: "선택된 월드를 확인할 수 없습니다.",
+						ephemeral: true,
+					});
+					return;
+				}
+
+				const lastWorld = await loadLastWorld();
+				await i.deferUpdate();
+
 				await changeWorld(lastWorld, worldName);
 
-				const worldSet = (await worldSetting.readWorldSettings())[worldName];
+				const worldSettings = await worldSetting.readWorldSettings();
+				const worldSet = worldSettings?.[worldName] ?? {};
 
 				// Docker 환경에서는 entrypoint.sh가 자동으로 설정 처리
-				// 로컬 환경에서만 ServerSetting 사용
 				const isDocker = process.env.DOCKER_ENV === "true";
-				if (!isDocker) {
+				if (!isDocker && worldSet) {
 					await ServerSetting.updateServerProperties({
 						difficulty: worldSet.difficulty,
 						gameMode: worldSet.gameMode,
@@ -92,12 +103,10 @@ export default {
 				});
 
 				await updateLastWorld(worldName);
-
 				collector.stop("manual");
-				return;
 			});
 
-			collector.on("end", async (i, reason) => {
+			collector.on("end", async (_, reason) => {
 				if (reason === "manual") return;
 				await interaction.editReply({
 					content: "시간이 초과되었습니다.",
