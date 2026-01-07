@@ -122,49 +122,40 @@ export default {
 					try {
 						await i.deferUpdate();
 
-						// 환경변수를 메모리와 .env 파일에 저장
-						process.env.MC_VERSION = selectedVersion;
-
-						// .env 파일 업데이트
+						// config.json 업데이트
 						const { promises: fs } = await import("fs");
 
 						try {
-							const envPath = path.join(projectRoot, ".env");
-							let envContent = "";
+							const configPath = path.join(projectRoot, "config.json");
+							const configContent = await fs.readFile(configPath, "utf-8");
+							const configData = JSON.parse(configContent);
 
-							try {
-								envContent = await fs.readFile(envPath, "utf-8");
-							} catch (e) {
-								// .env 파일이 없으면 새로 생성
-								envContent = "";
-							}
+							// currentVersion 필드 업데이트
+							configData.currentVersion = selectedVersion;
 
-							// MC_VERSION 라인 업데이트 또는 추가
-							const lines = envContent.split("\n");
-							const versionLineIndex = lines.findIndex((line) =>
-								line.startsWith("MC_VERSION=")
+							// 들여쓰기 유지하며 저장
+							await fs.writeFile(
+								configPath,
+								JSON.stringify(configData, null, "\t") + "\n"
 							);
 
-							if (versionLineIndex >= 0) {
-								lines[versionLineIndex] = `MC_VERSION=${selectedVersion}`;
-							} else {
-								lines.push(`MC_VERSION=${selectedVersion}`);
-							}
-
-							await fs.writeFile(envPath, lines.join("\n"));
 							console.log(
-								`[setVersion] .env 파일 업데이트 완료: ${selectedVersion}`
+								`[setVersion] config.json 업데이트 완료: ${selectedVersion}`
 							);
+
+							// 환경변수도 업데이트 (현재 실행 중인 프로세스용)
+							process.env.MC_VERSION = selectedVersion;
 						} catch (fileError) {
-							console.warn(
-								`[setVersion] .env 파일 업데이트 실패 (메모리에만 저장됨): ${fileError.message}`
+							console.error(
+								`[setVersion] config.json 업데이트 실패: ${fileError.message}`
 							);
+							throw fileError;
 						}
 
 						console.log(`[setVersion] 버전 변경됨: ${selectedVersion}`);
 
 						await i.followUp({
-							content: `✅ 서버 버전이 **${selectedVersion}**로 설정되었습니다.\n\n📝 변경사항:\n다음 서버 시작(\/start) 시 이 버전으로 실행됩니다.`,
+							content: `✅ 서버 버전이 **${selectedVersion}**로 설정되었습니다.\n\n📝 변경사항:\n• config.json 업데이트 완료\n• 다음 서버 시작(\/start) 시 이 버전으로 실행됩니다.`,
 						});
 
 						collector.stop("manual");

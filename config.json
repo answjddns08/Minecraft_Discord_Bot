@@ -8,6 +8,7 @@
 	"thumbnailFile": "server-icon.png",
 	"WorldAgeDay": 7,
 	"worldLevelName": "world",
+	"currentVersion": "1.21.11",
 	"RCsettings": {
 		"host": "minecraft-server",
 		"port": 25575,
