@@ -16,12 +16,13 @@
 	"dependencies": {
 		"child_process": "^1.0.2",
 		"discord.js": "^14.18.0",
+		"dockerode": "^4.0.9",
 		"dotenv": "^16.4.7",
 		"node-schedule": "^2.1.1",
 		"rcon-client": "^4.2.5"
 	},
 	"devDependencies": {
-		"prettier": "^3.6.2",
-		"nodemon": "^3.0.1"
+		"nodemon": "^3.0.1",
+		"prettier": "^3.6.2"
 	}
 }

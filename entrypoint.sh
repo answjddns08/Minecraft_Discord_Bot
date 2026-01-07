@@ -15,64 +15,24 @@ fi
 # eula.txt 생성
 echo "eula=true" > /data/eula.txt
 
-# server.properties 업데이트 (월드 변경 시에도 필요)
-WORLD_NAME="${LEVEL:-world}"
-DIFFICULTY="3"
-GAMEMODE="0"
-LEVEL_TYPE="minecraft:normal"
-
-# worldSettings.json에서 설정 읽기
-if [ -f /config/worldSettings.json ]; then
-  echo "[Paper Server] worldSettings.json에서 '${WORLD_NAME}' 설정 로드 중..."
-  
-  # jq를 사용해 해당 월드의 설정 추출
-  WORLD_SETTINGS=$(jq ".\"${WORLD_NAME}\"" /config/worldSettings.json 2>/dev/null)
-  
-  if [ "$WORLD_SETTINGS" != "null" ] && [ -n "$WORLD_SETTINGS" ]; then
-    # 난이도 변환 (문자열 -> 숫자)
-    DIFFICULTY_STR=$(echo "$WORLD_SETTINGS" | jq -r '.difficulty // "hard"')
-    case "$DIFFICULTY_STR" in
-      peaceful) DIFFICULTY=0 ;;
-      easy) DIFFICULTY=1 ;;
-      normal) DIFFICULTY=2 ;;
-      hard) DIFFICULTY=3 ;;
-      *) DIFFICULTY=3 ;;
-    esac
-    
-    # 게임모드 변환 (문자열 -> 숫자)
-    GAMEMODE_STR=$(echo "$WORLD_SETTINGS" | jq -r '.gameMode // "survival"')
-    case "$GAMEMODE_STR" in
-      survival) GAMEMODE=0 ;;
-      creative) GAMEMODE=1 ;;
-      adventure) GAMEMODE=2 ;;
-      spectator) GAMEMODE=3 ;;
-      *) GAMEMODE=0 ;;
-    esac
-    
-    # 지형 설정
-    LEVEL_TYPE=$(echo "$WORLD_SETTINGS" | jq -r '.["level-type"] // "minecraft:normal"')
-    
-    echo "[Paper Server] 로드된 설정: 난이도=$DIFFICULTY_STR, 게임모드=$GAMEMODE_STR, 지형=$LEVEL_TYPE"
-  else
-    echo "[Paper Server] '${WORLD_NAME}' 설정을 찾을 수 없음 (기본값 사용)"
-  fi
-else
-  echo "[Paper Server] worldSettings.json을 찾을 수 없음 (기본값 사용)"
-fi
-
-# server.properties 업데이트 (초기 생성 또는 월드 변경 시)
-cat > /data/server.properties << EOF
+# server.properties 초기 생성만 (없을 때만)
+if [ ! -f /data/server.properties ]; then
+  echo "[Paper Server] server.properties 초기 생성..."
+  cat > /data/server.properties << EOF
 server-port=25565
 server-ip=0.0.0.0
 max-players=10
 enable-rcon=true
 rcon.password=0808
 rcon.port=25575
-level-name=${WORLD_NAME}
-difficulty=${DIFFICULTY}
-gamemode=${GAMEMODE}
-level-type=${LEVEL_TYPE}
+level-name=world
+difficulty=3
+gamemode=0
+level-type=minecraft:normal
 EOF
+else
+  echo "[Paper Server] server.properties 이미 존재 (Discord 봇이 관리)"
+fi
 
 # VERSION 처리 (기본값: LATEST)
 if [ "$VERSION" = "LATEST" ] || [ -z "$VERSION" ]; then
@@ -117,4 +77,25 @@ echo "[Paper Server] 다른 버전의 jar 파일 제거 중..."
 find /data -maxdepth 1 -name "paper-*.jar" ! -name "$JAR_FILE" -delete
 
 echo "[Paper Server] 서버 시작 (버전: $VERSION, 메모리: $MEMORY)..."
-exec java -Xmx$MEMORY -Xms$MEMORY -XX:+AlwaysPreTouch -XX:+ParallelRefProcEnabled -XX:+UnlockDiagnosticVMOptions -XX:G1SummarizeRSetStatsPeriod=1 -XX:G1HeapRegionSize=8M -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1NewCollectionHeuristicPercent=20 -XX:G1ReservePercent=20 -XX:MaxTenuringThreshold=1 -XX:+PerfDisableSharedMem -XX:G1MixedGCCountTarget=8 -XX:MaxMetaspaceSize=2G -XX:+UseG1GC -jar "$JAR_PATH" nogui
+exec java -Xmx$MEMORY -Xms$MEMORY \
+  -XX:+AlwaysPreTouch \
+  -XX:+DisableExplicitGC \
+  -XX:+ParallelRefProcEnabled \
+  -XX:+PerfDisableSharedMem \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+UseG1GC \
+  -XX:G1HeapRegionSize=8M \
+  -XX:G1HeapWastePercent=5 \
+  -XX:G1MaxNewSizePercent=40 \
+  -XX:G1MixedGCCountTarget=4 \
+  -XX:G1MixedGCLiveThresholdPercent=90 \
+  -XX:G1NewSizePercent=30 \
+  -XX:G1RSetUpdatingPauseTimePercent=5 \
+  -XX:G1ReservePercent=20 \
+  -XX:InitiatingHeapOccupancyPercent=15 \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:MaxTenuringThreshold=1 \
+  -XX:SurvivorRatio=32 \
+  -Dusing.aikars.flags=https://mcflags.emc.gs \
+  -Daikars.new.flags=true \
+  -jar "$JAR_PATH" nogui

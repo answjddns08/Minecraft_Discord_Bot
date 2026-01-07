@@ -31,11 +31,11 @@ docker compose --profile dev up -d --build discord-bot-dev
 ### 2. 마인크래프트 서버 시작
 
 Discord 봇의 `/start` 명령어를 사용하여 마인크래프트 서버를 시작합니다.
-서버는 profile 기반으로 동작하여 필요할 때만 시작됩니다.
+서버는 필요할 때 봇이 `docker compose up`으로 자동 시작합니다.
 
 ```bash
 # 또는 수동으로 서버 시작
-MC_VERSION=1.21.4 MC_LEVEL=my-world docker compose --profile server up -d minecraft-server
+MC_VERSION=1.21.4 MC_LEVEL=my-world docker compose up -d minecraft-server
 ```
 
 ### 3. 로그 확인
@@ -69,8 +69,8 @@ docker compose stop discord-bot
 # 봇만 종료
 docker compose down
 
-# 서버 포함 모두 종료
-docker compose --profile server down
+# 모든 컨테이너 종료 (서버 포함)
+docker compose down
 ```
 
 ## 유용한 명령어

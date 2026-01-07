@@ -5,6 +5,7 @@ import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
 import config from "../../config.json" with { type: "json" };
 import { stopAutoShutdown } from "../../functions/autoShutdown.js";
+import { stopMinecraftServer } from "../../functions/dockerControl.js";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);
@@ -52,18 +53,13 @@ export default {
 		// Docker 환경에서는 컨테이너 중지 및 제거
 		const isDocker = process.env.DOCKER_ENV === "true";
 		if (isDocker) {
-			const { exec } = await import("child_process");
-			// docker compose down으로 컨테이너 완전히 제거 (다음 시작을 위해)
-			exec(
-				`cd "${projectRoot}" && docker compose --profile server down`,
-				(error, stdout, stderr) => {
-					if (error) {
-						console.error(`컨테이너 중지 오류: ${error}`);
-					} else {
-						console.log(`[Server] 컨테이너 중지 및 제거 완료`);
-					}
-				}
-			);
+			try {
+				console.log(`[Server] 컨테이너 중지 및 제거 중...`);
+				await stopMinecraftServer();
+				console.log(`[Server] 컨테이너 중지 및 제거 완료`);
+			} catch (error) {
+				console.error(`[Server] 컨테이너 중지 오류:`, error);
+			}
 		}
 
 		interaction.client.user.setPresence({

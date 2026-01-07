@@ -6,6 +6,7 @@ import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config.json" with { type: "json" };
 import { startAutoShutdown } from "../../functions/autoShutdown.js";
 import { loadLastWorld } from "../../functions/lastWorld.js";
+import { startMinecraftServer } from "../../functions/dockerControl.js";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);
@@ -47,21 +48,15 @@ export default {
 		const isDocker = process.env.DOCKER_ENV === "true";
 
 		if (isDocker) {
-			// Docker 환경: docker compose up으로 컨테이너 생성/시작
-			// 버전 환경변수도 함께 전달
+			// Docker 환경: Docker API를 통해 컨테이너 생성/시작
 			const mcVersion = process.env.MC_VERSION || "LATEST";
-			const cmd = `cd "${projectRoot}" && MC_VERSION="${mcVersion}" MC_LEVEL="${worldName}" docker compose --profile server up -d minecraft-server`;
 
-			console.log(`[Server] 서버 시작 명령: ${cmd}`);
+			try {
+				console.log(
+					`[Server] 서버 시작 중... (월드: ${worldName}, 버전: ${mcVersion})`
+				);
 
-			exec(cmd, (error, stdout, stderr) => {
-				if (error) {
-					console.error(`실행 오류: ${error}`);
-					interaction.followUp("월드 실행 중 오류 발생!");
-					return;
-				}
-				console.log(`[Server] 서버 시작 성공: ${stdout}`);
-				if (stderr) console.warn(`[Server] 경고: ${stderr}`);
+				await startMinecraftServer(worldName, mcVersion);
 
 				// 서버가 준비될 때까지 대기 후 완료 메시지
 				setTimeout(() => {
@@ -69,7 +64,11 @@ export default {
 						`✅ **${worldName}** 월드가 시작되었습니다! (버전: ${mcVersion})`
 					);
 				}, 10000);
-			});
+			} catch (error) {
+				console.error(`[Server] 서버 시작 실패:`, error);
+				interaction.followUp("월드 실행 중 오류 발생!");
+				return;
+			}
 		} else {
 			// 로컬 환경: tmux 세션 시작
 			exec(

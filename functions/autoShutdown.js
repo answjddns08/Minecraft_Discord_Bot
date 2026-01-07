@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 import config from "../config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
+import { stopMinecraftServer } from "./dockerControl.js";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);
@@ -48,17 +49,13 @@ async function autoShutdown() {
 			// Docker 환경에서는 컨테이너 중지 및 제거
 			const isDocker = process.env.DOCKER_ENV === "true";
 			if (isDocker) {
-				const { exec } = await import("child_process");
-				exec(
-					`cd "${projectRoot}" && docker compose --profile server down`,
-					(error) => {
-						if (error) {
-							console.error(`컨테이너 중지 오류: ${error}`);
-						} else {
-							console.log("[autoShutdown] 서버 자동 종료 완료");
-						}
-					}
-				);
+				try {
+					console.log("[autoShutdown] 컨테이너 중지 및 제거 중...");
+					await stopMinecraftServer();
+					console.log("[autoShutdown] 서버 자동 종료 완료");
+				} catch (error) {
+					console.error("[autoShutdown] 컨테이너 중지 오류:", error);
+				}
 			}
 
 			client.user.setPresence({
