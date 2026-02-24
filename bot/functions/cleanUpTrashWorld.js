@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../config.json" with { type: "json" };
+import config from "../config/config.json" with { type: "json" };
 import worldSetting from "./worldSetting.js";
 
 async function cleanUpTrashWorld() {

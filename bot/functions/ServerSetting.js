@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../config.json" with { type: "json" };
+import config from "../config/config.json" with { type: "json" };
 
 /**
  * server.properties 파일을 읽어오는 함수
@@ -11,7 +11,7 @@ async function readServerProperties() {
 	try {
 		const data = await fs.readFile(
 			path.join(config.minecraftDir, "server.properties"),
-			"utf8"
+			"utf8",
 		);
 		const properties = {};
 		data.split("\n").forEach((line) => {
@@ -43,7 +43,7 @@ async function updateServerProperties(newSettings) {
 		await fs.writeFile(
 			path.join(config.minecraftDir, "server.properties"),
 			propertiesString,
-			"utf8"
+			"utf8",
 		);
 		console.log("server.properties 업데이트 완료:", newSettings);
 	} catch (err) {

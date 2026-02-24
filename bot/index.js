@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Client, GatewayIntentBits, Collection, Options } from "discord.js";
+import { createAPIServer, startAPIServer } from "./api/server.js";
 
 config({ path: ".env" });
 
@@ -103,3 +104,24 @@ for (const file of eventFiles) {
 }
 
 client.login(token);
+
+// Web API Server 시작 (ENV 설정에 따라)
+const enableWebServer = process.env.ENABLE_WEB_SERVER === "true";
+
+if (enableWebServer) {
+	client.once("ready", async () => {
+		try {
+			const { app, httpServer, broadcast } = createAPIServer(client);
+
+			// broadcast 함수를 전역으로 저장 (다른 이벤트에서 사용 가능)
+			client.broadcast = broadcast;
+
+			const port = process.env.WEB_SERVER_PORT || 3000;
+			await startAPIServer(app, httpServer, port);
+		} catch (error) {
+			console.error("Failed to start web server:", error);
+		}
+	});
+} else {
+	console.log("ℹ️  Web server disabled (ENABLE_WEB_SERVER=false)");
+}

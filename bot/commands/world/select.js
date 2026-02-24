@@ -5,13 +5,13 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { promises as fs } from "fs";
-import serverCheck from "../../../shared/functions/serverCheck.js";
-import config from "../../config.json" with { type: "json" };
-import changeWorld from "../../../shared/functions/changeWorlds.js";
-import worldSetting from "../../../shared/functions/worldSetting.js";
-import ServerSetting from "../../../shared/functions/ServerSetting.js";
-import giveOp from "../../../shared/functions/giveOp.js";
-import { loadLastWorld, updateLastWorld } from "../../../shared/functions/lastWorld.js";
+import serverCheck from "../../functions/serverCheck.js";
+import config from "../../config/config.json" with { type: "json" };
+import changeWorld from "../../functions/changeWorlds.js";
+import worldSetting from "../../functions/worldSetting.js";
+import ServerSetting from "../../functions/ServerSetting.js";
+import giveOp from "../../functions/giveOp.js";
+import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
 
 /*
 	env파일이 python과 달리 동적으로 변경이 되지 않음

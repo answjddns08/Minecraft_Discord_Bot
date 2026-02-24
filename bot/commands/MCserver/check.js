@@ -6,10 +6,10 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import serverCheck from "../../../shared/functions/serverCheck.js";
-import config from "../../config.json" with { type: "json" };
-import { loadLastWorld } from "../../../shared/functions/lastWorld.js";
-import versionCheck from "../../../shared/functions/versionCheck.js";
+import serverCheck from "../../functions/serverCheck.js";
+import config from "../../config/config.json" with { type: "json" };
+import { loadLastWorld } from "../../functions/lastWorld.js";
+import versionCheck from "../../functions/versionCheck.js";
 
 /**
  * config.json에서 현재 설정된 서버 버전 읽기

@@ -60,7 +60,7 @@ export async function startMinecraftServer(worldName, mcVersion = "LATEST") {
 				},
 				Binds: [
 					"/home/redeyes/Documents/mc-data/server:/data",
-					"/home/redeyes/Documents/MC_bot/worldSettings.json:/config/worldSettings.json:ro",
+					"/home/redeyes/Documents/MC_bot/bot/config/worldSettings.json:/config/worldSettings.json:ro",
 				],
 				NetworkMode: networkName,
 				Memory: 3 * 1024 * 1024 * 1024, // 3GB

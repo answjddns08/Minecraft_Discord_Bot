@@ -1,7 +1,7 @@
 import { Rcon } from "rcon-client";
 import { fileURLToPath } from "url";
 import path from "path";
-import config from "../config.json" with { type: "json" };
+import config from "../config/config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
 import { stopMinecraftServer } from "./dockerControl.js";
 

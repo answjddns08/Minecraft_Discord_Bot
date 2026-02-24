@@ -2,11 +2,11 @@ import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { exec } from "child_process";
 import { fileURLToPath } from "url";
 import path from "path";
-import serverCheck from "../../../shared/functions/serverCheck.js";
-import config from "../../config.json" with { type: "json" };
-import { startAutoShutdown } from "../../../shared/functions/autoShutdown.js";
-import { loadLastWorld } from "../../../shared/functions/lastWorld.js";
-import { startMinecraftServer } from "../../../shared/functions/dockerControl.js";
+import serverCheck from "../../functions/serverCheck.js";
+import config from "../../config/config.json" with { type: "json" };
+import { startAutoShutdown } from "../../functions/autoShutdown.js";
+import { loadLastWorld } from "../../functions/lastWorld.js";
+import { startMinecraftServer } from "../../functions/dockerControl.js";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);

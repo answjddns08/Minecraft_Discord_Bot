@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const filePath = path.join(__dirname, "../worldSettings.json");
+const filePath = path.join(__dirname, "../config/worldSettings.json");
 
 /**
  * @typedef {Object} worldSetting

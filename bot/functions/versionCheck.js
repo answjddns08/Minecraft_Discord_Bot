@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import config from "../config.json" with { type: "json" };
+import config from "../config/config.json" with { type: "json" };
 
 /**
  * Checks the server version by finding a jar file in the Minecraft directory.

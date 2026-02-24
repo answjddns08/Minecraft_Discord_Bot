@@ -1,11 +1,11 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
 import { fileURLToPath } from "url";
 import path from "path";
-import serverCheck from "../../../shared/functions/serverCheck.js";
+import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
-import config from "../../config.json" with { type: "json" };
-import { stopAutoShutdown } from "../../../shared/functions/autoShutdown.js";
-import { stopMinecraftServer } from "../../../shared/functions/dockerControl.js";
+import config from "../../config/config.json" with { type: "json" };
+import { stopAutoShutdown } from "../../functions/autoShutdown.js";
+import { stopMinecraftServer } from "../../functions/dockerControl.js";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);

@@ -6,10 +6,10 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../../config.json" with { type: "json" };
-import cleanUpSchedule from "../../../shared/functions/cleanUpSchedule.js";
-import { loadLastWorld, updateLastWorld } from "../../../shared/functions/lastWorld.js";
-import serverCheck from "../../../shared/functions/serverCheck.js";
+import config from "../../config/config.json" with { type: "json" };
+import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
+import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
+import serverCheck from "../../functions/serverCheck.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),

@@ -8,13 +8,13 @@ import {
 } from "discord.js";
 import { promises as fs } from "fs";
 import path from "path";
-import config from "../../config.json" with { type: "json" };
-import worldSetting from "../../../shared/functions/worldSetting.js";
-import changeWorld from "../../../shared/functions/changeWorlds.js";
-import ServerSetting from "../../../shared/functions/ServerSetting.js";
-import giveOp from "../../../shared/functions/giveOp.js";
-import { updateLastWorld } from "../../../shared/functions/lastWorld.js";
-import serverCheck from "../../../shared/functions/serverCheck.js";
+import config from "../../config/config.json" with { type: "json" };
+import worldSetting from "../../functions/worldSetting.js";
+import changeWorld from "../../functions/changeWorlds.js";
+import ServerSetting from "../../functions/ServerSetting.js";
+import giveOp from "../../functions/giveOp.js";
+import { updateLastWorld } from "../../functions/lastWorld.js";
+import serverCheck from "../../functions/serverCheck.js";
 
 /*
 	월드의 정보를 어디다가 저장하지?

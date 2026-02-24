@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import config from "../config.json" with { type: "json" };
+import config from "../config/config.json" with { type: "json" };
 import { isMinecraftServerRunning } from "./dockerControl.js";
 
 async function serverCheck() {
@@ -25,7 +25,7 @@ async function serverCheck() {
 						} else {
 							resolve(true);
 						}
-					}
+					},
 				);
 			});
 		}

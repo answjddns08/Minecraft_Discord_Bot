@@ -9,7 +9,7 @@ import {
 import { exec } from "child_process";
 import { fileURLToPath } from "url";
 import path from "path";
-import serverCheck from "../../../shared/functions/serverCheck.js";
+import serverCheck from "../../functions/serverCheck.js";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);

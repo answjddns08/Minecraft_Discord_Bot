@@ -5,8 +5,8 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { promises as fs } from "fs";
-import config from "../../config.json" with { type: "json" };
-import cleanUpSchedule from "../../../shared/functions/cleanUpSchedule.js";
+import config from "../../config/config.json" with { type: "json" };
+import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
 import path from "path";
 
 export default {

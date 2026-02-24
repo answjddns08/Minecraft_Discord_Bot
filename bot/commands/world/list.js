@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { promises as fs } from "fs";
-import config from "../../config.json" with { type: "json" };
-import { loadLastWorld } from "../../../shared/functions/lastWorld.js";
+import config from "../../config/config.json" with { type: "json" };
+import { loadLastWorld } from "../../functions/lastWorld.js";
 
 export default {
 	data: new SlashCommandBuilder()
