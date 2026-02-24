@@ -1,123 +1,70 @@
 package services
 
 import (
-	"context"
-	"fmt"
+"fmt"
+	"os"
+	"os/exec"
 	"strings"
-
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 )
 
 type DockerService struct {
-	client        *client.Client
 	containerName string
 }
 
 func NewDockerService() *DockerService {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		panic(fmt.Sprintf("Failed to create Docker client: %v", err))
+	containerName := os.Getenv("DOCKER_CONTAINER_NAME")
+	if containerName == "" {
+		containerName = "minecraft-server"
 	}
-
+	
 	return &DockerService{
-		client:        cli,
-		containerName: "minecraft-server", // 환경 변수로 변경 가능
+		containerName: containerName,
 	}
 }
 
 // IsRunning checks if the Minecraft server container is running
 func (s *DockerService) IsRunning() (bool, error) {
-	ctx := context.Background()
-	containers, err := s.client.ContainerList(ctx, container.ListOptions{All: true})
+	cmd := exec.Command("docker", "ps", "--filter", fmt.Sprintf("name=%s", s.containerName), "--format", "{{.Names}}")
+	output, err := cmd.Output()
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to check container status: %w", err)
 	}
-
-	for _, c := range containers {
-		for _, name := range c.Names {
-			if strings.Contains(name, s.containerName) {
-				return c.State == "running", nil
-			}
-		}
-	}
-	return false, nil
+	
+	return strings.Contains(string(output), s.containerName), nil
 }
 
 // Start starts the Minecraft server container
 func (s *DockerService) Start() error {
-	ctx := context.Background()
-
-	// Find container
-	containerID, err := s.findContainer()
-	if err != nil {
-		return err
-	}
-
-	// Start container
-	if err := s.client.ContainerStart(ctx, containerID, container.StartOptions{}); err != nil {
+	cmd := exec.Command("docker", "start", s.containerName)
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to start container: %w", err)
 	}
-
 	return nil
 }
 
 // Stop stops the Minecraft server container
 func (s *DockerService) Stop() error {
-	ctx := context.Background()
-
-	// Find container
-	containerID, err := s.findContainer()
-	if err != nil {
-		return err
-	}
-
-	// Stop container with timeout
-	timeout := 30 // seconds
-	if err := s.client.ContainerStop(ctx, containerID, container.StopOptions{Timeout: &timeout}); err != nil {
+	cmd := exec.Command("docker", "stop", s.containerName)
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to stop container: %w", err)
 	}
-
 	return nil
 }
 
 // GetStats returns container stats (simplified version)
 func (s *DockerService) GetStats() (map[string]interface{}, error) {
-	ctx := context.Background()
-
-	containerID, err := s.findContainer()
+	cmd := exec.Command("docker", "stats", s.containerName, "--no-stream", "--format", "{{json .}}")
+	output, err := cmd.Output()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get stats: %w", err)
 	}
-
-	stats, err := s.client.ContainerStats(ctx, containerID, false)
-	if err != nil {
-		return nil, err
-	}
-	defer stats.Body.Close()
-
-	// Parse stats from response body
-	// This is simplified - you'd need to decode JSON from stats.Body
-	return map[string]interface{}{}, nil
-}
-
-func (s *DockerService) findContainer() (string, error) {
-	ctx := context.Background()
-	containers, err := s.client.ContainerList(ctx, container.ListOptions{All: true})
-	if err != nil {
-		return "", err
-	}
-
-	for _, c := range containers {
-		for _, name := range c.Names {
-			if strings.Contains(name, s.containerName) {
-				return c.ID, nil
-			}
-		}
-	}
-	return "", fmt.Errorf("container %s not found", s.containerName)
+	
+	// Return raw JSON string for now
+	return map[string]interface{}{
+		"raw": string(output),
+	}, nil
 }
 
 func (s *DockerService) Close() error {
-	return s.client.Close()
+	return nil
 }

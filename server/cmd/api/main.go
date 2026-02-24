@@ -9,10 +9,10 @@ import (
 	"mc-bot-server/internal/services"
 	"mc-bot-server/internal/ws"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/joho/godotenv"
 )
 
@@ -37,9 +37,9 @@ func main() {
 	app.Use(recover.New())
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: getEnv("CORS_ORIGIN", "http://localhost:5173"),
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
-		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+		AllowOrigins: []string{getEnv("CORS_ORIGIN", "http://localhost:5173")},
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 	}))
 
 	// Initialize WebSocket hub
@@ -50,7 +50,7 @@ func main() {
 	api := app.Group("/api/v1")
 
 	// Health check
-	api.Get("/health", func(c *fiber.Ctx) error {
+	api.Get("/health", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status":  "ok",
 			"message": "MC Bot Server is running",
@@ -77,7 +77,7 @@ func main() {
 	worlds.Post("/:name/select", middleware.Auth(), worldHandler.Select)
 
 	// WebSocket
-	app.Get("/ws", func(c *fiber.Ctx) error {
+	app.Get("/ws", func(c fiber.Ctx) error {
 		return ws.HandleWebSocket(c, hub)
 	})
 

@@ -5,7 +5,7 @@ import (
 	"mc-bot-server/internal/services"
 	"mc-bot-server/internal/ws"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type WorldHandler struct {
@@ -21,7 +21,7 @@ func NewWorldHandler(worldService *services.WorldService, hub *ws.Hub) *WorldHan
 }
 
 // List returns all worlds
-func (h *WorldHandler) List(c *fiber.Ctx) error {
+func (h *WorldHandler) List(c fiber.Ctx) error {
 	worlds, err := h.worldService.List()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
@@ -38,7 +38,7 @@ func (h *WorldHandler) List(c *fiber.Ctx) error {
 }
 
 // ListTrash returns all worlds in trash
-func (h *WorldHandler) ListTrash(c *fiber.Ctx) error {
+func (h *WorldHandler) ListTrash(c fiber.Ctx) error {
 	worlds, err := h.worldService.ListTrash()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
@@ -55,9 +55,9 @@ func (h *WorldHandler) ListTrash(c *fiber.Ctx) error {
 }
 
 // Create creates a new world
-func (h *WorldHandler) Create(c *fiber.Ctx) error {
+func (h *WorldHandler) Create(c fiber.Ctx) error {
 	var req models.CreateWorldRequest
-	if err := c.BodyParser(&req); err != nil {
+	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
 			Error:   "invalid_request",
 			Message: err.Error(),
@@ -87,13 +87,13 @@ func (h *WorldHandler) Create(c *fiber.Ctx) error {
 }
 
 // Rename renames a world
-func (h *WorldHandler) Rename(c *fiber.Ctx) error {
+func (h *WorldHandler) Rename(c fiber.Ctx) error {
 	oldName := c.Params("name")
 
 	var req struct {
 		NewName string `json:"newName"`
 	}
-	if err := c.BodyParser(&req); err != nil {
+	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
 			Error:   "invalid_request",
 			Message: err.Error(),
@@ -125,7 +125,7 @@ func (h *WorldHandler) Rename(c *fiber.Ctx) error {
 }
 
 // Remove moves a world to trash
-func (h *WorldHandler) Remove(c *fiber.Ctx) error {
+func (h *WorldHandler) Remove(c fiber.Ctx) error {
 	name := c.Params("name")
 
 	if err := h.worldService.Remove(name); err != nil {
@@ -149,7 +149,7 @@ func (h *WorldHandler) Remove(c *fiber.Ctx) error {
 }
 
 // Restore restores a world from trash
-func (h *WorldHandler) Restore(c *fiber.Ctx) error {
+func (h *WorldHandler) Restore(c fiber.Ctx) error {
 	name := c.Params("name")
 
 	if err := h.worldService.Restore(name); err != nil {
@@ -173,7 +173,7 @@ func (h *WorldHandler) Restore(c *fiber.Ctx) error {
 }
 
 // Select selects a world as active
-func (h *WorldHandler) Select(c *fiber.Ctx) error {
+func (h *WorldHandler) Select(c fiber.Ctx) error {
 	name := c.Params("name")
 
 	if err := h.worldService.Select(name); err != nil {

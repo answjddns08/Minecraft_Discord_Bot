@@ -7,8 +7,9 @@ import (
 
 	"mc-bot-server/internal/models"
 
-	"github.com/gofiber/contrib/websocket"
-	"github.com/gofiber/fiber/v2"
+	"github.com/fasthttp/websocket"
+	"github.com/gofiber/fiber/v3"
+	"github.com/valyala/fasthttp"
 )
 
 type Client struct {
@@ -76,24 +77,46 @@ func (h *Hub) Broadcast(message models.WSMessage) {
 	h.broadcast <- data
 }
 
-func HandleWebSocket(c *fiber.Ctx, hub *Hub) error {
-	// Upgrade to WebSocket
-	if websocket.IsWebSocketUpgrade(c) {
-		return websocket.New(func(conn *websocket.Conn) {
-			client := &Client{
-				Hub:  hub,
-				Conn: conn,
-				Send: make(chan []byte, 256),
-			}
-			client.Hub.register <- client
+var upgrader = websocket.FastHTTPUpgrader{
+	CheckOrigin: func(ctx *fasthttp.RequestCtx) bool {
+		return true // Allow all origins, configure properly in production
+	},
+}
 
-			// Start goroutines for reading and writing
-			go client.writePump()
-			client.readPump()
-		})(c)
+func HandleWebSocket(c fiber.Ctx, hub *Hub) error {
+	// Check if it's a WebSocket upgrade request
+	if string(c.Request().Header.Peek("Upgrade")) != "websocket" {
+		return fiber.ErrUpgradeRequired
 	}
 
-	return fiber.ErrUpgradeRequired
+	// Get the underlying fasthttp RequestCtx by converting through the Context method
+	// The Context() method returns *fasthttp.RequestCtx in Fiber v3
+	fasthttpCtx, ok := c.Context().(*fasthttp.RequestCtx)
+	if !ok {
+		log.Printf("Failed to get fasthttp.RequestCtx from fiber.Ctx")
+		return fiber.ErrInternalServerError
+	}
+
+	// Upgrade to WebSocket
+	err := upgrader.Upgrade(fasthttpCtx, func(ws *websocket.Conn) {
+		client := &Client{
+			Hub:  hub,
+			Conn: ws,
+			Send: make(chan []byte, 256),
+		}
+		client.Hub.register <- client
+
+		// Start goroutines for reading and writing
+		go client.writePump()
+		client.readPump()
+	})
+
+	if err != nil {
+		log.Printf("WebSocket upgrade error: %v", err)
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) readPump() {

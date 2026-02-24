@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 // Auth is a simple authentication middleware
@@ -15,7 +15,7 @@ func Auth() fiber.Handler {
 		apiKey = "dev-key-change-in-production"
 	}
 
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		// Get token from Authorization header
 		auth := c.Get("Authorization")
 
