@@ -1,0 +1,121 @@
+import {
+	ActionRowBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
+	SlashCommandBuilder,
+} from "discord.js";
+import { promises as fs } from "fs";
+import serverCheck from "../../../shared/functions/serverCheck.js";
+import config from "../../config.json" with { type: "json" };
+import changeWorld from "../../../shared/functions/changeWorlds.js";
+import worldSetting from "../../../shared/functions/worldSetting.js";
+import ServerSetting from "../../../shared/functions/ServerSetting.js";
+import giveOp from "../../../shared/functions/giveOp.js";
+import { loadLastWorld, updateLastWorld } from "../../../shared/functions/lastWorld.js";
+
+/*
+	env파일이 python과 달리 동적으로 변경이 되지 않음
+	(되긴 되는데 디코 봇이 꺼지면 초기화됨, 기존 값으로 되돌아감)
+	만약 디코 봇이 오류로 인해 꺼질 경우 env 파일을 수정해야 하는 귀찮음 생김
+	-> worldSetting.json에 lastWorld라는 key를 추가하여 마지막으로 선택한 월드를 저장
+*/
+
+export default {
+	data: new SlashCommandBuilder().setName("select").setDescription("월드 선택"),
+	/**
+	 * @param {import('discord.js').CommandInteraction} interaction
+	 */
+	async execute(interaction) {
+		const check = await serverCheck();
+
+		if (check === null) {
+			await interaction.reply("서버 상태를 확인하는 중 오류 발생!");
+			return;
+		} else if (check) {
+			await interaction.reply(
+				"월드가 실행 중이라 월드를 변경할 수 없어요! :no_entry_sign:"
+			);
+			return;
+		}
+
+		try {
+			const worldList = await fs.readdir(config.worldDir);
+
+			const selectList = new StringSelectMenuBuilder()
+				.setCustomId("WorldSelect")
+				.setPlaceholder("월드 선택")
+				.addOptions(
+					worldList.map((world) =>
+						new StringSelectMenuOptionBuilder()
+							.setLabel(world)
+							.setValue(world)
+							.setDescription(`${world} 월드 선택`)
+					)
+				);
+
+			const row = new ActionRowBuilder().addComponents(selectList);
+
+			const response = await interaction.reply({
+				content: "월드를 선택해주세요.\n\n-# 명령어 친 사람만 사용 가능",
+				components: [row],
+			});
+
+			const collector = response.createMessageComponentCollector({
+				filter: (i) => i.user.id === interaction.user.id,
+				time: 180000, // 3분
+			});
+
+			collector.on("collect", async (i) => {
+				const worldName = i.values?.[0];
+				if (!worldName) {
+					await i.reply({
+						content: "선택된 월드를 확인할 수 없습니다.",
+						ephemeral: true,
+					});
+					return;
+				}
+
+				const lastWorld = await loadLastWorld();
+				await i.deferUpdate();
+
+				await changeWorld(lastWorld, worldName);
+
+				const worldSettings = await worldSetting.readWorldSettings();
+				const worldSet = worldSettings?.[worldName] ?? {};
+
+				// Docker 환경에서는 entrypoint.sh가 자동으로 설정 처리
+				const isDocker = process.env.DOCKER_ENV === "true";
+				if (!isDocker && worldSet) {
+					await ServerSetting.updateServerProperties({
+						difficulty: worldSet.difficulty,
+						gameMode: worldSet.gameMode,
+						"level-type": worldSet["level-type"],
+					});
+				}
+
+				if (worldSet.op === true) {
+					await giveOp();
+				}
+
+				await interaction.editReply({
+					content: `선택된 월드: **${lastWorld}** -> **${worldName}**`,
+					components: [],
+				});
+
+				await updateLastWorld(worldName);
+				collector.stop("manual");
+			});
+
+			collector.on("end", async (_, reason) => {
+				if (reason === "manual") return;
+				await interaction.editReply({
+					content: "시간이 초과되었습니다.",
+					components: [],
+				});
+			});
+		} catch (error) {
+			console.error(`실행 오류: ${error}`);
+			await interaction.reply("월드 목록을 불러오는 중 오류 발생!");
+		}
+	},
+};

@@ -1,28 +1,21 @@
 {
-	"name": "minecraft-discord-bot",
+	"name": "mc-bot-workspace",
 	"version": "1.0.0",
-	"description": "minecraft discord bot with javascript",
-	"main": "index.js",
+	"private": true,
+	"workspaces": [
+		"bot",
+		"web"
+	],
 	"scripts": {
-		"start": "NODE_ENV=production node index.js",
-		"dev": "NODE_ENV=development node index.js",
-		"dev:watch": "nodemon index.js",
-		"pm2:dev": "pm2 start ecosystem.config.js --only minecraft-bot-dev",
-		"pm2:prod": "pm2 start ecosystem.config.js --only minecraft-bot-prod"
+		"dev:bot": "cd bot && npm run dev",
+		"dev:server": "cd server && go run ./cmd/api",
+		"dev:web": "cd web && npm run dev",
+		"build:server": "cd server && go build -o bin/server ./cmd/api",
+		"build:web": "cd web && npm run build",
+		"docker:up": "docker-compose -f docker-compose.full.yml up -d",
+		"docker:down": "docker-compose -f docker-compose.full.yml down",
+		"docker:logs": "docker-compose -f docker-compose.full.yml logs -f"
 	},
-	"type": "module",
-	"author": "Redeyes",
-	"license": "ISC",
-	"dependencies": {
-		"child_process": "^1.0.2",
-		"discord.js": "^14.18.0",
-		"dockerode": "^4.0.9",
-		"dotenv": "^16.4.7",
-		"node-schedule": "^2.1.1",
-		"rcon-client": "^4.2.5"
-	},
-	"devDependencies": {
-		"nodemon": "^3.0.1",
-		"prettier": "^3.6.2"
-	}
+	"devDependencies": {},
+	"description": "Minecraft Server Manager - Discord Bot + Web Dashboard"
 }
