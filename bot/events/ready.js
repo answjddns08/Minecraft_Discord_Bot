@@ -27,7 +27,7 @@ export default {
 		for (const folder of commandFolders) {
 			const commandsPath = path.join(foldersPath, folder);
 			const commandFiles = (await fs.readdir(commandsPath)).filter((file) =>
-				file.endsWith(".js")
+				file.endsWith(".js"),
 			);
 			for (const file of commandFiles) {
 				const filePath = path.join(commandsPath, file);
@@ -36,7 +36,7 @@ export default {
 					commands.push(command.default.data.toJSON());
 				} else {
 					console.log(
-						`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+						`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
 					);
 				}
 			}
@@ -47,7 +47,7 @@ export default {
 		(async () => {
 			try {
 				console.log(
-					`Started refreshing ${commands.length} application (/) commands.`
+					`Started refreshing ${commands.length} application (/) commands.`,
 				);
 
 				/**
@@ -56,25 +56,18 @@ export default {
 				 */
 				let data;
 
-				if (process.env.NODE_ENV === "production") {
-					data = await rest.put(Routes.applicationCommands(botID), {
-						body: commands,
-					});
-				} else {
-					// remove all commands (prevents conflicts with guild commands)
-					const allCommands = await rest.get(Routes.applicationCommands(botID));
-					for (const command of allCommands) {
-						await rest.delete(Routes.applicationCommand(botID, command.id));
-					}
-
-					data = await rest.put(
-						Routes.applicationGuildCommands(botID, guildId),
-						{ body: commands }
-					);
+				// remove all commands (prevents conflicts with guild commands)
+				const allCommands = await rest.get(Routes.applicationCommands(botID));
+				for (const command of allCommands) {
+					await rest.delete(Routes.applicationCommand(botID, command.id));
 				}
 
+				data = await rest.put(Routes.applicationGuildCommands(botID, guildId), {
+					body: commands,
+				});
+
 				console.log(
-					`Successfully reloaded ${data.length} application (/) commands.`
+					`Successfully reloaded ${data.length} application (/) commands.`,
 				);
 			} catch (error) {
 				console.error(error);
