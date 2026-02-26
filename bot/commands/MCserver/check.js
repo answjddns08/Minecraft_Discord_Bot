@@ -4,9 +4,7 @@ import {
 	EmbedBuilder,
 	AttachmentBuilder,
 } from "discord.js";
-import { promises as fs } from "fs";
-import path from "path";
-import serverCheck from "../../functions/serverCheck.js";
+import { isServerRunning } from "../../functions/dockerControl.js";
 import config from "../../config/config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
 import versionCheck from "../../functions/versionCheck.js";
@@ -43,12 +41,9 @@ export default {
 			.setTitle("**" + (await loadLastWorld()) + "**")
 			.setThumbnail(`attachment://${config.thumbnailFile}`);
 
-		const check = await serverCheck();
+		const check = await isServerRunning();
 
-		if (check === null) {
-			await interaction.editReply("서버 연결 실패!");
-			return;
-		} else if (!check) {
+		if (!check) {
 			resultEmbed
 				.setColor(0xf70707)
 				.setDescription("The world is offline! :x:\n **\n**")
@@ -62,7 +57,7 @@ export default {
 						name: "버전",
 						value: currentVersion,
 						inline: true,
-					}
+					},
 				);
 
 			await interaction.editReply({
@@ -114,7 +109,7 @@ export default {
 						name: "버전",
 						value: currentVersion,
 						inline: true,
-					}
+					},
 				);
 
 			if (server || version) {
@@ -123,7 +118,7 @@ export default {
 					{
 						name: "서버 정보",
 						value: `서버: ${server || "알 수 없음"}\n버전: ${version || "알 수 없음"}`,
-					}
+					},
 				);
 			}
 

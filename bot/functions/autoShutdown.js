@@ -44,16 +44,12 @@ async function autoShutdown() {
 			await rcon.send("stop");
 			await rcon.end();
 
-			// Docker 환경에서는 컨테이너 중지
-			const isDocker = process.env.DOCKER_ENV === "true";
-			if (isDocker) {
-				try {
-					console.log("[autoShutdown] 컨테이너 중지 중...");
-					await stopMinecraftServer();
-					console.log("[autoShutdown] 서버 자동 종료 완료");
-				} catch (error) {
-					console.error("[autoShutdown] 컨테이너 중지 오류:", error);
-				}
+			try {
+				console.log("[autoShutdown] 컨테이너 중지 중...");
+				await stopMinecraftServer();
+				console.log("[autoShutdown] 서버 자동 종료 완료");
+			} catch (error) {
+				console.error("[autoShutdown] 컨테이너 중지 오류:", error);
 			}
 
 			client.user.setPresence({

@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ActivityType } from "discord.js";
 import { startAutoShutdown } from "../../functions/autoShutdown.js";
 import { loadLastWorld } from "../../functions/lastWorld.js";
 import {
-	isMinecraftServerRunning,
+	isServerRunning,
 	startMinecraftServer,
 } from "../../functions/dockerControl.js";
 
@@ -14,7 +14,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const check = await isMinecraftServerRunning();
+		const check = await isServerRunning();
 
 		if (check) {
 			await interaction.reply(

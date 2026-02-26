@@ -1,16 +1,11 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
-import { fileURLToPath } from "url";
-import path from "path";
-import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
 import config from "../../config/config.json" with { type: "json" };
 import { stopAutoShutdown } from "../../functions/autoShutdown.js";
-import { stopMinecraftServer } from "../../functions/dockerControl.js";
-
-// 프로젝트 루트 경로 계산
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "../..");
+import {
+	isServerRunning,
+	stopMinecraftServer,
+} from "../../functions/dockerControl.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -20,12 +15,9 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const check = await serverCheck();
+		const check = await isServerRunning();
 
-		if (check === null) {
-			interaction.reply("월드 종료 중 오류 발생!");
-			return;
-		} else if (!check) {
+		if (!check) {
 			await interaction.reply("월드가 꺼져 있어요. :x:");
 			return;
 		}
@@ -50,16 +42,12 @@ export default {
 
 		await rcon.end();
 
-		// Docker 환경에서는 컨테이너 중지 및 제거
-		const isDocker = process.env.DOCKER_ENV === "true";
-		if (isDocker) {
-			try {
-				console.log(`[Server] 컨테이너 중지 및 제거 중...`);
-				await stopMinecraftServer();
-				console.log(`[Server] 컨테이너 중지 및 제거 완료`);
-			} catch (error) {
-				console.error(`[Server] 컨테이너 중지 오류:`, error);
-			}
+		try {
+			console.log(`[Server] 컨테이너 중지 중...`);
+			await stopMinecraftServer();
+			console.log(`[Server] 컨테이너 중지 완료`);
+		} catch (error) {
+			console.error(`[Server] 컨테이너 중지 오류:`, error);
 		}
 
 		interaction.client.user.setPresence({

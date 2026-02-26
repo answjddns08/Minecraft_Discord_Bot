@@ -6,10 +6,9 @@ import {
 	ButtonStyle,
 	ActionRowBuilder,
 } from "discord.js";
-import { exec } from "child_process";
 import { fileURLToPath } from "url";
 import path from "path";
-import serverCheck from "../../functions/serverCheck.js";
+import { isServerRunning } from "../../functions/dockerControl";
 
 // 프로젝트 루트 경로 계산
 const __filename = fileURLToPath(import.meta.url);
@@ -26,19 +25,19 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const check = await serverCheck();
+		const check = await isServerRunning();
 
-		if (check === null) {
-			await interaction.editReply("서버 상태를 확인하는 중 오류 발생!");
-			return;
-		} else if (check) {
+		if (check) {
 			await interaction.editReply(
-				"서버가 실행 중이라 버전을 변경할 수 없어요! :no_entry_sign:"
+				"서버가 실행 중이라 버전을 변경할 수 없어요! :no_entry_sign:",
 			);
 			return;
 		}
 
 		// Paper MC API에서 버전 목록 가져오기
+		/**
+		 * @type {string[]} versions
+		 */
 		let versions = [];
 		try {
 			const response = await fetch("https://api.papermc.io/v2/projects/paper");
@@ -71,7 +70,7 @@ export default {
 				new StringSelectMenuOptionBuilder()
 					.setLabel(`${version}${isLatest}`)
 					.setValue(version)
-					.setDescription(`Paper 버전 ${version}`)
+					.setDescription(`Paper 버전 ${version}`),
 			);
 		});
 
@@ -136,18 +135,18 @@ export default {
 							// 들여쓰기 유지하며 저장
 							await fs.writeFile(
 								configPath,
-								JSON.stringify(configData, null, "\t") + "\n"
+								JSON.stringify(configData, null, "\t") + "\n",
 							);
 
 							console.log(
-								`[setVersion] config.json 업데이트 완료: ${selectedVersion}`
+								`[setVersion] config.json 업데이트 완료: ${selectedVersion}`,
 							);
 
 							// 환경변수도 업데이트 (현재 실행 중인 프로세스용)
 							process.env.MC_VERSION = selectedVersion;
 						} catch (fileError) {
 							console.error(
-								`[setVersion] config.json 업데이트 실패: ${fileError.message}`
+								`[setVersion] config.json 업데이트 실패: ${fileError.message}`,
 							);
 							throw fileError;
 						}
