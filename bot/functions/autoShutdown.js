@@ -1,17 +1,15 @@
 import { Rcon } from "rcon-client";
-import { fileURLToPath } from "url";
-import path from "path";
 import config from "../config/config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
 import { stopMinecraftServer } from "./dockerControl.js";
 
-// 프로젝트 루트 경로 계산
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "..");
-
 const delayMin = 5;
-let shutdownTimer;
+/**
+ * Minecraft 서버 자동 종료 기능(setInterval 사용함)
+ * - 플레이어가 없을 때 일정 시간 후(delayMin) 서버를 자동으로 종료
+ * @type {NodeJS.Timeout} shutdownTimer - 자동 종료 타이머
+ */
+let shutdownTimer = null;
 let isNoOneOnline = false;
 /**
  * @param {import('discord.js').Client} client
@@ -46,11 +44,11 @@ async function autoShutdown() {
 			await rcon.send("stop");
 			await rcon.end();
 
-			// Docker 환경에서는 컨테이너 중지 및 제거
+			// Docker 환경에서는 컨테이너 중지
 			const isDocker = process.env.DOCKER_ENV === "true";
 			if (isDocker) {
 				try {
-					console.log("[autoShutdown] 컨테이너 중지 및 제거 중...");
+					console.log("[autoShutdown] 컨테이너 중지 중...");
 					await stopMinecraftServer();
 					console.log("[autoShutdown] 서버 자동 종료 완료");
 				} catch (error) {
@@ -82,13 +80,20 @@ async function autoShutdown() {
 	}
 }
 
+/**
+ * 자동 종료 타이머 시작
+ * @param {import("discord.js").Client} cli
+ */
 function startAutoShutdown(cli) {
 	client = cli;
 	shutdownTimer = setInterval(autoShutdown, delayMin * 60 * 1000);
 }
 
 function stopAutoShutdown() {
-	clearInterval(shutdownTimer);
+	if (shutdownTimer) {
+		clearInterval(shutdownTimer);
+		shutdownTimer = null;
+	}
 	isNoOneOnline = false;
 }
 
