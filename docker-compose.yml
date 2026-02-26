@@ -5,47 +5,31 @@ services:
   bot:
     build:
       context: ./bot
-      dockerfile: ../Dockerfile
+      dockerfile: Dockerfile
     container_name: mc-bot
     restart: unless-stopped
     ports:
-      - "3000:3000" # Web API 포트
+      - "127.0.0.1:3000:3000" # Web API 포트
     env_file:
       - ./bot/.env
     environment:
       - ENABLE_WEB_SERVER=true
       - WEB_SERVER_PORT=3000
+      - DOCKER_ENV=true
     volumes:
       - ./bot:/app
+      - ./minecraft-data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - mc-network
     depends_on:
       - minecraft
 
-  # React Frontend
-  web:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    container_name: mc-web-ui
-    restart: unless-stopped
-    ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:3000/api
-      - VITE_WS_URL=ws://localhost:3000/ws
-    volumes:
-      - ./web:/app
-      - /app/node_modules
-    networks:
-      - mc-network
-    depends_on:
-      - bot
-
   # Minecraft Server
   minecraft:
-    image: itzg/minecraft-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.minecraft
     container_name: minecraft-server
     restart: unless-stopped
     ports:
@@ -57,16 +41,13 @@ services:
       VERSION: "LATEST"
       MEMORY: "2G"
       ENABLE_RCON: "true"
-      RCON_PASSWORD: ${RCON_PASSWORD:-minecraft}
+      RCON_PASSWORD: 0808
       RCON_PORT: 25575
     volumes:
-      - minecraft_data:/data
+      - /home/redeyes/Documents/mc-data:/data
     networks:
       - mc-network
 
 networks:
   mc-network:
     driver: bridge
-
-volumes:
-  minecraft_data:

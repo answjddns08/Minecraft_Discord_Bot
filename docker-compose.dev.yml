@@ -1,0 +1,53 @@
+services:
+  # Discord Bot (Dev)
+  bot-dev:
+    image: node:20-alpine
+    container_name: mc-bot-dev
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    env_file:
+      - ./bot/.env
+    environment:
+      - ENABLE_WEB_SERVER=true
+      - WEB_SERVER_PORT=3001
+      - DOCKER_ENV=true
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev:watch"
+    volumes:
+      - ./bot:/app
+      - /app/node_modules
+      - /home/redeyes/Documents/mc-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mc-network
+    depends_on:
+      - minecraft
+
+    # Minecraft Server
+    minecraft:
+      build:
+      context: .
+      dockerfile: Dockerfile.minecraft
+      container_name: minecraft-server
+      restart: unless-stopped
+      ports:
+        - "25565:25565"
+        - "25575:25575"
+      environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "LATEST"
+      MEMORY: "2G"
+      ENABLE_RCON: "true"
+      RCON_PASSWORD: 0808
+      RCON_PORT: 25575
+      volumes:
+        - /home/redeyes/Documents/mc-data:/data
+      networks:
+        - mc-network
+
+networks:
+  mc-network:
+    driver: bridge

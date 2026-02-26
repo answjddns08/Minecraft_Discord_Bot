@@ -18,7 +18,7 @@ COPY . .
 RUN mkdir -p /app/logs
 
 # 마인크래프트 관련 디렉토리 생성
-RUN mkdir -p /minecraft/worlds /minecraft/worlds-trash /minecraft/server
+RUN mkdir -p /data/worlds /data/worlds-trash
 
 # 포트 노출 (필요한 경우)
 # EXPOSE 3000
