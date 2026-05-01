@@ -9,7 +9,7 @@ import path from "path";
 import config from "../../config/config.json" with { type: "json" };
 import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
 import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
-import serverCheck from "../../functions/serverCheck.js";
+import { isServerRunning } from "../../functions/dockerControl.js";
 
 export default {
 	data: new SlashCommandBuilder().setName("remove").setDescription("월드 삭제"),
@@ -18,7 +18,7 @@ export default {
 	 */
 	async execute(interaction) {
 		// 서버 실행 상태 확인
-		const check = await serverCheck();
+		const check = await isServerRunning();
 
 		if (check === null) {
 			await interaction.reply("서버 상태를 확인하는 중 오류 발생!");
@@ -89,9 +89,6 @@ export default {
 					content: `**${worldName}** 월드를 삭제했습니다.`,
 					components: [],
 				});
-
-				// 월드 제거 후 cleanUpSchedule 함수가 이미 실행되어 있으면 그냥 리턴
-				// cleanUpSchedule 함수가 실행되어 있지 않으면 실행
 
 				cleanUpSchedule();
 

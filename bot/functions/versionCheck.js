@@ -1,5 +1,4 @@
 import { exec } from "child_process";
-import config from "../config/config.json" with { type: "json" };
 
 /**
  * Checks the server version by finding a jar file in the Minecraft directory.
@@ -7,13 +6,8 @@ import config from "../config/config.json" with { type: "json" };
  */
 function checkServerVersion() {
 	return new Promise((resolve, reject) => {
-		// Docker 환경에서는 컨테이너 내부에서 확인
-		const isDocker = process.env.DOCKER_ENV === "true";
-		const cmd = isDocker
-			? `docker exec minecraft-server find /data -maxdepth 1 -name "*.jar" 2>/dev/null`
-			: `find ${config.minecraftDir} -maxdepth 1 -name "*.jar"`;
 
-		exec(cmd, (error, stdout, stderr) => {
+		exec("docker exec minecraft-server find /data -maxdepth 1 -name \"*.jar\" 2>/dev/null", (error, stdout, stderr) => {
 			if (error) {
 				resolve({ server: "", version: "" }); // 에러 시 빈 값 반환
 				return;

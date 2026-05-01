@@ -13,7 +13,7 @@ async function cleanUpTrashWorld() {
 		const diff = now - stat.ctime.getTime(); // ctime은 파일 수정 시간(디렉토리 이동 포함)을 알 수 있음
 		const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-		if (days >= config.WorldAgeDay) {
+		if (days - config.WorldAgeDay >= 0) {
 			await fs.rm(worldPath, { recursive: true });
 			await worldSetting.removeWorld(world);
 			console.log(`Removed the ${world} world from the trash!`);

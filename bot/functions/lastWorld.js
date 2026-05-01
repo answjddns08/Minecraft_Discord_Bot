@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const configPath = path.join(__dirname, "../config.json");
+const configPath = path.join(__dirname, "../config/config.json");
 
 /**
  * LastWorld(마지막으로 선택된 월드) 변수 업데이트

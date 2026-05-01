@@ -83,9 +83,9 @@ export default {
 				playersPart === ""
 					? []
 					: playersPart
-							.split(",")
-							.map((player) => player.trim())
-							.filter((name) => name !== "");
+						.split(",")
+						.map((player) => player.trim())
+						.filter((name) => name !== "");
 
 			console.log("Player List:", playerList);
 			console.log("Player Count:", playerList.length);

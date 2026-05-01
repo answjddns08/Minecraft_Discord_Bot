@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { isServerRunning } from "../../functions/dockerControl.js";
-import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
 import config from "../../config/config.json" with { type: "json" };
 
@@ -13,7 +12,7 @@ const router = Router();
 router.get("/status", async (req, res) => {
 	try {
 		const isRunning = await isServerRunning();
-		const status = await serverCheck();
+		const status = await isServerRunning();
 
 		res.json({
 			running: isRunning,
@@ -38,9 +37,9 @@ router.get("/players", async (req, res) => {
 		}
 
 		const rcon = await Rcon.connect({
-			host: config.rconHost,
-			port: config.rconPort,
-			password: config.rconPassword,
+			host: config.RCsettings?.host ?? "127.0.0.1",
+			port: config.RCsettings?.port ?? 25575,
+			password: config.RCsettings?.password ?? "",
 		});
 
 		const response = await rcon.send("list");

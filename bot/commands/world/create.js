@@ -14,15 +14,12 @@ import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
 import { updateLastWorld } from "../../functions/lastWorld.js";
-import serverCheck from "../../functions/serverCheck.js";
+import { isServerRunning } from "../../functions/dockerControl.js";
 
 /*
-	월드의 정보를 어디다가 저장하지?
-	json?,DB?
-	-> json으로 저장
-	json에 월드 이름, 난이도, 게임 모드, OP 여부 저장
-	-> 월드 이름을 key로 사용
-	-> json 파일 이름: worldSettings.json
+	월드 생성하는데 글자 제한 안둠
+
+	특수기호나 띄어쓰기 등의 기호가 허용되긴 한데 나중에 문제 생길 수 있으니 제한해야 할 듯
 */
 
 export default {
@@ -41,6 +38,15 @@ export default {
 	 */
 	async execute(interaction) {
 		const worldName = interaction.options.getString("worldname");
+
+		// 월드 이름 검증: 알파벳, 숫자, 한글, 언더스코어(_), 하이픈(-)만 허용
+		const validNameRegex = /^[a-zA-Z0-9_\-가-힣]+$/;
+		if (!validNameRegex.test(worldName)) {
+			await interaction.reply(
+				"월드 이름은 영문, 숫자, 한글, 언더스코어(_), 하이픈(-)만 사용 가능합니다.",
+			);
+			return;
+		}
 
 		const worldList = await fs.readdir(config.worldDir);
 
@@ -236,7 +242,7 @@ export default {
 			// 월드 설정을 json파일에 저장
 			await worldSetting.updateWorldSettings(worldName, worldSettings);
 
-			if (await serverCheck()) {
+			if (await isServerRunning()) {
 				// 월드가 실행 중이니 선택한 월드로 변경할 수 없음
 				console.log("서버 실행 중");
 				await interaction.followUp(

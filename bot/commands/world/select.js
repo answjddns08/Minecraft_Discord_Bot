@@ -5,13 +5,13 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { promises as fs } from "fs";
-import serverCheck from "../../functions/serverCheck.js";
 import config from "../../config/config.json" with { type: "json" };
 import changeWorld from "../../functions/changeWorlds.js";
 import worldSetting from "../../functions/worldSetting.js";
 import ServerSetting from "../../functions/ServerSetting.js";
 import giveOp from "../../functions/giveOp.js";
 import { loadLastWorld, updateLastWorld } from "../../functions/lastWorld.js";
+import { isServerRunning } from "../../functions/dockerControl.js";
 
 /*
 	env파일이 python과 달리 동적으로 변경이 되지 않음
@@ -26,7 +26,7 @@ export default {
 	 * @param {import('discord.js').CommandInteraction} interaction
 	 */
 	async execute(interaction) {
-		const check = await serverCheck();
+		const check = await isServerRunning();
 
 		if (check === null) {
 			await interaction.reply("서버 상태를 확인하는 중 오류 발생!");
@@ -83,6 +83,7 @@ export default {
 				const worldSettings = await worldSetting.readWorldSettings();
 				const worldSet = worldSettings?.[worldName] ?? {};
 
+				// serverProperties 업데이트
 				if (worldSet) {
 					await ServerSetting.updateServerProperties({
 						difficulty: worldSet.difficulty,
@@ -96,7 +97,7 @@ export default {
 				}
 
 				await interaction.editReply({
-					content: `선택된 월드: **${lastWorld}** -> **${worldName}**`,
+					content: `선택된 월드: ** ${lastWorld} ** -> ** ${worldName} **`,
 					components: [],
 				});
 

@@ -7,8 +7,6 @@ import { fileURLToPath } from "url";
 const token = process.env.DISCORD_TOKEN;
 const botID = process.env.DISCORD_CLIENT_ID;
 
-const guildId = "1080485159230509096"; // for testing purposes (test in specific guild)
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -62,7 +60,7 @@ export default {
 					await rest.delete(Routes.applicationCommand(botID, command.id));
 				}
 
-				data = await rest.put(Routes.applicationGuildCommands(botID, guildId), {
+				data = await rest.put(Routes.applicationCommands(botID), {
 					body: commands,
 				});
 

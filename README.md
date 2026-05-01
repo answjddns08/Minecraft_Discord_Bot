@@ -88,7 +88,6 @@ npm install
 ```env
 DISCORD_TOKEN=your_discord_bot_token
 CLIENT_ID=your_discord_application_id
-DOCKER_ENV=false  # Docker 환경이면 true로 설정
 ```
 
 **config.json 수정:**
