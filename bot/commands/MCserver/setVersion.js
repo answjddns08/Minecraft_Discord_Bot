@@ -8,12 +8,11 @@ import {
 } from "discord.js";
 import { fileURLToPath } from "url";
 import path from "path";
-import { isServerRunning } from "../../functions/dockerControl";
+import { isServerRunning } from "../../functions/dockerControl.js";
 
-// 프로젝트 루트 경로 계산
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "../..");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const configPath = path.join(__dirname, "../../config/config.json");
 
 export default {
 	data: new SlashCommandBuilder()
@@ -40,7 +39,7 @@ export default {
 		 */
 		let versions = [];
 		try {
-			const response = await fetch("https://api.papermc.io/v2/projects/paper");
+			const response = await fetch("https://fill.papermc.io/v3/projects/paper");
 			const data = await response.json();
 			// 프리뷰 버전(pre)은 제외하고 일반 릴리즈만 필터링
 			versions = (data.versions || []).filter((v) => !v.includes("pre"));
@@ -125,9 +124,7 @@ export default {
 						const { promises: fs } = await import("fs");
 
 						try {
-							const configPath = path.join(projectRoot, "config.json");
-							const configContent = await fs.readFile(configPath, "utf-8");
-							const configData = JSON.parse(configContent);
+							const configData = JSON.parse(await fs.readFile(configPath, "utf-8"));
 
 							// currentVersion 필드 업데이트
 							configData.currentVersion = selectedVersion;

@@ -41,7 +41,7 @@ fi
 # VERSION 처리 (기본값: LATEST)
 if [ "$VERSION" = "LATEST" ] || [ -z "$VERSION" ]; then
   echo "[Paper Server] 최신 버전 확인 중..."
-  VERSION=$(curl -s https://api.papermc.io/v2/projects/paper | jq -r '.versions[-1]')
+  VERSION=$(curl -s https://fill.papermc.io/v3/projects/paper | jq -r '.versions[-1]')
   echo "[Paper Server] 최신 버전: $VERSION"
 fi
 
@@ -54,7 +54,7 @@ if [ ! -f "$JAR_PATH" ]; then
   echo "[Paper Server] 버전 $VERSION의 빌드 정보 확인 중..."
   
   # 최신 빌드 번호 가져오기
-  BUILD=$(curl -s https://api.papermc.io/v2/projects/paper/versions/$VERSION | jq -r '.builds[-1]')
+  BUILD=$(curl -s https://fill.papermc.io/v3/projects/paper/versions/$VERSION | jq -r '.builds[-1]')
   
   if [ -z "$BUILD" ] || [ "$BUILD" = "null" ]; then
     echo "[ERROR] 버전 $VERSION을 찾을 수 없습니다"
@@ -64,7 +64,7 @@ if [ ! -f "$JAR_PATH" ]; then
   echo "[Paper Server] 빌드 번호: $BUILD"
   echo "[Paper Server] jar 파일 다운로드 중... ($JAR_FILE)"
   
-  DOWNLOAD_URL="https://api.papermc.io/v2/projects/paper/versions/$VERSION/builds/$BUILD/downloads/paper-$VERSION-$BUILD.jar"
+  DOWNLOAD_URL="https://fill.papermc.io/v3/projects/paper/versions/$VERSION/builds/$BUILD/downloads/paper-$VERSION-$BUILD.jar"
   
   curl -f -o "$JAR_PATH" "$DOWNLOAD_URL" || {
     echo "[ERROR] jar 파일 다운로드 실패"
