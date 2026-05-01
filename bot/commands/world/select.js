@@ -33,7 +33,7 @@ export default {
 			return;
 		} else if (check) {
 			await interaction.reply(
-				"월드가 실행 중이라 월드를 변경할 수 없어요! :no_entry_sign:"
+				"월드가 실행 중이라 월드를 변경할 수 없어요! :no_entry_sign:",
 			);
 			return;
 		}
@@ -49,8 +49,8 @@ export default {
 						new StringSelectMenuOptionBuilder()
 							.setLabel(world)
 							.setValue(world)
-							.setDescription(`${world} 월드 선택`)
-					)
+							.setDescription(`${world} 월드 선택`),
+					),
 				);
 
 			const row = new ActionRowBuilder().addComponents(selectList);
@@ -83,9 +83,7 @@ export default {
 				const worldSettings = await worldSetting.readWorldSettings();
 				const worldSet = worldSettings?.[worldName] ?? {};
 
-				// Docker 환경에서는 entrypoint.sh가 자동으로 설정 처리
-				const isDocker = process.env.DOCKER_ENV === "true";
-				if (!isDocker && worldSet) {
+				if (worldSet) {
 					await ServerSetting.updateServerProperties({
 						difficulty: worldSet.difficulty,
 						gameMode: worldSet.gameMode,

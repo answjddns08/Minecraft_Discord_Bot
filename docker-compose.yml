@@ -35,7 +35,7 @@ services:
       - "25565:25565"
       - "25575:25575"
     environment:
-      EULA: "TRUE"
+      EULA: "true"
       TYPE: "PAPER"
       VERSION: "LATEST"
       MEMORY: "2G"

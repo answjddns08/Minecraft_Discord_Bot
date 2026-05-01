@@ -1,10 +1,10 @@
 {
 	"sessionName": "Minecraft_Server",
 	"sessionCommand": "docker exec minecraft-server mcrcon -H localhost -P 25575 -p 0808",
-	"minecraftDir": "/data",
+	"minecraftDir": "/data/server",
 	"worldDir": "/data/worlds",
 	"TrashWorldDir": "/data/worlds-trash",
-	"thumbnailDir": "/data/server-icon.png",
+	"thumbnailDir": "/data/server/server-icon.png",
 	"thumbnailFile": "server-icon.png",
 	"WorldAgeDay": 7,
 	"worldLevelName": "world",

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { isMinecraftServerRunning } from "../../functions/dockerControl.js";
+import { isServerRunning } from "../../functions/dockerControl.js";
 import serverCheck from "../../functions/serverCheck.js";
 import { Rcon } from "rcon-client";
 import config from "../../config/config.json" with { type: "json" };
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get("/status", async (req, res) => {
 	try {
-		const isRunning = await isMinecraftServerRunning();
+		const isRunning = await isServerRunning();
 		const status = await serverCheck();
 
 		res.json({
@@ -31,7 +31,7 @@ router.get("/status", async (req, res) => {
  */
 router.get("/players", async (req, res) => {
 	try {
-		const isRunning = await isMinecraftServerRunning();
+		const isRunning = await isServerRunning();
 
 		if (!isRunning) {
 			return res.json({ players: [], count: 0 });
@@ -73,7 +73,7 @@ router.get("/players", async (req, res) => {
  */
 router.post("/start", async (req, res) => {
 	try {
-		const isRunning = await isMinecraftServerRunning();
+		const isRunning = await isServerRunning();
 
 		if (isRunning) {
 			return res.status(400).json({ error: "Server is already running" });
@@ -94,7 +94,7 @@ router.post("/start", async (req, res) => {
  */
 router.post("/stop", async (req, res) => {
 	try {
-		const isRunning = await isMinecraftServerRunning();
+		const isRunning = await isServerRunning();
 
 		if (!isRunning) {
 			return res.status(400).json({ error: "Server is not running" });

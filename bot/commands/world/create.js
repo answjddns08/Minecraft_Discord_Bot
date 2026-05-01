@@ -34,7 +34,7 @@ export default {
 				.setName("worldname")
 				.setDescription("생성할 월드 이름")
 				.setMaxLength(20)
-				.setRequired(true)
+				.setRequired(true),
 		),
 	/**
 	 * @param {import("discord.js").CommandInteraction} interaction
@@ -117,7 +117,7 @@ export default {
 					.setLabel("기본 월드")
 					.setValue("minecraft:normal")
 					.setDescription(
-						"언덕, 계곡, 물 등이 생성되는 일반적인 월드 (기본 설정)"
+						"언덕, 계곡, 물 등이 생성되는 일반적인 월드 (기본 설정)",
 					),
 				new StringSelectMenuOptionBuilder()
 					.setLabel("평지")
@@ -240,7 +240,7 @@ export default {
 				// 월드가 실행 중이니 선택한 월드로 변경할 수 없음
 				console.log("서버 실행 중");
 				await interaction.followUp(
-					"서버가 실행 중이므로 선택한 월드로 변경할 수 없습니다.\n서버를 재시작한 후 수동으로 변경해주세요."
+					"서버가 실행 중이므로 선택한 월드로 변경할 수 없습니다.\n서버를 재시작한 후 수동으로 변경해주세요.",
 				);
 				return;
 			}
@@ -260,16 +260,11 @@ export default {
 					if (i.customId === "setLastWorld") {
 						await changeWorld(config.lastWorld, worldName);
 
-						// Docker 환경에서는 entrypoint.sh가 자동으로 설정 처리
-						// 로컬 환경에서만 ServerSetting 사용
-						const isDocker = process.env.DOCKER_ENV === "true";
-						if (!isDocker) {
-							ServerSetting.updateServerProperties({
-								difficulty: worldSettings.difficulty,
-								gameMode: worldSettings.gameMode,
-								"level-type": worldSettings["level-type"],
-							});
-						}
+						await ServerSetting.updateServerProperties({
+							difficulty: worldSettings.difficulty,
+							gameMode: worldSettings.gameMode,
+							"level-type": worldSettings["level-type"],
+						});
 
 						if (worldSettings.op === true) {
 							await giveOp();

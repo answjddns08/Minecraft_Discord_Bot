@@ -6,19 +6,23 @@ set -e
 
 echo "[Paper Server] 초기화 중..."
 
+mkdir -p /data/server /data/worlds /data/worlds-trash
+cd /data/server
+
 # EULA 확인
-if [ "$EULA" != "true" ]; then
+EULA_VALUE=$(printf '%s' "$EULA" | tr '[:upper:]' '[:lower:]')
+if [ "$EULA_VALUE" != "true" ]; then
   echo "[ERROR] EULA=true를 설정해주세요"
   exit 1
 fi
 
 # eula.txt 생성
-echo "eula=true" > /data/eula.txt
+echo "eula=true" > /data/server/eula.txt
 
 # server.properties 초기 생성만 (없을 때만)
-if [ ! -f /data/server.properties ]; then
+if [ ! -f /data/server/server.properties ]; then
   echo "[Paper Server] server.properties 초기 생성..."
-  cat > /data/server.properties << EOF
+  cat > /data/server/server.properties << EOF
 server-port=25565
 server-ip=0.0.0.0
 max-players=10
@@ -43,7 +47,7 @@ fi
 
 # jar 파일명
 JAR_FILE="paper-$VERSION.jar"
-JAR_PATH="/data/$JAR_FILE"
+JAR_PATH="/data/server/$JAR_FILE"
 
 # jar 파일 확인 및 다운로드
 if [ ! -f "$JAR_PATH" ]; then
@@ -74,7 +78,7 @@ fi
 
 # 기존 jar 파일 정리 (다른 버전 제거)
 echo "[Paper Server] 다른 버전의 jar 파일 제거 중..."
-find /data -maxdepth 1 -name "paper-*.jar" ! -name "$JAR_FILE" -delete
+find /data/server -maxdepth 1 -name "paper-*.jar" ! -name "$JAR_FILE" -delete
 
 echo "[Paper Server] 서버 시작 (버전: $VERSION, 메모리: $MEMORY)..."
 exec java -Xmx$MEMORY -Xms$MEMORY \

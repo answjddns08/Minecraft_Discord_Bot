@@ -67,7 +67,7 @@ export async function stopMinecraftServer() {
  * Minecraft 서버 컨테이너 상태 확인
  * @returns {Promise<boolean>} - 실행 중이면 true, 아니면 false
  */
-export async function isMinecraftServerRunning() {
+export async function isServerRunning() {
 	try {
 		const container = docker.getContainer(containerName);
 		const info = await container.inspect();
