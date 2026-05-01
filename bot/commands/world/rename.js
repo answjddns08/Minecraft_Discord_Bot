@@ -48,7 +48,7 @@ export default {
 
 		// 월드 이름 검증: 알파벳, 숫자, 한글, 언더스코어(_), 하이픈(-)만 허용
 		const validNameRegex = /^[a-zA-Z0-9_\-가-힣]+$/;
-		if (!validNameRegex.test(worldName)) {
+		if (!validNameRegex.test(newName)) {
 			await interaction.reply(
 				"월드 이름은 영문, 숫자, 한글, 언더스코어(_), 하이픈(-)만 사용 가능합니다.",
 			);
