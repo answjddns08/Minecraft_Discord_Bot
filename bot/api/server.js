@@ -8,14 +8,15 @@ import worldRoutes from "./routes/worldRoutes.js";
 /**
  * Discord Bot과 통합된 Express API 서버
  * ENV: ENABLE_WEB_SERVER=true 로 활성화
+ * @param {import("discord.js").Client} client 
  */
 export function createAPIServer(client) {
 	const app = express();
 	const httpServer = createServer(app);
 
 	// Middleware
-	app.use(cors());
-	app.use(express.json());
+	app.use(cors()); // CORS 허용 (필요에 따라 설정 조정)
+	app.use(express.json()); // JSON 요청 바디 파싱
 
 	// Health check
 	app.get("/health", (req, res) => {
@@ -65,8 +66,12 @@ export function createAPIServer(client) {
 
 /**
  * API 서버 시작
+ * @param {import("express").Express} app 
+ * @param {import("http").Server} httpServer 
+ * @param {number} port 
+ * @returns {Promise<void>}
  */
-export function startAPIServer(app, httpServer, port = 3000) {
+export function startAPIServer(app, httpServer, port = 9009) {
 	return new Promise((resolve, reject) => {
 		httpServer.listen(port, () => {
 			console.log(`🌐 Web API Server running on http://localhost:${port}`);

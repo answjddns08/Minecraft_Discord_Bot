@@ -114,7 +114,7 @@ if (enableWebServer) {
 			const { app, httpServer, broadcast } = createAPIServer(client);
 
 			// broadcast 함수를 전역으로 저장 (다른 이벤트에서 사용 가능)
-			client.broadcast = broadcast;
+			//client.broadcast = broadcast;
 
 			const port = process.env.WEB_SERVER_PORT || 3000;
 			await startAPIServer(app, httpServer, port);
