@@ -1,4 +1,5 @@
 import "./App.css";
+import Players from "./components/Players.jsx";
 import ServerStat from "./components/ServerStat.jsx";
 
 function App() {
@@ -47,6 +48,18 @@ function App() {
 			</header>
 			<main className="main">
 				<ServerStat />
+				<Players />
+				<div
+					style={{
+						backgroundColor: "#333",
+						color: "#fff",
+						padding: "20px",
+						marginTop: "20px",
+						width: "300px",
+					}}
+				>
+					테스트용 div
+				</div>
 			</main>
 		</div>
 	);

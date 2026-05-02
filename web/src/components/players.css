@@ -1,0 +1,48 @@
+.players {
+    border: 1px solid #ccc;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    max-width: 300px;
+    height: fit-content;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.players h2 {
+    margin-top: 0;
+
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.players ul {
+    padding-left: 30px;
+
+    max-height: 200px;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px 30px;
+
+    overflow-y: auto;
+
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.players-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 10px;
+}
