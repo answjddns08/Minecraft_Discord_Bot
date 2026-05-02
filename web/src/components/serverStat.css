@@ -1,0 +1,62 @@
+.serverStat {
+    border: 1px solid white;
+
+    border-radius: 15px;
+
+    padding: 15px 25px;
+
+    width: fit-content;
+    height: fit-content;
+}
+
+.serverStat h2 {
+    margin: 0;
+    padding: 0;
+
+    text-align: left;
+
+    margin-right: 20px;
+
+    margin-bottom: 20px;
+
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.serverStat button {
+    margin-top: 10px;
+    padding: 10px 20px;
+
+    width: 100%;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    border-radius: 5px;
+
+    border: none;
+
+    transition: background-color 0.3s ease;
+}
+
+.serverStat button.isOff.OFF {
+    background-color: #f44336;
+    color: white;
+}
+
+.serverStat button.isOff.OFF:hover {
+    background-color: #ba1c1c;
+    color: rgb(210, 210, 210);
+}
+
+.serverStat button.isOff.ON {
+    background-color: #4caf50;
+    color: white;
+}
+
+.serverStat button.isOff.ON:hover {
+    background-color: #357a38;
+    color: rgb(210, 210, 210);
+}

@@ -1,4 +1,5 @@
 import "./App.css";
+import ServerStat from "./components/ServerStat.jsx";
 
 function App() {
 	return (
@@ -44,7 +45,9 @@ function App() {
 					/>
 				</svg>
 			</header>
-			<main className="main"></main>
+			<main className="main">
+				<ServerStat />
+			</main>
 		</div>
 	);
 }

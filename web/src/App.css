@@ -87,6 +87,10 @@ header h3 {
 
 .main {
 	grid-area: main;
+
 	padding: 20px;
+
+	display: flex;
+
 	border: 1px solid var(--border);
 }
