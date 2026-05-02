@@ -1,67 +1,92 @@
 import "./App.css";
-import Players from "./components/Players.jsx";
-import ServerStat from "./components/ServerStat.jsx";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import Overview from "./pages/Overview.jsx";
+import World from "./pages/World.jsx";
+import Maps from "./pages/Maps.jsx";
+import Trash from "./pages/Trash.jsx";
+import { useState } from "react";
 
 function App() {
+	const [selected, setSelected] = useState("overview");
+
 	return (
-		<div className="container">
-			<aside className="sidebar">
-				<h2>Salad Bar</h2>
-				<nav>
-					<ul>
-						<li>Overview</li>
-						<li>World</li>
-						<li>Maps</li>
-						<li>Trash</li>
-					</ul>
-				</nav>
-				<p>
-					마크 서버 주소:
-					<br />
-					<code>mc.redeyes.dev:25565</code>
-				</p>
-			</aside>
-			<header className="header">
-				<h3>Welcome to the Salad Bar!</h3>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 640 640"
-					width="40"
-					height="40"
-				>
-					<path
-						fill="rgb(255, 255, 255)"
-						d="M320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576C388.8 576 451.3 548.8 497.3 504.6C504.6 497.6 506.7 486.7 502.6 477.5C498.5 468.3 488.9 462.6 478.8 463.4C473.9 463.8 469 464 464 464C362.4 464 280 381.6 280 280C280 207.9 321.5 145.4 382.1 115.2C391.2 110.7 396.4 100.9 395.2 90.8C394 80.7 386.6 72.5 376.7 70.3C358.4 66.2 339.4 64 320 64z"
-					/>
-				</svg>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 640 640"
-					width="40"
-					height="40"
-				>
-					<path
-						fill="rgb(255, 255, 255)"
-						d="M320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"
-					/>
-				</svg>
-			</header>
-			<main className="main">
-				<ServerStat />
-				<Players />
-				<div
-					style={{
-						backgroundColor: "#333",
-						color: "#fff",
-						padding: "20px",
-						marginTop: "20px",
-						width: "300px",
-					}}
-				>
-					테스트용 div
-				</div>
-			</main>
-		</div>
+		<BrowserRouter>
+			<div className="container">
+				<aside className="sidebar">
+					<h2>Salad Bar</h2>
+					<nav>
+						<ul>
+							<Link
+								to="/"
+								onClick={() => setSelected("overview")}
+								className={selected === "overview" ? "selected" : ""}
+							>
+								<li>Overview</li>
+							</Link>
+							<Link
+								to="/world"
+								onClick={() => setSelected("world")}
+								className={selected === "world" ? "selected" : ""}
+							>
+								<li>World</li>
+							</Link>
+							<Link
+								to="/maps"
+								onClick={() => setSelected("maps")}
+								className={selected === "maps" ? "selected" : ""}
+							>
+								<li>Maps</li>
+							</Link>
+							<Link
+								to="/trash"
+								onClick={() => setSelected("trash")}
+								className={selected === "trash" ? "selected" : ""}
+							>
+								<li>Trash</li>
+							</Link>
+						</ul>
+					</nav>
+					<p>
+						마크 서버 주소:
+						<br />
+						<code>mc.redeyes.dev:25565</code>
+					</p>
+				</aside>
+				<header className="header">
+					<h3>Welcome to the Salad Bar!</h3>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 640 640"
+						width="40"
+						height="40"
+					>
+						<path
+							fill="rgb(255, 255, 255)"
+							d="M320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576C388.8 576 451.3 548.8 497.3 504.6C504.6 497.6 506.7 486.7 502.6 477.5C498.5 468.3 488.9 462.6 478.8 463.4C473.9 463.8 469 464 464 464C362.4 464 280 381.6 280 280C280 207.9 321.5 145.4 382.1 115.2C391.2 110.7 396.4 100.9 395.2 90.8C394 80.7 386.6 72.5 376.7 70.3C358.4 66.2 339.4 64 320 64z"
+						/>
+					</svg>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 640 640"
+						width="40"
+						height="40"
+					>
+						<path
+							fill="rgb(255, 255, 255)"
+							d="M320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"
+						/>
+					</svg>
+				</header>
+				<main className="main">
+					<Routes>
+						<Route path="/" element={<Overview />} />
+						<Route path="/world" element={<World />} />
+						<Route path="/maps" element={<Maps />} />
+						<Route path="/trash" element={<Trash />} />
+					</Routes>
+				</main>
+			</div>
+		</BrowserRouter>
 	);
 }
 
