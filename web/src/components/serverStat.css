@@ -5,8 +5,8 @@
 
     padding: 15px 25px;
 
-    width: fit-content;
-    height: fit-content;
+    width: 250px;
+    height: 150px;
 }
 
 .serverStat h2 {
@@ -23,9 +23,19 @@
     font-weight: bold;
 }
 
+.serverStat-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    height: fit-content;
+}
+
 .serverStat button {
-    margin-top: 10px;
-    padding: 10px 20px;
+    margin-top: 15px;
+    padding: 13px 20px;
 
     width: 100%;
 
