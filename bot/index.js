@@ -109,7 +109,7 @@ client.login(token);
 const enableWebServer = process.env.ENABLE_WEB_SERVER === "true";
 
 if (enableWebServer) {
-	client.once("ready", async () => {
+	client.once("clientReady", async () => {
 		try {
 			const { app, httpServer, broadcast } = createAPIServer(client);
 
