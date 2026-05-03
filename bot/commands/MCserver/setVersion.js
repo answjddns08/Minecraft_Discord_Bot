@@ -33,16 +33,33 @@ export default {
 			return;
 		}
 
-		// Paper MC API(v2)에서 버전 목록 가져오기 — 안정(Stable) 버전만 추림
+		// Paper MC API(v3)에서 버전 목록 가져오기 — 안정(Stable) 버전만 추림
 		/**
 		 * @type {string[]} versions
 		 */
 		let versions = [];
 		try {
-			const response = await fetch("https://fill.papermc.io/v3/projects/paper");
+			const response = await fetch("https://api.papermc.io/v2/projects/paper");
 			const data = await response.json();
+
+			if (Array.isArray(data.versions)) {
+				versions = data.versions;
+			}
+
 			// 안정 버전: 순수 숫자 형식(예: 1.20.4)만 허용
-			versions = (data.versions || []).filter((v) => /^[0-9]+(\.[0-9]+)*$/.test(v));
+			versions = versions.filter((v) => /^[0-9]+(\.[0-9]+)*$/.test(v));
+
+			// 중복 제거 및 정렬
+			versions = Array.from(new Set(versions)).sort((a, b) => {
+				const pa = a.split('.').map((s) => Number(s));
+				const pb = b.split('.').map((s) => Number(s));
+				for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+					const na = pa[i] || 0;
+					const nb = pb[i] || 0;
+					if (na !== nb) return na - nb;
+				}
+				return 0;
+			});
 
 			if (versions.length === 0) {
 				await interaction.editReply("사용 가능한 안정(Stable) 버전을 가져올 수 없습니다.");
