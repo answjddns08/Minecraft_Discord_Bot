@@ -38,39 +38,46 @@ else
   echo "[Paper Server] server.properties 이미 존재 (Discord 봇이 관리)"
 fi
 
+# PaperMC API base (v3)
+API_BASE="https://fill.papermc.io/v3/projects/paper"
+
 # VERSION 처리 (기본값: LATEST)
-if [ "$VERSION" = "LATEST" ] || [ -z "$VERSION" ]; then
+if [ -z "$VERSION" ] || [ "$VERSION" = "LATEST" ]; then
   echo "[Paper Server] 최신 버전 확인 중..."
-  VERSION=$(curl -s https://fill.papermc.io/v3/projects/paper | jq -r '.versions[-1]')
+  VERSION=$(curl -s "$API_BASE" | jq -r '.versions[-1]')
+  if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+    echo "[ERROR] 최신 버전 조회 실패"
+    exit 1
+  fi
   echo "[Paper Server] 최신 버전: $VERSION"
 fi
 
-# jar 파일명
-JAR_FILE="paper-$VERSION.jar"
+# 빌드 및 다운로드 메타데이터 가져오기
+echo "[Paper Server] 버전 $VERSION의 빌드 정보 확인 중..."
+BUILD=$(curl -s "$API_BASE/versions/$VERSION" | jq -r '.builds[-1]')
+if [ -z "$BUILD" ] || [ "$BUILD" = "null" ]; then
+  echo "[ERROR] 버전 $VERSION을 찾을 수 없습니다"
+  exit 1
+fi
+echo "[Paper Server] 빌드 번호: $BUILD"
+
+DOWNLOAD_NAME=$(curl -s "$API_BASE/versions/$VERSION/builds/$BUILD" | jq -r '.downloads.application.name')
+if [ -z "$DOWNLOAD_NAME" ] || [ "$DOWNLOAD_NAME" = "null" ]; then
+  echo "[ERROR] 빌드 $BUILD의 다운로드 정보를 가져오지 못했습니다"
+  exit 1
+fi
+
+JAR_FILE="$DOWNLOAD_NAME"
 JAR_PATH="/data/server/$JAR_FILE"
 
 # jar 파일 확인 및 다운로드
 if [ ! -f "$JAR_PATH" ]; then
-  echo "[Paper Server] 버전 $VERSION의 빌드 정보 확인 중..."
-  
-  # 최신 빌드 번호 가져오기
-  BUILD=$(curl -s https://fill.papermc.io/v3/projects/paper/versions/$VERSION | jq -r '.builds[-1]')
-  
-  if [ -z "$BUILD" ] || [ "$BUILD" = "null" ]; then
-    echo "[ERROR] 버전 $VERSION을 찾을 수 없습니다"
-    exit 1
-  fi
-  
-  echo "[Paper Server] 빌드 번호: $BUILD"
   echo "[Paper Server] jar 파일 다운로드 중... ($JAR_FILE)"
-  
-  DOWNLOAD_URL="https://fill.papermc.io/v3/projects/paper/versions/$VERSION/builds/$BUILD/downloads/paper-$VERSION-$BUILD.jar"
-  
-  curl -f -o "$JAR_PATH" "$DOWNLOAD_URL" || {
+  DOWNLOAD_URL="$API_BASE/versions/$VERSION/builds/$BUILD/downloads/$DOWNLOAD_NAME"
+  curl -f -L -o "$JAR_PATH" "$DOWNLOAD_URL" || {
     echo "[ERROR] jar 파일 다운로드 실패"
     exit 1
   }
-  
   echo "[Paper Server] 다운로드 완료!"
 else
   echo "[Paper Server] jar 파일 이미 존재: $JAR_FILE"

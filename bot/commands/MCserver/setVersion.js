@@ -33,7 +33,7 @@ export default {
 			return;
 		}
 
-		// Paper MC API에서 버전 목록 가져오기
+		// Paper MC API(v2)에서 버전 목록 가져오기 — 안정(Stable) 버전만 추림
 		/**
 		 * @type {string[]} versions
 		 */
@@ -41,11 +41,11 @@ export default {
 		try {
 			const response = await fetch("https://fill.papermc.io/v3/projects/paper");
 			const data = await response.json();
-			// 프리뷰 버전(pre)은 제외하고 일반 릴리즈만 필터링
-			versions = (data.versions || []).filter((v) => !v.includes("pre"));
+			// 안정 버전: 순수 숫자 형식(예: 1.20.4)만 허용
+			versions = (data.versions || []).filter((v) => /^[0-9]+(\.[0-9]+)*$/.test(v));
 
 			if (versions.length === 0) {
-				await interaction.editReply("사용 가능한 버전을 가져올 수 없습니다.");
+				await interaction.editReply("사용 가능한 안정(Stable) 버전을 가져올 수 없습니다.");
 				return;
 			}
 		} catch (error) {
