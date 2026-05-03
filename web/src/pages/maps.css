@@ -1,0 +1,153 @@
+.maps-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+
+    margin-bottom: 20px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 15px;
+
+    padding: 15px 20px;
+
+    width: 100%;
+    height: fit-content;
+}
+
+.maps-header h3 {
+    font-size: 22px;
+}
+
+.maps-header button {
+    border: none;
+    border-radius: 10px;
+
+    padding: 10px 20px;
+
+    background-color: #55e729;
+    color: rgb(255, 255, 255);
+
+    display: flex;
+
+    gap: 5px;
+
+    align-items: center;
+
+    cursor: pointer;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    transition: background-color 0.2s ease;
+}
+
+.maps-header button:hover {
+    background-color: #00b300;
+}
+
+.maps-list {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 100%;
+
+    gap: 15px;
+
+    padding: 30px 0;
+
+    border: 1px solid #ccc;
+    border-radius: 15px;
+}
+
+.maps-list h2 {
+    margin-left: 5%;
+    margin-right: auto;
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+}
+
+.maps-list .maps-item {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border: 1px solid #ccc;
+
+    border-radius: 15px;
+
+    width: 85%;
+
+    height: fit-content;
+
+    padding: 10px 20px;
+}
+
+.maps-item h4 {
+    margin: 0;
+
+    font-size: 22px;
+}
+
+.maps-item p {
+    /* top, right, bottom, left */
+    margin: 0 auto 0 15px;
+
+    font-size: 18px;
+}
+
+.maps-item button {
+    border: none;
+    border-radius: 10px;
+
+
+    display: flex;
+
+    gap: 5px;
+
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.maps-item .btn-select {
+    background-color: #55e729;
+    color: rgb(255, 255, 255);
+
+    padding: 8px 24px;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    margin-right: 15px;
+
+    height: 100%;
+}
+
+.maps-item .btn-select:hover {
+    background-color: #00b300;
+}
+
+.maps-item .btn-delete {
+    background-color: #dc3545;
+    color: rgb(255, 255, 255);
+
+    padding: 8px 8px;
+}
+
+.maps-item .btn-delete:hover {
+    background-color: #a71d2a;
+}
