@@ -77,7 +77,7 @@ function App() {
 						/>
 					</svg>
 				</header>
-				<main className="main">
+				<main>
 					<Routes>
 						<Route path="/" element={<Overview />} />
 						<Route path="/world" element={<World />} />

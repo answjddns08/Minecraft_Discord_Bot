@@ -3,10 +3,12 @@
 
     border-radius: 15px;
 
-    padding: 20px;
+    padding: 15px 25px;
 
     max-width: 300px;
-    height: fit-content;
+    height: 150px;
+
+    margin-left: auto;
 
     display: flex;
 

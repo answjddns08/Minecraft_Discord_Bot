@@ -1,13 +1,14 @@
 import ServerStat from "../components/ServerStat";
 import Players from "../components/Players";
+import JiDo from "../components/Jido";
 
 function Overview() {
 	return (
-		<div>
-			<h1>Overview</h1>
+		<>
 			<ServerStat />
 			<Players />
-		</div>
+			<JiDo />
+		</>
 	);
 }
 

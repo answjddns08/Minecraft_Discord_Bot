@@ -7,7 +7,7 @@ function Players() {
 				<h2>Players</h2>
 				<h2>5/10</h2>
 			</div>
-			<ul className="players-list">
+			<ul>
 				<li>Player1</li>
 				<li>Player2</li>
 				<li>Player3</li>
