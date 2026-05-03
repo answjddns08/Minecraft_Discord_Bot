@@ -1,0 +1,124 @@
+.world-header {
+    display: flex;
+    align-items: center;
+
+    justify-content: space-between;
+
+    border: 1px solid #ccc;
+
+    border-radius: 15px;
+
+    padding: 10px 20px;
+
+    height: 75px;
+    width: 100%;
+}
+
+.world-header h2 {
+    margin: 0;
+
+    font-size: 32px;
+
+    font-weight: bold;
+}
+
+.world-header .container {
+    display: flex;
+
+    margin-left: auto;
+
+    align-items: center;
+
+    height: 100%;
+
+    gap: 20px;
+}
+
+
+
+.world-header .container button {
+    padding: 8px 16px;
+
+    background-color: #007bff;
+
+    color: white;
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    height: 90%;
+
+    transition: background-color 0.2s ease;
+}
+
+.world-header .container button:hover {
+    background-color: #0056b3;
+}
+
+.property {
+    border: 1px solid #ccc;
+    border-radius: 15px;
+
+    padding: 20px;
+
+    flex-shrink: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+
+    height: fit-content;
+}
+
+.property h1 {
+    font-size: 32px;
+    margin-top: 0;
+    margin-bottom: 20px;
+
+    font-weight: 600;
+
+    text-align: left;
+}
+
+.property div {
+    display: flex;
+
+    justify-content: space-between;
+}
+
+.log {
+    border: 1px solid #ccc;
+    border-radius: 15px;
+
+    padding: 20px;
+
+    flex: 1;
+    min-width: 0;
+}
+
+.log h1 {
+    font-size: 32px;
+    margin-top: 0;
+    margin-bottom: 20px;
+
+    font-weight: 600;
+
+    text-align: left;
+}
+
+.log .log-content {
+    overflow-y: auto;
+
+    border: 1px solid #ccc;
+    border-radius: 10px;
+
+    padding: 10px;
+
+    max-height: 400px;
+
+    text-align: left;
+}
