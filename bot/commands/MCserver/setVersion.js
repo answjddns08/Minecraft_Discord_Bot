@@ -14,6 +14,38 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configPath = path.join(__dirname, "../../config/config.json");
 
+function collectPaperVersions(versionSource) {
+	if (Array.isArray(versionSource)) {
+		return versionSource;
+	}
+
+	if (versionSource && typeof versionSource === "object") {
+		return Object.values(versionSource).flat();
+	}
+
+	return [];
+}
+
+function compareVersions(a, b) {
+	const pa = a.split(".").map((part) => Number(part));
+	const pb = b.split(".").map((part) => Number(part));
+
+	for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+		const na = pa[i] ?? 0;
+		const nb = pb[i] ?? 0;
+
+		if (na !== nb) {
+			return na - nb;
+		}
+	}
+
+	return 0;
+}
+
+function isStableVersion(version) {
+	return /^[0-9]+(\.[0-9]+)*$/.test(version);
+}
+
 export default {
 	data: new SlashCommandBuilder()
 		.setName("setversion")
@@ -39,27 +71,16 @@ export default {
 		 */
 		let versions = [];
 		try {
-			const response = await fetch("https://api.papermc.io/v2/projects/paper");
+			const response = await fetch("https://fill.papermc.io/v3/projects/paper");
 			const data = await response.json();
 
-			if (Array.isArray(data.versions)) {
-				versions = data.versions;
-			}
+			versions = collectPaperVersions(data.versions);
 
-			// 안정 버전: 순수 숫자 형식(예: 1.20.4)만 허용
-			versions = versions.filter((v) => /^[0-9]+(\.[0-9]+)*$/.test(v));
+			// 안정 버전: 접미사(-rc, -pre 등)가 없는 순수 숫자 형식만 허용
+			versions = versions.filter(isStableVersion);
 
 			// 중복 제거 및 정렬
-			versions = Array.from(new Set(versions)).sort((a, b) => {
-				const pa = a.split('.').map((s) => Number(s));
-				const pb = b.split('.').map((s) => Number(s));
-				for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-					const na = pa[i] || 0;
-					const nb = pb[i] || 0;
-					if (na !== nb) return na - nb;
-				}
-				return 0;
-			});
+			versions = Array.from(new Set(versions)).sort(compareVersions);
 
 			if (versions.length === 0) {
 				await interaction.editReply("사용 가능한 안정(Stable) 버전을 가져올 수 없습니다.");

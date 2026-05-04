@@ -38,20 +38,23 @@ else
   echo "[Paper Server] server.properties 이미 존재 (Discord 봇이 관리)"
 fi
 
-# PaperMC API base (v2)
-API_BASE="https://api.papermc.io/v2/projects/paper"
+# PaperMC API endpoints
+VERSION_API_BASE="https://fill.papermc.io/v3/projects/paper"
+TMP_DIR="/data/server/.paper_api_debug"
+mkdir -p "$TMP_DIR"
 
 # VERSION 처리 (기본값: LATEST)
 if [ -z "$VERSION" ] || [ "$VERSION" = "LATEST" ]; then
   echo "[Paper Server] 최신 버전 확인 중..."
-  # prepare debug folder for API responses
-  TMP_DIR="/data/server/.paper_api_debug"
-  mkdir -p "$TMP_DIR"
-
-  API_RAW=$(curl -s "$API_BASE")
+  API_RAW=$(curl -s "$VERSION_API_BASE")
   echo "$API_RAW" > "$TMP_DIR/base.json"
 
-  VERSION=$(printf '%s' "$API_RAW" | jq -r '.versions[-1]') || {
+  VERSION=$(printf '%s' "$API_RAW" | jq -r '
+    .versions
+    | if type == "array" then . else (to_entries | map(.value) | add) end
+    | .[]
+    | select(test("^[0-9]+(\\.[0-9]+)*$"))
+  ' | sort -u -V | tail -n 1) || {
     echo "[ERROR] 최신 버전 파싱 실패 — 원본 응답 출력 (saved to $TMP_DIR/base.json):"
     cat "$TMP_DIR/base.json"
     echo "--- jq error ---"
@@ -66,12 +69,12 @@ if [ -z "$VERSION" ] || [ "$VERSION" = "LATEST" ]; then
   echo "[Paper Server] 최신 버전: $VERSION"
 fi
 
-# 빌드 및 다운로드 메타데이터 가져오기
+# 선택한 버전의 최신 빌드 및 다운로드 메타데이터 가져오기
 echo "[Paper Server] 버전 $VERSION의 빌드 정보 확인 중..."
-BUILD_RAW=$(curl -s "$API_BASE/versions/$VERSION")
+BUILD_RAW=$(curl -s "$VERSION_API_BASE/versions/$VERSION/builds")
 echo "$BUILD_RAW" > "$TMP_DIR/version.json"
 
-BUILD=$(printf '%s' "$BUILD_RAW" | jq -r '.builds | last' 2> "$TMP_DIR/jq_builds.err") || {
+BUILD_ID=$(printf '%s' "$BUILD_RAW" | jq -r '.[0].id // empty' 2> "$TMP_DIR/jq_builds.err") || {
   echo "[ERROR] 빌드 번호 파싱 실패 — 원본 응답 출력 (saved to $TMP_DIR/version.json):"
   cat "$TMP_DIR/version.json"
   echo "--- jq error ---"
@@ -79,31 +82,30 @@ BUILD=$(printf '%s' "$BUILD_RAW" | jq -r '.builds | last' 2> "$TMP_DIR/jq_builds
   exit 1
 }
 
-if [ -z "$BUILD" ] || [ "$BUILD" = "null" ]; then
+if [ -z "$BUILD_ID" ] || [ "$BUILD_ID" = "null" ]; then
   echo "[ERROR] 버전 $VERSION을 찾을 수 없습니다"
   exit 1
 fi
 
-echo "[Paper Server] 빌드 번호: $BUILD"
+DOWNLOAD_URL=$(printf '%s' "$BUILD_RAW" | jq -r '.[0].downloads."server:default".url // empty' 2> "$TMP_DIR/jq_download.err") || {
+  echo "[ERROR] 다운로드 URL 파싱 실패 — 원본 응답 출력 (saved to $TMP_DIR/version.json):"
+  cat "$TMP_DIR/version.json"
+  echo "--- jq error ---"
+  cat "$TMP_DIR/jq_download.err" >&2
+  exit 1
+}
 
-DOWNLOAD_RAW=$(curl -s "$API_BASE/versions/$VERSION/builds/$BUILD")
-echo "$DOWNLOAD_RAW" > "$TMP_DIR/build.json"
+DOWNLOAD_NAME=$(printf '%s' "$BUILD_RAW" | jq -r '.[0].downloads."server:default".name // empty')
 
-# 1) 표준 경로 시도: .downloads.application.name
-DOWNLOAD_NAME=$(printf '%s' "$DOWNLOAD_RAW" | jq -r '.downloads.application.name // empty')
-
-# 2) 표준 경로가 없으면 폴백: 모든 name 필드 중 paper-*.jar 패턴과 매칭되는 첫 항목 사용
-if [ -z "$DOWNLOAD_NAME" ]; then
-  DOWNLOAD_NAME=$(printf '%s' "$DOWNLOAD_RAW" | jq -r '[..|.name? // empty] | map(select(test("paper-.*\\.jar"; "i"))) | .[0] // empty' 2> "$TMP_DIR/jq_download.err")
-fi
-
-if [ -z "$DOWNLOAD_NAME" ]; then
-  echo "[ERROR] 빌드 $BUILD의 다운로드 정보를 가져오지 못했습니다 — 원본 응답 (saved to $TMP_DIR/build.json):"
-  cat "$TMP_DIR/build.json"
+if [ -z "$DOWNLOAD_URL" ] || [ -z "$DOWNLOAD_NAME" ]; then
+  echo "[ERROR] 빌드 $BUILD_ID의 다운로드 정보를 가져오지 못했습니다 — 원본 응답 (saved to $TMP_DIR/version.json):"
+  cat "$TMP_DIR/version.json"
   echo "--- jq error (download parse) ---"
   cat "$TMP_DIR/jq_download.err" >&2 || true
   exit 1
 fi
+
+echo "[Paper Server] 빌드 번호: $BUILD_ID"
 
 JAR_FILE="$DOWNLOAD_NAME"
 JAR_PATH="/data/server/$JAR_FILE"
@@ -111,7 +113,6 @@ JAR_PATH="/data/server/$JAR_FILE"
 # jar 파일 확인 및 다운로드
 if [ ! -f "$JAR_PATH" ]; then
   echo "[Paper Server] jar 파일 다운로드 중... ($JAR_FILE)"
-  DOWNLOAD_URL="$API_BASE/versions/$VERSION/builds/$BUILD/downloads/$DOWNLOAD_NAME"
   curl -f -L -o "$JAR_PATH" "$DOWNLOAD_URL" || {
     echo "[ERROR] jar 파일 다운로드 실패"
     exit 1
