@@ -28,7 +28,7 @@ async function readWorldSettings() {
 }
 
 /**
- * update worldSettings.json with new settings
+ * update or create worldSettings.json with new settings
  * @param {string} worldName 월드 이름
  * @param {worldSetting} updates 업데이트할 설정
  * @returns {Promise<Object>} 업데이트된 설정

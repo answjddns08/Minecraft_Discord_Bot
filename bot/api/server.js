@@ -18,7 +18,7 @@ export function createAPIServer(client) {
 	app.use(cors()); // CORS 허용 (필요에 따라 설정 조정)
 	app.use(express.json()); // JSON 요청 바디 파싱
 
-	// Health check
+	// Health check (for testing and monitoring)
 	app.get("/health", (req, res) => {
 		res.json({
 			status: "ok",

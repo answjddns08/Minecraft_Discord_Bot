@@ -1,7 +1,7 @@
-import { Rcon } from "rcon-client";
 import config from "../config/config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
 import { stopMinecraftServer } from "./dockerControl.js";
+import { rconList, rconStop } from "./rconlist.js";
 
 const delayMin = 5;
 /**
@@ -10,6 +10,9 @@ const delayMin = 5;
  * @type {NodeJS.Timeout} shutdownTimer - 자동 종료 타이머
  */
 let shutdownTimer = null;
+/**
+ * @type {boolean} isNoOneOnline - 플레이어가 없는 상태인지 여부
+ */
 let isNoOneOnline = false;
 /**
  * @param {import('discord.js').Client} client
@@ -17,32 +20,16 @@ let isNoOneOnline = false;
 let client;
 
 async function autoShutdown() {
-	let rcon;
 	try {
-		rcon = await Rcon.connect({
-			host: config.RCsettings.host,
-			port: config.RCsettings.port,
-			password: config.RCsettings.password,
-		});
+		const { count } = await rconList();
 
-		const response = await rcon.send("list");
-		const playerList =
-			response
-				.split(":")[1]
-				?.split(",")
-				.map((player) => player.trim()) || [];
-
-		const check = playerList[0] == "" ? true : false;
-
-		console.log("Player list:", playerList);
-		console.log("check:", check);
+		console.log("Player count:", count);
 		console.log("isNoOneOnline:", isNoOneOnline);
 
-		if (isNoOneOnline && check) {
+		if (isNoOneOnline && count === 0) {
 			console.log("server Stop!");
 
-			await rcon.send("stop");
-			await rcon.end();
+			await rconStop();
 
 			try {
 				console.log("[autoShutdown] 컨테이너 중지 중...");
@@ -65,14 +52,10 @@ async function autoShutdown() {
 			return;
 		}
 
-		isNoOneOnline = check;
+		isNoOneOnline = count === 0;
 
-		rcon.end();
 	} catch (error) {
 		console.error("Error checking player list:", error);
-		if (rcon) {
-			rcon.end();
-		}
 	}
 }
 

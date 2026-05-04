@@ -1,22 +1,25 @@
 import { Router } from "express";
 import { isServerRunning } from "../../functions/dockerControl.js";
-import { Rcon } from "rcon-client";
 import config from "../../config/config.json" with { type: "json" };
+import { rconList, rconStop } from "../../functions/rconlist.js";
+import { waitForServerStop } from "../../commands/MCserver/stop.js";
 
 const router = Router();
 
 /**
  * GET /api/server/status
  * 서버 상태 조회
+ * - isRunning: 서버가 켜져 있는지 여부
+ * - newWorld: 새로 시작한 월드 이름 (마지막으로 시작한 월드)
  */
 router.get("/status", async (req, res) => {
 	try {
 		const isRunning = await isServerRunning();
-		const status = await isServerRunning();
+		const newWorld = config.lastWorld;
 
 		res.json({
-			running: isRunning,
-			status: status ? "online" : "offline",
+			isRunning,
+			newWorld,
 		});
 	} catch (error) {
 		console.error("Error getting server status:", error);
@@ -27,6 +30,9 @@ router.get("/status", async (req, res) => {
 /**
  * GET /api/server/players
  * 현재 접속 중인 플레이어 목록
+ * - count: 접속 중인 플레이어 수
+ * - max: 최대 플레이어 수
+ * - players: 접속 중인 플레이어 이름 배열
  */
 router.get("/players", async (req, res) => {
 	try {
@@ -36,16 +42,10 @@ router.get("/players", async (req, res) => {
 			return res.json({ players: [], count: 0 });
 		}
 
-		const rcon = await Rcon.connect({
-			host: config.RCsettings?.host ?? "127.0.0.1",
-			port: config.RCsettings?.port ?? 25575,
-			password: config.RCsettings?.password ?? "",
-		});
-
-		const response = await rcon.send("list");
-		await rcon.end();
+		const { count, max, players } = await rconList();
 
 		// "There are 2 of a max of 20 players online: player1, player2"
+		// match[1] = 2, match[2] = "player1, player2"
 		const match = response.match(/There are (\d+).*?: (.+)/);
 
 		if (match) {
@@ -54,15 +54,15 @@ router.get("/players", async (req, res) => {
 
 			res.json({
 				count,
-				max: 20,
-				players: playerList,
+				max,
+				players,
 			});
 		} else {
-			res.json({ count: 0, max: 20, players: [] });
+			res.json({ count: 0, max: 10, players: [] });
 		}
 	} catch (error) {
 		console.error("Error getting players:", error);
-		res.json({ count: 0, max: 20, players: [] });
+		res.json({ count: 0, max: 10, players: [] });
 	}
 });
 
@@ -97,6 +97,15 @@ router.post("/stop", async (req, res) => {
 
 		if (!isRunning) {
 			return res.status(400).json({ error: "Server is not running" });
+		}
+
+		await rconStop();
+
+		const stoppedGracefully = await waitForServerStop();
+
+		if (!stoppedGracefully) {
+			console.warn("Server did not stop gracefully, attempting force stop...");
+			await stopMinecraftServer();
 		}
 
 		// 실제 서버 중지 로직은 Discord Bot 명령어 로직 재사용

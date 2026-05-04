@@ -71,7 +71,10 @@ export default {
 				const worldName = i.values[0];
 
 				if (worldName === (await loadLastWorld())) {
-					updateLastWorld("");
+					await interaction.reply(
+						"마지막으로 사용한 월드는 삭제할 수 없습니다! :no_entry_sign:",
+					);
+					return;
 				}
 
 				try {

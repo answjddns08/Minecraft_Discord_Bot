@@ -1,4 +1,3 @@
-import { Rcon } from "rcon-client";
 import {
 	SlashCommandBuilder,
 	EmbedBuilder,
@@ -8,6 +7,7 @@ import { isServerRunning } from "../../functions/dockerControl.js";
 import config from "../../config/config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
 import versionCheck from "../../functions/versionCheck.js";
+import { rconList, rconStop } from "../../functions/rconlist.js"
 
 /**
  * config.json에서 현재 설정된 서버 버전 읽기
@@ -34,8 +34,6 @@ export default {
 
 		const serverIcon = new AttachmentBuilder(config.thumbnailDir);
 		const currentVersion = getCurrentVersion();
-
-		let rcon;
 
 		let resultEmbed = new EmbedBuilder()
 			.setTitle("**" + (await loadLastWorld()) + "**")
@@ -68,27 +66,10 @@ export default {
 		}
 
 		try {
-			rcon = await Rcon.connect({
-				host: config.RCsettings.host,
-				port: config.RCsettings.port,
-				password: config.RCsettings.password,
-			});
 
-			const response = await rcon.send("list");
-			// 콜론 뒤의 플레이어 목록 부분 추출
-			const playersPart = response.split(":")[1]?.trim() || "";
+			const { count, players } = await rconList();
 
-			// 빈 문자열이면 빈 배열, 아니면 쉼표로 분할하고 공백 제거
-			const playerList =
-				playersPart === ""
-					? []
-					: playersPart
-						.split(",")
-						.map((player) => player.trim())
-						.filter((name) => name !== "");
-
-			console.log("Player List:", playerList);
-			console.log("Player Count:", playerList.length);
+			console.log("Player Count:", count);
 
 			const { server, version } = await versionCheck();
 
@@ -97,8 +78,8 @@ export default {
 				.setDescription("The world is online! :white_check_mark:\n **\n**")
 				.addFields(
 					{
-						name: `플레이어 [ ${playerList.length}명 ]`,
-						value: `${playerList}\n **\n**`,
+						name: `플레이어 [ ${count}명 ]`,
+						value: `${players.join(", ")}\n **\n**`,
 					},
 					{
 						name: "서버 주소",

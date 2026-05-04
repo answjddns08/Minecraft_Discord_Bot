@@ -1,11 +1,11 @@
 import { ActivityType, SlashCommandBuilder } from "discord.js";
-import { Rcon } from "rcon-client";
 import config from "../../config/config.json" with { type: "json" };
 import { stopAutoShutdown } from "../../functions/autoShutdown.js";
 import {
 	isServerRunning,
 	stopMinecraftServer,
 } from "../../functions/dockerControl.js";
+import { rconList, rconStop } from "../../functions/rconlist.js";
 
 async function waitForServerStop(maxAttempts = 10, intervalMs = 1000) {
 	for (let i = 0; i < maxAttempts; i += 1) {
@@ -35,31 +35,15 @@ export default {
 			return;
 		}
 
-		const rcon = new Rcon({
-			host: config.RCsettings.host,
-			port: config.RCsettings.port,
-			password: config.RCsettings.password,
-		});
+		const { count } = await rconList(rcon);
 
-		await rcon.connect();
-
-		const response = await rcon.send("list");
-		const players =
-			response
-				.split(":")[1]
-				?.split(",")
-				.map((player) => player.trim())
-				.filter(Boolean) || [];
-
-		if (players.length > 0) {
+		if (count > 0) {
 			await interaction.reply("플레이어가 서버에 남아있어요! :x:");
 			await rcon.end();
 			return;
 		}
 
-		await rcon.send("stop");
-
-		await rcon.end();
+		await rconStop(rcon);
 
 		const stoppedGracefully = await waitForServerStop();
 
@@ -88,3 +72,5 @@ export default {
 		await interaction.reply("월드를 종료합니다. :zzz:");
 	},
 };
+
+export { waitForServerStop };
