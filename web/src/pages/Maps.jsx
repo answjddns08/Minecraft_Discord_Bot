@@ -3,6 +3,7 @@ import "./maps.css";
 
 function Maps() {
 	const [selectedMap, setSelectedMap] = useState("아모른직다");
+	const [modalOpen, setModalOpen] = useState(false);
 
 	const maps = [
 		{ name: "아모른직다1", type: "일반" },
@@ -14,7 +15,7 @@ function Maps() {
 		<>
 			<div className="maps-header">
 				<h3>선택된 월드: {selectedMap}</h3>
-				<button>
+				<button onClick={() => setModalOpen(true)}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 640 640"
@@ -59,6 +60,73 @@ function Maps() {
 					</section>
 				))}
 			</div>
+
+			{modalOpen && (
+				<div className="modal-background">
+					<div className="modal-content">
+						<h2>새 월드 만들기</h2>
+						<form>
+							<p>월드 이름</p>
+							<input type="text" placeholder="월드 이름" />
+						</form>
+						<form>
+							<p>월드 난이도</p>
+							<select>
+								<option value="peaceful">평화로움</option>
+								<option value="easy">쉬움</option>
+								<option value="normal">보통</option>
+								<option value="hard">어려움</option>
+							</select>
+						</form>
+						<form>
+							<p>게임 모드</p>
+							<select>
+								<option value="survival">야생</option>
+								<option value="creative">크리에이티브</option>
+								<option value="adventure">모험</option>
+							</select>
+						</form>
+						<form>
+							<p>지형 설정</p>
+							<select>
+								<option value="minecraft:normal">기본</option>
+								<option value="minecraft:flat">평지</option>
+								<option value="minecraft:largeBiomes">대형 바이옴</option>
+								<option value="minecraft:amplified">높이 증폭</option>
+							</select>
+						</form>
+						<form
+							style={{
+								display: "flex",
+								alignItems: "center",
+								flexDirection: "row",
+								gap: "10px",
+								width: "100%",
+							}}
+						>
+							<p>op 여부</p>
+							<input style={{ marginLeft: "auto" }} type="checkbox" />
+						</form>
+						<div className="btn-area">
+							<button
+								className="submit"
+								type="submit"
+								onClick={() => setModalOpen(false)}
+							>
+								생성
+							</button>
+							<button
+								className="cancel"
+								type="button"
+								onClick={() => setModalOpen(false)}
+							>
+								취소
+							</button>
+						</div>
+						<div className="drag-and-drop">zip파일 드래그 앤 드롭</div>
+					</div>
+				</div>
+			)}
 		</>
 	);
 }
