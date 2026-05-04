@@ -8,13 +8,20 @@
 
 	grid-template-columns: 1fr 2fr 2fr;
 	grid-template-rows: auto 1fr 1fr;
+
+	height: 100vh;
 }
 
 .sidebar {
 	grid-area: sidebar;
 	padding: 20px;
 
-	border: 1px solid var(--border);
+	border-bottom: 1px solid var(--border);
+
+	height: auto;
+
+	display: flex;
+	flex-direction: column;
 }
 
 .sidebar h2 {
@@ -24,7 +31,7 @@
 
 .sidebar p {
 	margin-top: auto;
-	margin-bottom: 10px;
+	margin-bottom: 0;
 }
 
 .sidebar ul {
@@ -83,7 +90,8 @@
 	grid-area: header;
 	padding: 20px;
 
-	border: 1px solid var(--border);
+	border-left: 1px solid var(--border);
+	border-bottom: 1px solid var(--border);
 
 	display: flex;
 
@@ -107,7 +115,8 @@ main {
 
 	flex-wrap: wrap;
 
-	border: 1px solid var(--border);
+	border-left: 1px solid var(--border);
+	border-bottom: 1px solid var(--border);
 }
 
 .sidebar ul li a {

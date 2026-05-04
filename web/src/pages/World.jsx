@@ -1,13 +1,41 @@
+import { useState } from "react";
 import "./world.css";
 
 function World() {
+	const [serverStatus, setServerStatus] = useState("작동 중");
+
 	return (
 		<>
 			<div className="world-header">
 				<h2>월드 이름</h2>
 				<div className="container">
 					<h3>플레이어: 0/20</h3>
-					<button>접속하기</button>
+					<button
+						className={serverStatus === "작동 중" ? "OFF" : "ON"}
+						onClick={() =>
+							setServerStatus(serverStatus === "작동 중" ? "정지" : "작동 중")
+						}
+					>
+						{serverStatus !== "작동 중" ? (
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 640 640"
+								width="32"
+								height="32"
+							>
+								<path d="M187.2 100.9C174.8 94.1 159.8 94.4 147.6 101.6C135.4 108.8 128 121.9 128 136L128 504C128 518.1 135.5 531.2 147.6 538.4C159.7 545.6 174.8 545.9 187.2 539.1L523.2 355.1C536 348.1 544 334.6 544 320C544 305.4 536 291.9 523.2 284.9L187.2 100.9z" />
+							</svg>
+						) : (
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 640 640"
+								width="32"
+								height="32"
+							>
+								<path d="M160 96L480 96C515.3 96 544 124.7 544 160L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 160C96 124.7 124.7 96 160 96z" />
+							</svg>
+						)}
+					</button>
 					{/* 나중에 서버 켜져 있으면 정지 버튼,
 					꺼져 있으면 실행 버튼으로 바뀌도록 동작해야 함 */}
 				</div>

@@ -34,12 +34,8 @@
     gap: 20px;
 }
 
-
-
 .world-header .container button {
     padding: 8px 16px;
-
-    background-color: #007bff;
 
     color: white;
     border: none;
@@ -50,11 +46,26 @@
 
     height: 90%;
 
+    /* 정사각형 버튼 */
+    aspect-ratio: 1/1;
+
     transition: background-color 0.2s ease;
 }
 
-.world-header .container button:hover {
-    background-color: #0056b3;
+.world-header .container button.ON {
+    background-color: #28a745;
+}
+
+.world-header .container button.ON:hover {
+    background-color: #218838;
+}
+
+.world-header .container button.OFF {
+    background-color: #dc3545;
+}
+
+.world-header .container button.OFF:hover {
+    background-color: #c82333;
 }
 
 .property {

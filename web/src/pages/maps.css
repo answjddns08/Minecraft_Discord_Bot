@@ -136,6 +136,13 @@
     height: 100%;
 }
 
+.maps-item .btn-select.selected {
+    pointer-events: none;
+
+    background-color: #18632a;
+    color: rgb(138, 138, 138);
+}
+
 .maps-item .btn-select:hover {
     background-color: #00b300;
 }
