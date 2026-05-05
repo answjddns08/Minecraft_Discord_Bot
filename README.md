@@ -1,8 +1,8 @@
 # 🎮 Minecraft Discord Bot
 
-> Discord에서 마인크래프트 서버를 편하게 관리할 수 있는 봇입니다.
+> Discord에서 마인크래프트 서버를 편하게 관리하고, 웹 대시보드로 상태와 로그까지 확인할 수 있는 프로젝트입니다.
 
-A Discord bot that allows you to manage your Minecraft server directly from Discord.
+A Discord bot and web dashboard for managing your Minecraft server from Discord and the browser.
 
 ---
 
@@ -57,11 +57,19 @@ A Discord bot that allows you to manage your Minecraft server directly from Disc
 - **스케줄 관리** - 정해진 시간에 자동으로 작업을 실행합니다
 - **휴지통 정리** - 오래된 삭제된 월드를 자동으로 제거합니다
 
+#### 🌐 웹 대시보드
+
+- **실시간 로그** - Docker 컨테이너 로그를 WebSocket으로 받아 화면에 출력합니다
+- **명령 입력창** - 입력한 명령을 백엔드로 보내 RCON으로 실행합니다
+- **명령어 후보** - `help` 응답을 바탕으로 명령어 목록을 받아 자동완성에 활용할 수 있습니다
+- **REST 연동** - 서버 상태, 플레이어, 월드, 휴지통 정보를 API로 조회합니다
+
 ### 📋 요구 사항
 
-- **Node.js** v14 이상
+- **Node.js** v18 이상
 - **Discord 봇** (Discord Developer Portal에서 생성)
 - **마인크래프트 서버** (RCON 활성화 필수)
+- **웹 브라우저** (웹 대시보드 접속용)
 
 **의존 라이브러리:**
 
@@ -73,24 +81,27 @@ A Discord bot that allows you to manage your Minecraft server directly from Disc
 
 ### 🚀 설치 및 실행
 
+이 저장소는 `bot/`(Discord 봇)과 `web/`(웹 대시보드)로 나뉘어 있습니다.
+
 #### 1. 프로젝트 클론 및 설치
 
 ```bash
 git clone https://github.com/yourname/minecraft-discord-bot.git
 cd minecraft-discord-bot
-npm install
+cd bot && npm install
+cd ../web && npm install
 ```
 
 #### 2. 환경 설정
 
-**.env 파일 생성:**
+**`.env` 파일 생성:**
 
 ```env
 DISCORD_TOKEN=your_discord_bot_token
 CLIENT_ID=your_discord_application_id
 ```
 
-**config.json 수정:**
+**`bot/config/config.json` 수정:**
 
 ```json
 {
@@ -112,16 +123,25 @@ CLIENT_ID=your_discord_application_id
 
 #### 3. 실행
 
-**개발 환경:**
+**봇 개발 환경:**
 
 ```bash
-npm run dev:watch  # nodemon 사용 (파일 변경 시 자동 재시작)
+cd bot
+npm run dev
 ```
 
-**프로덕션 환경:**
+**봇 프로덕션 환경:**
 
 ```bash
+cd bot
 npm start
+```
+
+**웹 대시보드 개발 환경:**
+
+```bash
+cd web
+npm run dev
 ```
 
 **Docker에서 실행:**
@@ -148,18 +168,18 @@ docker-compose up -d
 
 ```
 .
-├── commands/              # Discord 슬래시 명령어
-│   ├── MCserver/          # 서버 관리 명령어
-│   └── world/             # 월드 관리 명령어
-├── events/                # Discord 이벤트 핸들러
-├── functions/             # 핵심 기능 함수
+├── bot/                   # Discord 봇 + API + WebSocket
+│   ├── api/               # REST API / WebSocket 서버
+│   ├── commands/          # Discord 슬래시 명령어
+│   ├── config/            # 봇 설정 파일
+│   ├── events/            # Discord 이벤트 핸들러
+│   ├── functions/         # 핵심 기능 함수
+│   └── index.js           # 봇 메인 진입점
+├── web/                   # React 기반 웹 대시보드
 ├── logs/                  # 로그 파일
-├── config.json            # 설정 파일
-├── config.local.json      # 로컬 환경 설정 (선택사항)
-├── index.js               # 메인 진입점
-├── Dockerfile             # Docker 설정
 ├── docker-compose.yml     # Docker Compose 설정
-└── package.json           # Node.js 패키지 설정
+├── docker-compose.dev.yml # 개발용 Docker Compose 설정
+└── Dockerfile.minecraft   # 마인크래프트 서버용 Docker 이미지
 ```
 
 ### 👨‍💻 개발자
@@ -216,11 +236,19 @@ Customize each world individually:
 - **Scheduled Tasks** - Run tasks at specified times
 - **Trash Cleanup** - Automatically remove old deleted worlds
 
+#### 🌐 Web Dashboard
+
+- **Live Logs** - Stream Docker container logs to the browser over WebSocket
+- **Command Input** - Send typed commands to the backend and execute them through RCON
+- **Command List** - Parse the server `help` output and use it for autocomplete suggestions
+- **REST Integration** - Fetch server status, players, worlds, and trash data through APIs
+
 ### 📋 Requirements
 
-- **Node.js** v14 or higher
+- **Node.js** v18 or higher
 - **Discord Bot** (created from Discord Developer Portal)
 - **Minecraft Server** (RCON must be enabled)
+- **Web Browser** (for the dashboard)
 
 **Dependencies:**
 
@@ -232,17 +260,20 @@ Customize each world individually:
 
 ### 🚀 Installation & Setup
 
+This repository is split into `bot/` for the Discord bot and `web/` for the dashboard.
+
 #### 1. Clone and Install
 
 ```bash
 git clone https://github.com/yourname/minecraft-discord-bot.git
 cd minecraft-discord-bot
-npm install
+cd bot && npm install
+cd ../web && npm install
 ```
 
 #### 2. Configuration
 
-**Create .env file:**
+**Create `.env` file:**
 
 ```env
 DISCORD_TOKEN=your_discord_bot_token
@@ -250,7 +281,7 @@ CLIENT_ID=your_discord_application_id
 DOCKER_ENV=false  # Set to true if running in Docker
 ```
 
-**Update config.json:**
+**Update `bot/config/config.json`:**
 
 ```json
 {
@@ -272,16 +303,25 @@ DOCKER_ENV=false  # Set to true if running in Docker
 
 #### 3. Run
 
-**Development:**
+**Bot Development:**
 
 ```bash
-npm run dev:watch  # Auto-restart on file changes with nodemon
+cd bot
+npm run dev
 ```
 
-**Production:**
+**Bot Production:**
 
 ```bash
+cd bot
 npm start
+```
+
+**Web Dashboard Development:**
+
+```bash
+cd web
+npm run dev
 ```
 
 **Docker:**
@@ -308,18 +348,18 @@ docker-compose up -d
 
 ```
 .
-├── commands/              # Discord slash commands
-│   ├── MCserver/          # Server management commands
-│   └── world/             # World management commands
-├── events/                # Discord event handlers
-├── functions/             # Core functionality functions
+├── bot/                   # Discord bot + API + WebSocket
+│   ├── api/               # REST API / WebSocket server
+│   ├── commands/          # Discord slash commands
+│   ├── config/            # Bot configuration files
+│   ├── events/            # Discord event handlers
+│   ├── functions/         # Core functionality functions
+│   └── index.js           # Bot entry point
+├── web/                   # React dashboard
 ├── logs/                  # Log files
-├── config.json            # Configuration file
-├── config.local.json      # Local configuration (optional)
-├── index.js               # Main entry point
-├── Dockerfile             # Docker configuration
 ├── docker-compose.yml     # Docker Compose configuration
-└── package.json           # Node.js package configuration
+├── docker-compose.dev.yml # Development Docker Compose configuration
+└── Dockerfile.minecraft   # Minecraft server image
 ```
 
 ### 👨‍💻 Developer
