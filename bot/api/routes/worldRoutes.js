@@ -3,10 +3,12 @@ import { promises as fs } from "fs";
 import path from "path";
 import config from "../../config/config.json" with { type: "json" };
 import { loadLastWorld } from "../../functions/lastWorld.js";
+import { updateLastWorld } from "../../functions/lastWorld.js";
 import worldSetting from "../../functions/worldSetting.js";
 import cleanUpSchedule from "../../functions/cleanUpSchedule.js";
 import changeWorld from "../../functions/changeWorlds.js";
 import ServerSetting from "../../functions/ServerSetting.js";
+import giveOp from "../../functions/giveOp.js";
 
 const router = Router();
 
@@ -85,7 +87,13 @@ router.post("/", async (req, res) => {
 		 */
 		const { name, difficulty, gameMode, levelType, op } = req.body;
 
-		if (!name || !difficulty || !gameMode || !levelType || !op) {
+		if (
+			name == null ||
+			difficulty == null ||
+			gameMode == null ||
+			levelType == null ||
+			typeof op !== "boolean"
+		) {
 			return res.status(400).json({ error: "All fields are required" });
 		}
 

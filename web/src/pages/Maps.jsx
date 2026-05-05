@@ -1,15 +1,88 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+	createWorld,
+	deleteWorld,
+	listWorlds,
+	selectWorld,
+} from "../lib/minecraftApi.js";
 import "./maps.css";
 
 function Maps() {
-	const [selectedMap, setSelectedMap] = useState("아모른직다");
+	const [selectedMap, setSelectedMap] = useState("-");
 	const [modalOpen, setModalOpen] = useState(false);
+	const [worlds, setWorlds] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState("");
+	const [form, setForm] = useState({
+		name: "",
+		difficulty: "normal",
+		gameMode: "survival",
+		levelType: "minecraft:normal",
+		op: false,
+	});
 
-	const maps = [
-		{ name: "아모른직다1", type: "일반" },
-		{ name: "아모른직다2", type: "일반" },
-		{ name: "아모른직다3", type: "일반" },
-	];
+	async function loadWorlds() {
+		setLoading(true);
+		setError("");
+
+		try {
+			const data = await listWorlds();
+			startTransition(() => {
+				setWorlds(data.worlds || []);
+				setSelectedMap(data.current || "-");
+			});
+		} catch (loadError) {
+			setError(loadError.message || "월드 목록을 불러오지 못했습니다.");
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	useEffect(() => {
+		void loadWorlds();
+	}, []);
+
+	async function handleCreateWorld(event) {
+		event.preventDefault();
+		setError("");
+
+		try {
+			await createWorld(form);
+			setModalOpen(false);
+			setForm({
+				name: "",
+				difficulty: "normal",
+				gameMode: "survival",
+				levelType: "minecraft:normal",
+				op: false,
+			});
+			await loadWorlds();
+		} catch (createError) {
+			setError(createError.message || "월드 생성에 실패했습니다.");
+		}
+	}
+
+	async function handleSelectWorld(name) {
+		setError("");
+
+		try {
+			await selectWorld(name);
+			await loadWorlds();
+		} catch (selectError) {
+			setError(selectError.message || "월드 선택에 실패했습니다.");
+		}
+	}
+
+	async function handleDeleteWorld(name) {
+		setError("");
+
+		try {
+			await deleteWorld(name);
+			await loadWorlds();
+		} catch (deleteError) {
+			setError(deleteError.message || "월드 삭제에 실패했습니다.");
+		}
+	}
 
 	return (
 		<>
@@ -32,19 +105,28 @@ function Maps() {
 			</div>
 			<div className="maps-list">
 				<h2>map list</h2>
-				{maps.map((map) => (
+				{error ? (
+					<p style={{ color: "#dc3545", width: "85%", textAlign: "left" }}>
+						{error}
+					</p>
+				) : null}
+				{loading ? <p>불러오는 중...</p> : null}
+				{worlds.map((map) => (
 					<section key={map.name} className="maps-item">
 						<h4>{map.name}</h4>
-						<p>{map.type}</p>
+						<p>월드</p>
 						<button
 							className={
 								selectedMap === map.name ? "btn-select selected" : "btn-select"
 							}
-							onClick={() => setSelectedMap(map.name)}
+							onClick={() => void handleSelectWorld(map.name)}
 						>
 							선택
 						</button>
-						<button className="btn-delete">
+						<button
+							className="btn-delete"
+							onClick={() => void handleDeleteWorld(map.name)}
+						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								viewBox="0 0 640 640"
@@ -65,65 +147,90 @@ function Maps() {
 				<div className="modal-background">
 					<div className="modal-content">
 						<h2>새 월드 만들기</h2>
-						<form>
+						<form onSubmit={(event) => void handleCreateWorld(event)}>
 							<p>월드 이름</p>
-							<input type="text" placeholder="월드 이름" />
-						</form>
-						<form>
+							<input
+								type="text"
+								placeholder="월드 이름"
+								value={form.name}
+								onChange={(event) =>
+									setForm((prev) => ({ ...prev, name: event.target.value }))
+								}
+							/>
 							<p>월드 난이도</p>
-							<select>
+							<select
+								value={form.difficulty}
+								onChange={(event) =>
+									setForm((prev) => ({
+										...prev,
+										difficulty: event.target.value,
+									}))
+								}
+							>
 								<option value="peaceful">평화로움</option>
 								<option value="easy">쉬움</option>
 								<option value="normal">보통</option>
 								<option value="hard">어려움</option>
 							</select>
-						</form>
-						<form>
 							<p>게임 모드</p>
-							<select>
+							<select
+								value={form.gameMode}
+								onChange={(event) =>
+									setForm((prev) => ({ ...prev, gameMode: event.target.value }))
+								}
+							>
 								<option value="survival">야생</option>
 								<option value="creative">크리에이티브</option>
 								<option value="adventure">모험</option>
 							</select>
-						</form>
-						<form>
 							<p>지형 설정</p>
-							<select>
+							<select
+								value={form.levelType}
+								onChange={(event) =>
+									setForm((prev) => ({
+										...prev,
+										levelType: event.target.value,
+									}))
+								}
+							>
 								<option value="minecraft:normal">기본</option>
 								<option value="minecraft:flat">평지</option>
 								<option value="minecraft:largeBiomes">대형 바이옴</option>
 								<option value="minecraft:amplified">높이 증폭</option>
 							</select>
-						</form>
-						<form
-							style={{
-								display: "flex",
-								alignItems: "center",
-								flexDirection: "row",
-								gap: "10px",
-								width: "100%",
-							}}
-						>
-							<p>op 여부</p>
-							<input style={{ marginLeft: "auto" }} type="checkbox" />
-						</form>
-						<div className="btn-area">
-							<button
-								className="submit"
-								type="submit"
-								onClick={() => setModalOpen(false)}
+							<div
+								style={{
+									display: "flex",
+									alignItems: "center",
+									flexDirection: "row",
+									gap: "10px",
+									width: "100%",
+								}}
 							>
-								생성
-							</button>
-							<button
-								className="cancel"
-								type="button"
-								onClick={() => setModalOpen(false)}
-							>
-								취소
-							</button>
-						</div>
-						<div className="drag-and-drop">zip파일 드래그 앤 드롭</div>
+								<p>op 여부</p>
+								<input
+									style={{ marginLeft: "auto" }}
+									type="checkbox"
+									checked={form.op}
+									onChange={(event) =>
+										setForm((prev) => ({ ...prev, op: event.target.checked }))
+									}
+								/>
+							</div>
+							<div className="btn-area">
+								<button className="submit" type="submit">
+									생성
+								</button>
+								<button
+									className="cancel"
+									type="button"
+									onClick={() => setModalOpen(false)}
+								>
+									취소
+								</button>
+							</div>
+							<div className="drag-and-drop">zip파일 드래그 앤 드롭</div>
+						</form>
 					</div>
 				</div>
 			)}

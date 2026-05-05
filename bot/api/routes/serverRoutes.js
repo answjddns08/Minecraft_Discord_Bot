@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { isServerRunning } from "../../functions/dockerControl.js";
+import { startMinecraftServer } from "../../functions/dockerControl.js";
 import config from "../../config/config.json" with { type: "json" };
 import { rconList, rconStop } from "../../functions/rconlist.js";
 import { waitForServerStop } from "../../commands/MCserver/stop.js";
+import { stopMinecraftServer } from "../../functions/dockerControl.js";
+import { loadLastWorld } from "../../functions/lastWorld.js";
 
 const router = Router();
 
@@ -44,22 +47,11 @@ router.get("/players", async (req, res) => {
 
 		const { count, max, players } = await rconList();
 
-		// "There are 2 of a max of 20 players online: player1, player2"
-		// match[1] = 2, match[2] = "player1, player2"
-		const match = response.match(/There are (\d+).*?: (.+)/);
-
-		if (match) {
-			const count = parseInt(match[1]);
-			const playerList = match[2] ? match[2].split(", ") : [];
-
-			res.json({
-				count,
-				max,
-				players,
-			});
-		} else {
-			res.json({ count: 0, max: 10, players: [] });
-		}
+		res.json({
+			count,
+			max,
+			players,
+		});
 	} catch (error) {
 		console.error("Error getting players:", error);
 		res.json({ count: 0, max: 10, players: [] });
@@ -78,9 +70,17 @@ router.post("/start", async (req, res) => {
 			return res.status(400).json({ error: "Server is already running" });
 		}
 
-		// 실제 서버 시작 로직은 Discord Bot 명령어 로직 재사용
-		// 지금은 간단히 응답만
-		res.json({ message: "Server start initiated" });
+		const worldName = await loadLastWorld();
+
+		if (!worldName) {
+			return res.status(400).json({ error: "No world selected" });
+		}
+
+		const mcVersion = config.currentVersion || process.env.MC_VERSION || "LATEST";
+
+		await startMinecraftServer(worldName, mcVersion);
+
+		res.json({ message: "Server start initiated", worldName, mcVersion });
 	} catch (error) {
 		console.error("Error starting server:", error);
 		res.status(500).json({ error: "Failed to start server" });

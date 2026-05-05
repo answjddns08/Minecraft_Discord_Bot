@@ -133,3 +133,35 @@
 
     text-align: left;
 }
+
+.log .log-input-row {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 12px;
+}
+
+.log .log-input-row input {
+    flex: 1;
+
+    border: 1px solid #ccc;
+    border-radius: 10px;
+
+    padding: 10px 12px;
+
+    background: var(--bg);
+    color: var(--text-h);
+}
+
+.log .log-input-row button {
+    border: none;
+    border-radius: 10px;
+
+    padding: 10px 16px;
+
+    background: #28a745;
+    color: white;
+
+    cursor: pointer;
+}

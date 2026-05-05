@@ -4,6 +4,7 @@ import { WebSocketServer } from "ws";
 import { createServer } from "http";
 import serverRoutes from "./routes/serverRoutes.js";
 import worldRoutes from "./routes/worldRoutes.js";
+import { broadcast, websocketFn } from "./websocket.js";
 
 /**
  * Discord Bot과 통합된 Express API 서버
@@ -34,32 +35,7 @@ export function createAPIServer(client) {
 	// WebSocket 서버
 	const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
-	wss.on("connection", (ws) => {
-		console.log("✅ WebSocket client connected");
-
-		// 초기 연결 시 상태 전송
-		ws.send(
-			JSON.stringify({
-				type: "connection",
-				data: { status: "connected" },
-			})
-		);
-
-		ws.on("close", () => {
-			console.log("❌ WebSocket client disconnected");
-		});
-	});
-
-	// WebSocket 브로드캐스트 함수
-	const broadcast = (type, data) => {
-		const message = JSON.stringify({ type, data });
-		wss.clients.forEach((client) => {
-			if (client.readyState === 1) {
-				// WebSocket.OPEN
-				client.send(message);
-			}
-		});
-	};
+	wss.on("connection", websocketFn);
 
 	return { app, httpServer, broadcast };
 }

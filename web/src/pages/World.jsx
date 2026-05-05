@@ -1,21 +1,195 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, startTransition } from "react";
+import {
+	getServerPlayers,
+	getServerStatus,
+	getWorldProperty,
+} from "../lib/minecraftApi.js";
 import "./world.css";
 
 function World() {
-	const [serverStatus, setServerStatus] = useState("작동 중");
+	const [serverStatus, setServerStatus] = useState("불러오는 중");
+	const [worldName, setWorldName] = useState("-");
+	const [playerInfo, setPlayerInfo] = useState({ count: 0, max: 0 });
+	const [settings, setSettings] = useState({});
+	const [logs, setLogs] = useState([]);
+	const [logInput, setLogInput] = useState("");
+	const [wsStatus, setWsStatus] = useState("연결 중");
+	const [error, setError] = useState("");
+	const websocketRef = useRef(null);
+
+	useEffect(() => {
+		let mounted = true;
+		let websocket = null;
+
+		async function loadWorld() {
+			try {
+				const [status, players, property] = await Promise.all([
+					getServerStatus(),
+					getServerPlayers(),
+					getWorldProperty(),
+				]);
+
+				if (!mounted) {
+					return;
+				}
+
+				startTransition(() => {
+					setServerStatus(status.isRunning ? "작동 중" : "정지");
+					setWorldName(property.world || status.newWorld || "-");
+					setPlayerInfo({
+						count: players.count ?? 0,
+						max: players.max ?? 0,
+					});
+					setSettings(property.settings || {});
+				});
+			} catch (loadError) {
+				if (!mounted) {
+					return;
+				}
+
+				setError(loadError.message || "월드 정보를 불러오지 못했습니다.");
+			}
+		}
+
+		void loadWorld();
+
+		const websocketBase =
+			import.meta.env.VITE_WS_BASE_URL ||
+			(import.meta.env.VITE_API_BASE_URL
+				? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, "")
+				: `${window.location.protocol}//${window.location.hostname}:9009`);
+
+		try {
+			websocket = new WebSocket(`${websocketBase}/ws`);
+			websocketRef.current = websocket;
+
+			websocket.addEventListener("open", () => {
+				if (mounted) {
+					setWsStatus("연결됨");
+				}
+			});
+
+			websocket.addEventListener("message", (event) => {
+				if (!mounted) {
+					return;
+				}
+
+				try {
+					const payload = JSON.parse(event.data);
+
+					if (payload.type === "log") {
+						setLogs((prevLogs) => [
+							...prevLogs,
+							`[${payload.source}] ${payload.message}`,
+						]);
+						return;
+					}
+
+					if (payload.type === "log-status") {
+						setLogs((prevLogs) => [...prevLogs, payload.message]);
+						return;
+					}
+
+					if (payload.type === "rcon-response") {
+						setLogs((prevLogs) => [
+							...prevLogs,
+							`> ${payload.command}`,
+							payload.response || "[no response]",
+						]);
+						return;
+					}
+
+					if (payload.type === "rcon-error") {
+						setLogs((prevLogs) => [
+							...prevLogs,
+							`> ${payload.command}`,
+							`[error] ${payload.error}`,
+						]);
+						return;
+					}
+
+					if (payload.type === "hello") {
+						return;
+					}
+
+					setLogs((prevLogs) => [...prevLogs, event.data]);
+				} catch {
+					setLogs((prevLogs) => [...prevLogs, String(event.data)]);
+				}
+			});
+
+			websocket.addEventListener("close", () => {
+				if (mounted) {
+					setWsStatus("연결 끊김");
+				}
+			});
+
+			websocket.addEventListener("error", () => {
+				if (mounted) {
+					setWsStatus("연결 실패");
+				}
+			});
+		} catch {
+			if (mounted) {
+				setWsStatus("연결 실패");
+			}
+		}
+
+		return () => {
+			mounted = false;
+			if (websocket) {
+				websocket.close();
+			}
+			websocketRef.current = null;
+		};
+	}, []);
+
+	function sendLogCommand(event) {
+		event.preventDefault();
+
+		const trimmed = logInput.trim();
+		if (!trimmed) {
+			return;
+		}
+
+		const websocketBase =
+			import.meta.env.VITE_WS_BASE_URL ||
+			(import.meta.env.VITE_API_BASE_URL
+				? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, "")
+				: `${window.location.protocol}//${window.location.hostname}:9009`);
+
+		setLogs((prevLogs) => [...prevLogs, `> ${trimmed}`]);
+		setLogInput("");
+
+		const websocket = websocketRef.current;
+
+		if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+			setLogs((prevLogs) => [
+				...prevLogs,
+				"[error] 웹소켓 연결에 실패했습니다.",
+			]);
+			return;
+		}
+
+		websocket.send(JSON.stringify({ command: trimmed }));
+	}
+
+	const propertyItems = [
+		{ label: "난이도", value: settings.difficulty || "-" },
+		{ label: "게임 모드", value: settings.gameMode || "-" },
+		{ label: "지형", value: settings["level-type"] || "-" },
+		{ label: "OP 여부", value: settings.op ? "예" : "아니오" },
+	];
 
 	return (
 		<>
 			<div className="world-header">
-				<h2>월드 이름</h2>
+				<h2>{worldName}</h2>
 				<div className="container">
-					<h3>플레이어: 0/20</h3>
-					<button
-						className={serverStatus === "작동 중" ? "OFF" : "ON"}
-						onClick={() =>
-							setServerStatus(serverStatus === "작동 중" ? "정지" : "작동 중")
-						}
-					>
+					<h3>
+						플레이어: {playerInfo.count}/{playerInfo.max}
+					</h3>
+					<button className={serverStatus === "작동 중" ? "OFF" : "ON"}>
 						{serverStatus !== "작동 중" ? (
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -42,50 +216,42 @@ function World() {
 			</div>
 			<div className="property">
 				<h1>server property</h1>
-
-				<div>
-					<p>난이도:</p>
-					<p>어려움</p>
-				</div>
-				<div>
-					<p>게임 모드:</p>
-					<p>서바이벌</p>
-				</div>
-				<div>
-					<p>지형:</p>
-					<p>일반</p>
-				</div>
-				<div>
-					<p>OP 여부:</p>
-					<p>예</p>
-				</div>
+				{error ? (
+					<p style={{ color: "#dc3545", textAlign: "left" }}>{error}</p>
+				) : null}
+				{propertyItems.map((item) => (
+					<div key={item.label}>
+						<p>{item.label}:</p>
+						<p>{item.value}</p>
+					</div>
+				))}
 			</div>
 			<div className="log">
 				<h1>server log</h1>
 				<div className="log-content">
-					"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-					eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-					minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-					aliquip ex ea commodo consequat. Duis aute irure dolor in
-					reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-					pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-					culpa qui officia deserunt mollit anim id est laborum."
-					<br />
-					<br />
-					"Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-					accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae
-					ab illo inventore veritatis et quasi architecto beatae vitae dicta
-					sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
-					aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos
-					qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui
-					dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed
-					quia non numquam eius modi tempora incidunt ut labore et dolore magnam
-					aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum
-					exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex
-					ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in
-					ea voluptate velit esse quam nihil molestiae consequatur, vel illum
-					qui dolorem eum fugiat quo voluptas nulla pariatur?"
+					{logs.length > 0 ? (
+						logs.map((line, index) => (
+							<div key={`${index}-${line}`}>{line}</div>
+						))
+					) : (
+						<div>서버 로그가 여기에 표시됩니다.</div>
+					)}
 				</div>
+				<form
+					className="log-input-row"
+					onSubmit={(event) => sendLogCommand(event)}
+				>
+					<input
+						type="text"
+						value={logInput}
+						onChange={(event) => setLogInput(event.target.value)}
+						placeholder="명령어를 입력하고 Enter 또는 전송을 누르세요"
+					/>
+					<button type="submit">전송</button>
+				</form>
+				<p style={{ marginTop: 10, textAlign: "left" }}>
+					웹소켓 상태: {wsStatus}
+				</p>
 			</div>
 		</>
 	);
