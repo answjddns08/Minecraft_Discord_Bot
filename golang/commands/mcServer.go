@@ -145,5 +145,63 @@ var StartCommand = &Command{
 		}
 
 		// TODO: make Start function
+
+		usd := discordgo.UpdateStatusData{
+			Status: "online",
+		}
+		usd.Activities = []*discordgo.Activity{
+			{
+				Name:  config.LastWorld + "월드 운영",
+				Type:  discordgo.ActivityTypeGame,
+				State: "평(?)화로운 월드 운영 중",
+			},
+		}
+
+		_ = s.UpdateStatusComplex(usd)
+	},
+}
+
+var StopCommand = &Command{
+	Definition: &discordgo.ApplicationCommand{
+		Name:        "stop",
+		Description: "마크 서버 종료",
+	},
+	Handler: func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if !utils.CheckServerStatus() {
+			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "월드가 이미 꺼져 있어요. :x:",
+				},
+			})
+			return
+		}
+
+		players := utils.CheckPlayers()
+
+		if players != "" {
+			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "플레이어가 서버에 남아있어요! :x:",
+				},
+			})
+			return
+		}
+
+		// TODO: make stop function
+
+		usd := discordgo.UpdateStatusData{
+			Status: "idle",
+		}
+		usd.Activities = []*discordgo.Activity{
+			{
+				Name:  "휴식 시간",
+				Type:  discordgo.ActivityTypeCustom,
+				State: "쉬는 중...",
+			},
+		}
+
+		_ = s.UpdateStatusComplex(usd)
 	},
 }

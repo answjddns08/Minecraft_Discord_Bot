@@ -30,7 +30,6 @@ func main() {
 	}
 
 	dg.State.MaxMessageCount = 20 // cuz don't need to store all messages in memory
-
 	dg.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsMessageContent | discordgo.IntentsGuilds
 
 	dg.AddHandler(handleReady)
@@ -70,6 +69,19 @@ func handleReady(s *discordgo.Session, r *discordgo.Ready) {
 			log.Println("Error creating command:", err)
 		}
 	}
+
+	usd := discordgo.UpdateStatusData{
+		Status: "idle",
+	}
+	usd.Activities = []*discordgo.Activity{
+		{
+			Name:  "휴식 시간",
+			Type:  discordgo.ActivityTypeCustom,
+			State: "쉬는 중...",
+		},
+	}
+
+	_ = s.UpdateStatusComplex(usd)
 
 	fmt.Println("Commands registered successfully.")
 }
