@@ -139,7 +139,17 @@ var StartCommand = &Command{
 			log.Println("Error responding to start command:", err)
 		}
 
-		// TODO: make Start function
+		err = utils.StartServer()
+		if err != nil {
+			log.Println("Error starting the server:", err)
+
+			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "오, 이런 서버를 켜는 데에 실패했네요. :cry:",
+				},
+			})
+		}
 
 		usd := discordgo.UpdateStatusData{
 			Status: "online",
@@ -184,7 +194,16 @@ var StopCommand = &Command{
 			return
 		}
 
-		// TODO: make stop function
+		err := utils.StopServer()
+		if err != nil {
+			log.Println("Error stopping the server:", err)
+			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "서버 종료에 실패했어요. :cry:",
+				},
+			})
+		}
 
 		usd := discordgo.UpdateStatusData{
 			Status: "idle",
