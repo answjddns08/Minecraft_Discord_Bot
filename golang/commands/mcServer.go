@@ -23,9 +23,7 @@ var CheckCommand = &Command{
 			log.Println("Deferred response error:", err)
 		}
 
-		config := utils.LoadConfig()
-
-		file, err := os.Open(config.ThumbnailFile)
+		file, err := os.Open(Config.ThumbnailFile)
 		if err != nil {
 			log.Println("Error opening thumbnail file:", err)
 			return
@@ -44,7 +42,7 @@ var CheckCommand = &Command{
 		}
 
 		embed := &discordgo.MessageEmbed{
-			Title: config.LastWorld,
+			Title: Config.LastWorld,
 			Thumbnail: &discordgo.MessageEmbedThumbnail{
 				URL: "attachment://" + file.Name(),
 			},
@@ -54,8 +52,8 @@ var CheckCommand = &Command{
 			embed.Color = 0xf70707
 			embed.Description = "The world is offline! :x:\n **\n**"
 			embed.Fields = []*discordgo.MessageEmbedField{
-				{Name: "서버 주소", Value: config.ServerAddress, Inline: true},
-				{Name: "버전", Value: config.CurrentVersion, Inline: true},
+				{Name: "서버 주소", Value: Config.ServerAddress, Inline: true},
+				{Name: "버전", Value: Config.CurrentVersion, Inline: true},
 			}
 
 			_, _ = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
@@ -76,12 +74,12 @@ var CheckCommand = &Command{
 			},
 			{
 				Name:   "서버 주소",
-				Value:  config.ServerAddress,
+				Value:  Config.ServerAddress,
 				Inline: true,
 			},
 			{
 				Name:   "버전",
-				Value:  config.CurrentVersion,
+				Value:  Config.CurrentVersion,
 				Inline: true,
 			},
 		}
@@ -113,9 +111,7 @@ var StartCommand = &Command{
 			return
 		}
 
-		config := utils.LoadConfig()
-
-		if config.LastWorld == "" {
+		if Config.LastWorld == "" {
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -132,7 +128,7 @@ var StartCommand = &Command{
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: "**" + config.LastWorld + "** 월드를 시작합니다!\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:",
+				Content: "**" + Config.LastWorld + "** 월드를 시작합니다!\n실행하는데 시간이 좀 걸려요. :hourglass_flowing_sand:",
 			},
 		})
 		if err != nil {
@@ -156,7 +152,7 @@ var StartCommand = &Command{
 		}
 		usd.Activities = []*discordgo.Activity{
 			{
-				Name:  config.LastWorld + "월드 운영",
+				Name:  Config.LastWorld + "월드 운영",
 				Type:  discordgo.ActivityTypeGame,
 				State: "평(?)화로운 월드 운영 중",
 			},

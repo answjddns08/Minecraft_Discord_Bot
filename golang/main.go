@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"MCbot/commands"
+	"MCbot/utils"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -17,6 +18,7 @@ import (
 
 // TODO: config 파일에서 계속 읽고 쓰는 부분과 한번 읽기만 하면 되는 것들이 있는데,
 // 그거 구분해서 구조체 만들어서 일부분은 캐싱해서 쓰도록 하면 괜찮을듯?
+// 그리고 추가로 log.Fatal도 안 쓰도록 해야 할것 같음. (에러를 반환하고, main에서 처리하도록)
 
 func main() {
 	err := godotenv.Load() // loads env
@@ -29,14 +31,17 @@ func main() {
 		log.Fatal("Error creating Discord session:", err)
 	}
 
-	dg.State.MaxMessageCount = 20 // cuz don't need to store all messages in memory
+	// load config from config.json (if fails, log.Fatal will be called in LoadConfig)
+	commands.Config = utils.LoadConfig()
+
+	// cuz don't need to store all messages in memory
+	dg.State.MaxMessageCount = 20
+
+	// intents for receiving messages and message content ( for slash commands and button clicks )
 	dg.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsMessageContent | discordgo.IntentsGuilds
 
 	dg.AddHandler(handleReady)
 	dg.AddHandler(handleInteraction)
-
-	// 마이그레이션 예시: 서버 관리자 초기화
-	// mcManager := mcserver.NewServerManager("minecraft", "/path/to/world")
 
 	err = dg.Open()
 	if err != nil {
@@ -88,10 +93,16 @@ func handleReady(s *discordgo.Session, r *discordgo.Ready) {
 
 func handleInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	switch i.Type {
-	case discordgo.InteractionApplicationCommand:
+	case discordgo.InteractionApplicationCommand: // handle slash commands
 		cmdName := i.ApplicationCommandData().Name
+
 		if cmd, ok := commands.Commands[cmdName]; ok {
 			cmd.Handler(s, i)
+		}
+	case discordgo.InteractionMessageComponent: // handle button clicks and select menus
+		customID := i.MessageComponentData().CustomID
+		if handler, ok := commands.ComponentHandlers[customID]; ok {
+			handler(s, i)
 		}
 	}
 }
