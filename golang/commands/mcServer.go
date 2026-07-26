@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"MCbot/utils"
 
@@ -66,11 +65,7 @@ var CheckCommand = &Command{
 			return
 		}
 
-		players := utils.CheckPlayers()
-		playerCount := strings.Count(players, ",") + 1
-		if players == "" {
-			playerCount = 0
-		}
+		playerCount, players := utils.ListPlayers()
 
 		embed.Color = 0x08f608
 		embed.Description = "The world is online! :white_check_mark:\n **\n**"
@@ -177,9 +172,9 @@ var StopCommand = &Command{
 			return
 		}
 
-		players := utils.CheckPlayers()
+		count, _ := utils.ListPlayers()
 
-		if players != "" {
+		if count > 0 {
 			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
