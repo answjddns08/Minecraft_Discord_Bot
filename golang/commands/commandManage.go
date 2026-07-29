@@ -24,10 +24,11 @@ var (
 type ComponentHandler func(s *discordgo.Session, i *discordgo.InteractionCreate)
 
 var Commands = map[string]*Command{
-	"start": StartCommand,
-	"check": CheckCommand,
-	"stop":  StopCommand,
-	"list":  ListCommand,
+	"start":      StartCommand,
+	"check":      CheckCommand,
+	"stop":       StopCommand,
+	"list":       ListCommand,
+	"setversion": SetVersionCommand,
 }
 
 var ComponentHandlers = map[string]ComponentHandler{

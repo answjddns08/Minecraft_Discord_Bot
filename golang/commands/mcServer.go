@@ -162,56 +162,54 @@ var StartCommand = &Command{
 	},
 }
 
-var StopCommand = &Command{
+var SetVersionCommand = &Command{
 	Definition: &discordgo.ApplicationCommand{
-		Name:        "stop",
-		Description: "마크 서버 종료",
+		Name:        "setversion",
+		Description: "마크 서버 버전 설정",
 	},
 	Handler: func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if !utils.CheckServerStatus() {
+		if utils.CheckServerStatus() {
 			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: "월드가 이미 꺼져 있어요. :x:",
+					Content: "서버가 실행 중이라 버전을 변경할 수 없어요! :no_entry_sign:",
 				},
 			})
 			return
 		}
 
-		count, _ := utils.ListPlayers()
-
-		if count > 0 {
-			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "플레이어가 서버에 남아있어요! :x:",
-				},
-			})
-			return
-		}
-
-		err := utils.StopServer()
-		if err != nil {
-			log.Println("Error stopping the server:", err)
-			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "서버 종료에 실패했어요. :cry:",
-				},
-			})
-		}
-
-		usd := discordgo.UpdateStatusData{
-			Status: "idle",
-		}
-		usd.Activities = []*discordgo.Activity{
-			{
-				Name:  "휴식 시간",
-				Type:  discordgo.ActivityTypeCustom,
-				State: "쉬는 중...",
+		_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "버전 설정은 아직 구현 중입니다.",
 			},
-		}
-
-		_ = s.UpdateStatusComplex(usd)
+		})
 	},
 }
+
+
+var SetVersionCommand = &Command{
+	Definition: &discordgo.ApplicationCommand{
+		Name:        "setversion",
+		Description: "마크 서버 버전 설정",
+	},
+	Handler: func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if utils.CheckServerStatus() {
+			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "서버가 실행 중이라 버전을 변경할 수 없어요! :no_entry_sign:",
+				},
+			})
+			return
+		}
+
+		_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "버전 설정은 아직 구현 중입니다.",
+			},
+		})
+	},
+}
+

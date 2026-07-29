@@ -1,4 +1,3 @@
-import config from "../config/config.json" with { type: "json" };
 import { ActivityType } from "discord.js";
 import { stopMinecraftServer } from "./dockerControl.js";
 import { rconList, rconStop } from "./rconlist.js";
@@ -20,43 +19,42 @@ let isNoOneOnline = false;
 let client;
 
 async function autoShutdown() {
-	try {
-		const { count } = await rconList();
+  try {
+    const { count } = await rconList();
 
-		console.log("Player count:", count);
-		console.log("isNoOneOnline:", isNoOneOnline);
+    console.log("Player count:", count);
+    console.log("isNoOneOnline:", isNoOneOnline);
 
-		if (isNoOneOnline && count === 0) {
-			console.log("server Stop!");
+    if (isNoOneOnline && count === 0) {
+      console.log("server Stop!");
 
-			await rconStop();
+      await rconStop();
 
-			try {
-				console.log("[autoShutdown] 컨테이너 중지 중...");
-				await stopMinecraftServer();
-				console.log("[autoShutdown] 서버 자동 종료 완료");
-			} catch (error) {
-				console.error("[autoShutdown] 컨테이너 중지 오류:", error);
-			}
+      try {
+        console.log("[autoShutdown] 컨테이너 중지 중...");
+        await stopMinecraftServer();
+        console.log("[autoShutdown] 서버 자동 종료 완료");
+      } catch (error) {
+        console.error("[autoShutdown] 컨테이너 중지 오류:", error);
+      }
 
-			client.user.setPresence({
-				activities: [
-					{
-						name: "휴식 시간..",
-						type: ActivityType.Custom,
-					},
-				],
-				status: "idle",
-			});
+      client.user.setPresence({
+        activities: [
+          {
+            name: "휴식 시간..",
+            type: ActivityType.Custom,
+          },
+        ],
+        status: "idle",
+      });
 
-			return;
-		}
+      return;
+    }
 
-		isNoOneOnline = count === 0;
-
-	} catch (error) {
-		console.error("Error checking player list:", error);
-	}
+    isNoOneOnline = count === 0;
+  } catch (error) {
+    console.error("Error checking player list:", error);
+  }
 }
 
 /**
@@ -64,16 +62,16 @@ async function autoShutdown() {
  * @param {import("discord.js").Client} cli
  */
 function startAutoShutdown(cli) {
-	client = cli;
-	shutdownTimer = setInterval(autoShutdown, delayMin * 60 * 1000);
+  client = cli;
+  shutdownTimer = setInterval(autoShutdown, delayMin * 60 * 1000);
 }
 
 function stopAutoShutdown() {
-	if (shutdownTimer) {
-		clearInterval(shutdownTimer);
-		shutdownTimer = null;
-	}
-	isNoOneOnline = false;
+  if (shutdownTimer) {
+    clearInterval(shutdownTimer);
+    shutdownTimer = null;
+  }
+  isNoOneOnline = false;
 }
 
 export { startAutoShutdown, stopAutoShutdown };
